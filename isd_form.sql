@@ -3,15 +3,15 @@
 
  Source Server         : localhost
  Source Server Type    : MySQL
- Source Server Version : 100121
- Source Host           : localhost:3306
+ Source Server Version : 50621
+ Source Host           : 127.0.0.1:3306
  Source Schema         : isd_form
 
  Target Server Type    : MySQL
- Target Server Version : 100121
+ Target Server Version : 50621
  File Encoding         : 65001
 
- Date: 09/02/2026 12:41:08
+ Date: 09/02/2026 16:11:14
 */
 
 SET NAMES utf8mb4;
@@ -22,16 +22,16 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `child_health_detail`;
 CREATE TABLE `child_health_detail`  (
-  `detail_id` int NOT NULL AUTO_INCREMENT,
-  `master_id` int NULL DEFAULT NULL,
-  `question_id` int NULL DEFAULT NULL,
-  `option_id` int NULL DEFAULT NULL,
+  `detail_id` int(11) NOT NULL AUTO_INCREMENT,
+  `master_id` int(11) NULL DEFAULT NULL,
+  `question_id` int(11) NULL DEFAULT NULL,
+  `option_id` int(11) NULL DEFAULT NULL,
   `answer` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`detail_id`) USING BTREE,
   INDEX `master_id`(`master_id`) USING BTREE,
   INDEX `question_id`(`question_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 123 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 124 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of child_health_detail
@@ -65,13 +65,14 @@ INSERT INTO `child_health_detail` VALUES (119, 9, 7, 50, 'PENTA I', '2026-02-06 
 INSERT INTO `child_health_detail` VALUES (120, 9, 7, 51, 'PENTA II', '2026-02-06 21:57:42');
 INSERT INTO `child_health_detail` VALUES (121, 9, 7, 56, 'TCV', '2026-02-06 21:57:42');
 INSERT INTO `child_health_detail` VALUES (122, 9, 10, 63, 'No', '2026-02-06 21:57:42');
+INSERT INTO `child_health_detail` VALUES (123, 10, 7, 48, 'IPV II', '2026-02-09 16:09:54');
 
 -- ----------------------------
 -- Table structure for child_health_master
 -- ----------------------------
 DROP TABLE IF EXISTS `child_health_master`;
 CREATE TABLE `child_health_master`  (
-  `master_id` int NOT NULL AUTO_INCREMENT,
+  `master_id` int(11) NOT NULL AUTO_INCREMENT,
   `form_date` date NULL DEFAULT NULL,
   `qr_code` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `client_type` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
@@ -82,9 +83,9 @@ CREATE TABLE `child_health_master`  (
   `patient_name` varchar(150) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `guardian_name` varchar(150) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `dob` date NULL DEFAULT NULL,
-  `age_year` int NULL DEFAULT NULL,
-  `age_month` int NULL DEFAULT NULL,
-  `age_day` int NULL DEFAULT NULL,
+  `age_year` int(11) NULL DEFAULT NULL,
+  `age_month` int(11) NULL DEFAULT NULL,
+  `age_day` int(11) NULL DEFAULT NULL,
   `gender` varchar(10) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `marital_status` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `pregnancy_status` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
@@ -93,7 +94,7 @@ CREATE TABLE `child_health_master`  (
   `nutrition_package` varchar(10) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`master_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of child_health_master
@@ -103,17 +104,18 @@ INSERT INTO `child_health_master` VALUES (6, '0000-00-00', '', 'New', '', '', ''
 INSERT INTO `child_health_master` VALUES (7, '2026-02-03', '1231', NULL, 'Islamabad', 'ISB', 'ISB', 'XYZ', 'Ahmed', '', '2026-02-13', 222, 1, 12, 'Male', 'Married', 'Non-Pregnant', NULL, NULL, NULL, '2026-02-05 13:21:16');
 INSERT INTO `child_health_master` VALUES (8, '0000-00-00', '', NULL, '', '', '', '', '', '', '0000-00-00', 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-06 11:38:09');
 INSERT INTO `child_health_master` VALUES (9, '2026-02-28', '123', NULL, 'Attock', 'Abc', 'Attock', '2131', 'Saad', 'Azam', '0000-00-00', 123, 2, 2, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-06 21:57:42');
+INSERT INTO `child_health_master` VALUES (10, '2026-02-10', '', 'New', '', '', '', '', '', '', '0000-00-00', 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-09 16:09:54');
 
 -- ----------------------------
 -- Table structure for districts
 -- ----------------------------
 DROP TABLE IF EXISTS `districts`;
 CREATE TABLE `districts`  (
-  `district_id` int NOT NULL AUTO_INCREMENT,
+  `district_id` int(11) NOT NULL AUTO_INCREMENT,
   `district_name` varchar(150) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `province_id` int NULL DEFAULT NULL,
+  `province_id` int(11) NULL DEFAULT NULL,
   PRIMARY KEY (`district_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of districts
@@ -124,14 +126,14 @@ CREATE TABLE `districts`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `opd_mnch_detail`;
 CREATE TABLE `opd_mnch_detail`  (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `master_id` int NOT NULL,
-  `question_id` int NOT NULL,
-  `option_id` int NULL DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `master_id` int(11) NOT NULL,
+  `question_id` int(11) NOT NULL,
+  `option_id` int(11) NULL DEFAULT NULL,
   `answer` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of opd_mnch_detail
@@ -179,7 +181,7 @@ INSERT INTO `opd_mnch_detail` VALUES (37, 3, 35, 152, 'No', '2026-02-06 21:55:45
 -- ----------------------------
 DROP TABLE IF EXISTS `opd_mnch_master`;
 CREATE TABLE `opd_mnch_master`  (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `form_date` date NULL DEFAULT NULL,
   `anc_card_no` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `client_type` varchar(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
@@ -196,7 +198,7 @@ CREATE TABLE `opd_mnch_master`  (
   `notes` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of opd_mnch_master
@@ -204,16 +206,17 @@ CREATE TABLE `opd_mnch_master`  (
 INSERT INTO `opd_mnch_master` VALUES (1, '2026-02-05', '324', 'New', 'Attock', 'ISB', 'Attock', '1123', 'Saad', 'Azam', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-06 11:30:23');
 INSERT INTO `opd_mnch_master` VALUES (2, '2026-02-27', '2131', 'Followup', 'Attock', 'Abc', 'ISB', '', '', '', NULL, '15-49', NULL, 'Pregnant', NULL, '2026-02-06 21:48:34');
 INSERT INTO `opd_mnch_master` VALUES (3, '2026-03-06', '1231', NULL, 'Attock', 'ISB', '', '', '', '', 'No', NULL, 'Married', 'Non-Pregnant', NULL, '2026-02-06 21:55:45');
+INSERT INTO `opd_mnch_master` VALUES (4, '0000-00-00', '', NULL, '', '', '', '', '', '', NULL, NULL, NULL, NULL, NULL, '2026-02-09 15:57:37');
 
 -- ----------------------------
 -- Table structure for provinces
 -- ----------------------------
 DROP TABLE IF EXISTS `provinces`;
 CREATE TABLE `provinces`  (
-  `province_id` int NOT NULL AUTO_INCREMENT,
+  `province_id` int(11) NOT NULL AUTO_INCREMENT,
   `province_name` varchar(150) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   PRIMARY KEY (`province_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of provinces
@@ -224,13 +227,13 @@ CREATE TABLE `provinces`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `question_options`;
 CREATE TABLE `question_options`  (
-  `option_id` int NOT NULL AUTO_INCREMENT,
-  `question_id` int NULL DEFAULT NULL,
+  `option_id` int(11) NOT NULL AUTO_INCREMENT,
+  `question_id` int(11) NULL DEFAULT NULL,
   `option_text` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
-  `option_order` int NULL DEFAULT NULL,
-  `status` tinyint NULL DEFAULT 1,
+  `option_order` int(11) NULL DEFAULT NULL,
+  `status` tinyint(4) NULL DEFAULT 1,
   PRIMARY KEY (`option_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 153 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 153 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of question_options
@@ -391,23 +394,23 @@ INSERT INTO `question_options` VALUES (152, 35, 'No', 2, 1);
 -- ----------------------------
 DROP TABLE IF EXISTS `questions`;
 CREATE TABLE `questions`  (
-  `question_id` int NOT NULL AUTO_INCREMENT,
+  `question_id` int(11) NOT NULL AUTO_INCREMENT,
   `form_type` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `q_section` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `q_num` varchar(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `q_text` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL,
-  `q_order` int NULL DEFAULT NULL,
+  `q_order` int(11) NULL DEFAULT NULL,
   `q_type` varchar(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
-  `status` tinyint NULL DEFAULT 1,
+  `status` tinyint(4) NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`question_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 36 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 36 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of questions
 -- ----------------------------
-INSERT INTO `questions` VALUES (1, 'CHF', '17. Vaccination History (For Under Five Years Children)', '17.1.', 'Ever received any Vaccination earlier?', 1, 'checkbox', 1, '2026-02-04 13:47:50');
-INSERT INTO `questions` VALUES (2, 'CHF', '17. Vaccination History (For Under Five Years Children)', '17.2. ', 'Child vaccinated during this session.', 2, 'checkbox', 1, '2026-02-04 13:48:53');
+INSERT INTO `questions` VALUES (1, 'CHF', '17. Vaccination History (For Under Five Years Children)', '17.1.', 'Ever received any Vaccination earlier?', 1, 'radio', 1, '2026-02-04 13:47:50');
+INSERT INTO `questions` VALUES (2, 'CHF', '17. Vaccination History (For Under Five Years Children)', '17.2. ', 'Child vaccinated during this session.', 2, 'radio', 1, '2026-02-04 13:48:53');
 INSERT INTO `questions` VALUES (3, 'CHF', '17. Vaccination History (For Under Five Years Children)', '17.2', 'In case of \"No\" to 17.2', 3, 'checkbox', 1, '2026-02-04 13:51:09');
 INSERT INTO `questions` VALUES (4, 'CHF', '17. Vaccination History (For Under Five Years Children)', '17.2.4', 'In case of \"Yes\" to 17.2.4\r\n1. Type of Refusal.', 4, 'checkbox', 1, '2026-02-04 13:52:54');
 INSERT INTO `questions` VALUES (5, 'CHF', '18. Antigens Administered to child < 1 year', '', '', 5, 'checkbox', 1, '2026-02-04 13:58:03');
@@ -417,47 +420,47 @@ INSERT INTO `questions` VALUES (8, 'CHF', '21. Vaccination', '', '21. Supplement
 INSERT INTO `questions` VALUES (9, 'CHF', '21. Vaccination', '', '22. Vaccination Card Issued to the client', 2, 'checkbox', 1, '2026-02-05 06:12:24');
 INSERT INTO `questions` VALUES (10, 'CHF', '21. Vaccination', '', '23. Adverse Event Following Immunization (AEFI)', 3, 'checkbox', 1, '2026-02-05 06:14:53');
 INSERT INTO `questions` VALUES (11, 'CHF', '21. Vaccination', '', '24. Referred', 4, 'checkbox', 1, '2026-02-05 06:15:32');
-INSERT INTO `questions` VALUES (12, 'CHF', '22. CBA Vaccination (For Females age from 15-49 years)', '', '1. Tetanus Vaccine Administered: (If yes skip Q2)', 1, 'checkbox', 1, '2026-02-05 06:17:15');
-INSERT INTO `questions` VALUES (13, 'CHF', '22. CBA Vaccination (For Females age from 15-49 years)', '', '1.1. In case of Yes, mention Dose:', 2, 'checkbox', 1, '2026-02-05 06:19:07');
+INSERT INTO `questions` VALUES (12, 'CHF', '22. CBA Vaccination (For Females age from 15-49 years)', '', '1. Tetanus Vaccine Administered: (If yes skip Q2)', 1, 'radio', 1, '2026-02-05 06:17:15');
+INSERT INTO `questions` VALUES (13, 'CHF', '22. CBA Vaccination (For Females age from 15-49 years)', '', '1.1. In case of Yes, mention Dose:', 2, 'radio', 1, '2026-02-05 06:19:07');
 INSERT INTO `questions` VALUES (15, 'CHF', 'If the answer to Question 22 is \'No\', please select a reason from options 2.1 to 2.3:', '', '2.1 Refused for TT:', 1, 'checkbox', 1, '2026-02-05 06:21:38');
 INSERT INTO `questions` VALUES (16, 'CHF', 'If the answer to Question 22 is \'No\', please select a reason from options 2.1 to 2.3:', '', '2.2 Complete TT Schedule: ', 2, 'checkbox', 1, '2026-02-05 06:22:25');
 INSERT INTO `questions` VALUES (17, 'CHF', 'If the answer to Question 22 is \'No\', please select a reason from options 2.1 to 2.3:', '', '2.3 Dose Not Due: ', 3, 'checkbox', 1, '2026-02-05 06:22:50');
-INSERT INTO `questions` VALUES (18, 'opd', '18. Antenatal Care', '1', 'Trimester', 1, 'checkbox', 1, '2026-02-06 06:49:13');
-INSERT INTO `questions` VALUES (19, 'opd', '18. Antenatal Care', '2', 'Visit', 2, 'checkbox', 1, '2026-02-06 06:50:13');
-INSERT INTO `questions` VALUES (20, 'opd', '18. Antenatal Care', '3', 'Any\r\ncomplicaon?', 1, 'checkbox', 1, '2026-02-06 06:50:44');
+INSERT INTO `questions` VALUES (18, 'opd', '18. Antenatal Care', '1', 'Trimester', 1, 'radio', 1, '2026-02-06 06:49:13');
+INSERT INTO `questions` VALUES (19, 'opd', '18. Antenatal Care', '2', 'Visit', 2, 'radio', 1, '2026-02-06 06:50:13');
+INSERT INTO `questions` VALUES (20, 'opd', '18. Antenatal Care', '3', 'Any\r\ncomplicaon?', 1, 'radio', 1, '2026-02-06 06:50:44');
 INSERT INTO `questions` VALUES (21, 'opd', '18. Antenatal Care', '4', 'If “Yes” what is the complicaon', 4, 'checkbox', 1, '2026-02-06 06:53:44');
 INSERT INTO `questions` VALUES (22, 'opd', '18. Antenatal Care', '5', 'EDD:', 5, 'text', 1, '2026-02-06 06:54:10');
 INSERT INTO `questions` VALUES (23, 'opd', '18. Antenatal Care', '6', 'Explain:', 6, 'text', 1, '2026-02-06 06:54:34');
-INSERT INTO `questions` VALUES (24, 'opd', '19. Vaccinaon Services Provided (For Females age from 15-49 years)', '1.', 'Tetanus Vaccine Administered (If yes skip Q2)', 1, 'checkbox', 1, '2026-02-06 06:58:44');
-INSERT INTO `questions` VALUES (25, 'opd', '19. Vaccinaon Services Provided (For Females age from 15-49 years)', '1.1.', 'In case of Yes, menon Dose', 2, 'checkbox', 1, '2026-02-06 07:00:24');
+INSERT INTO `questions` VALUES (24, 'opd', '19. Vaccinaon Services Provided (For Females age from 15-49 years)', '1.', 'Tetanus Vaccine Administered (If yes skip Q2)', 1, 'radio', 1, '2026-02-06 06:58:44');
+INSERT INTO `questions` VALUES (25, 'opd', '19. Vaccinaon Services Provided (For Females age from 15-49 years)', '1.1.', 'In case of Yes, menon Dose', 2, 'radio', 1, '2026-02-06 07:00:24');
 INSERT INTO `questions` VALUES (26, 'opd', '19. Vaccinaon Services Provided (For Females age from 15-49 years)', '1.2.', 'TD Card issued:', 3, 'checkbox', 1, '2026-02-06 07:01:56');
-INSERT INTO `questions` VALUES (27, 'opd', '20. If the answer to Queson 1 is \'No\', please select a reason from opons 2.1 to 2.3', '2.1', 'Refused for TT ', 1, 'checkbox', 1, '2026-02-06 07:03:42');
-INSERT INTO `questions` VALUES (28, 'opd', '20. If the answer to Queson 1 is \'No\', please select a reason from opons 2.1 to 2.3', '2.2', 'Complete TT Schedule', 2, 'checkbox', 1, '2026-02-06 07:04:30');
-INSERT INTO `questions` VALUES (29, 'opd', '20. If the answer to Queson 1 is \'No\', please select a reason from opons 2.1 to 2.3', '2.3', 'Dose Not Due', 3, 'checkbox', 1, '2026-02-06 07:05:11');
-INSERT INTO `questions` VALUES (30, 'opd', '18. Diagnoses', NULL, '', 1, 'checkbox', 1, '2026-02-06 07:14:13');
-INSERT INTO `questions` VALUES (31, 'opd', '18. Diagnoses', NULL, 'If Other Explain:', 2, 'text', 1, '2026-02-06 07:15:14');
-INSERT INTO `questions` VALUES (32, 'opd', '19. Prescribed Medicines\r\n', '19.', 'Prescribed Medicines Issued:', 1, 'checkbox', 1, '2026-02-06 07:21:11');
-INSERT INTO `questions` VALUES (33, 'opd', '19. Prescribed Medicines\r\n', '20.', '20. Kits Issued', 1, 'checkbox', 1, '2026-02-06 07:22:20');
-INSERT INTO `questions` VALUES (34, 'opd', '19. Prescribed Medicines\r\n', '', 'Addional Notes:', 3, 'text', 1, '2026-02-06 07:23:02');
-INSERT INTO `questions` VALUES (35, 'opd', '21. Referral', '', 'Referred:', 1, 'checkbox', 1, '2026-02-06 07:23:45');
+INSERT INTO `questions` VALUES (27, 'opd', '19. Vaccinaon Services Provided (For Females age from 15-49 years)', '2.1', 'Refused for TT ', 1, 'radio', 1, '2026-02-06 07:03:42');
+INSERT INTO `questions` VALUES (28, 'opd', '19. Vaccinaon Services Provided (For Females age from 15-49 years)', '2.2', 'Complete TT Schedule', 2, 'radio', 1, '2026-02-06 07:04:30');
+INSERT INTO `questions` VALUES (29, 'opd', '19. Vaccinaon Services Provided (For Females age from 15-49 years)', '2.3', 'Dose Not Due', 3, 'radio', 1, '2026-02-06 07:05:11');
+INSERT INTO `questions` VALUES (30, 'opd', '20. Diagnoses', NULL, '', 1, 'checkbox', 1, '2026-02-06 07:14:13');
+INSERT INTO `questions` VALUES (31, 'opd', '20. Diagnoses', NULL, 'If Other Explain:', 2, 'text', 1, '2026-02-06 07:15:14');
+INSERT INTO `questions` VALUES (32, 'opd', '21. Prescribed Medicines', '19.', 'Prescribed Medicines Issued:', 1, 'radio', 1, '2026-02-06 07:21:11');
+INSERT INTO `questions` VALUES (33, 'opd', '21. Prescribed Medicines', '20.', '20. Kits Issued', 1, 'checkbox', 1, '2026-02-06 07:22:20');
+INSERT INTO `questions` VALUES (34, 'opd', '21. Prescribed Medicines', '', 'Addional Notes:', 3, 'text', 1, '2026-02-06 07:23:02');
+INSERT INTO `questions` VALUES (35, 'opd', '21. Referral', '', 'Referred:', 1, 'radio', 1, '2026-02-06 07:23:45');
 
 -- ----------------------------
 -- Table structure for users
 -- ----------------------------
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users`  (
-  `user_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `full_name` varchar(150) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `username` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
-  `province_id` int NULL DEFAULT NULL,
-  `district_id` int NULL DEFAULT NULL,
+  `province_id` int(11) NULL DEFAULT NULL,
+  `district_id` int(11) NULL DEFAULT NULL,
   `role` varchar(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` tinyint NULL DEFAULT 1,
+  `status` tinyint(4) NULL DEFAULT 1,
   PRIMARY KEY (`user_id`) USING BTREE,
   UNIQUE INDEX `username`(`username`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of users
