@@ -1,11 +1,16 @@
 <!-- Footer START -->
-                <footer class="footer">
-                    <div class="footer-content">
-                        <p class="m-b-0">Copyright © 2019 Theme_Nate. All rights reserved.</p>
-                        <span>
-                            <a href="" class="text-gray m-r-15">Term &amp; Conditions</a>
-                            <a href="" class="text-gray">Privacy &amp; Policy</a>
-                        </span>
+                <footer class="footer bg-light py-3 mt-auto">
+                    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+                        <!-- Left: Copyright -->
+                        <p class="mb-2 mb-md-0 text-muted">
+                            &copy; 2026 Health MIS. All rights reserved.
+                        </p>
+
+                        <!-- Right: Links -->
+                        <div>
+                            <a href="#" class="text-muted me-3">Terms &amp; Conditions</a>
+                            <a href="#" class="text-muted">Privacy &amp; Policy</a>
+                        </div>
                     </div>
                 </footer>
                 <!-- Footer END -->
@@ -16,12 +21,12 @@
     </div>
     
     <!-- Core Vendors JS -->
-    <script src="assets/js/vendors.min.js"></script>
+    <script src="<?php echo base_url('assets/js/vendors.min.js') ?>"></script>
 
     <!-- page js -->
 
     <!-- Core JS -->
-    <script src="assets/js/app.min.js"></script>
+    <script src="<?php echo base_url('assets/js/app.min.js') ?>"></script>
 
 </body>
 </html>

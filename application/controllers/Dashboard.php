@@ -21,6 +21,8 @@ class Dashboard extends CI_Controller {
         $data['client']      = $this->Dashboard_model->client_type_combined();
         $data['diagnosis']   = $this->Dashboard_model->top_diagnosis();
 
-        $this->load->view('dashboard', $data);
+        $data['page_title'] = "Dashboard";        
+        $data['main_content'] = $this->load->view('dashboard', $data, TRUE);
+        $this->load->view('layout/main', $data);
     }
 }

@@ -1,162 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Health MIS - Portal Login</title>
 
-<title>Health MIS Login</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="<?= base_url('assets/images/logo/favicon.png'); ?>">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<style>
-
-body{
-    height:100vh;
-    background:linear-gradient(120deg,#e8f2ff,#f6fbff);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-/* Login Card */
-.login-container{
-    width:900px;
-    background:white;
-    border-radius:18px;
-    box-shadow:0 20px 60px rgba(0,0,0,.08);
-    overflow:hidden;
-}
-
-/* Left Panel */
-.left-panel{
-    background:linear-gradient(135deg,#2c7be5,#1559c1);
-    color:white;
-    padding:60px 40px;
-}
-
-.left-panel h2{
-    font-weight:700;
-}
-
-.left-panel p{
-    opacity:.9;
-}
-
-/* Logos */
-.logo-row {
-    display: flex;                /* Flex layout */
-    justify-content: center;      /* Center logos horizontally */
-    align-items: center;          /* Center logos vertically */
-    gap: 20px;                    /* Space between logos */
-    margin-bottom: 20px;
-}
-
-.logo-row img {
-    height: 65px;                 /* Logo height */
-    object-fit: contain;
-}
-
-
-/* Form Side */
-.form-section{
-    padding:50px;
-}
-
-.form-control{
-    height:50px;
-    border-radius:10px;
-}
-
-.btn-login{
-    height:50px;
-    border-radius:10px;
-    font-weight:600;
-    font-size:18px;
-}
-
-.portal-title{
-    font-weight:700;
-    color:#2c7be5;
-    text-align: center;
-}
-
-@media(max-width:768px){
-    .left-panel{
-        display:none;
-    }
-
-    .login-container{
-        width:95%;
-    }
-}
-
-</style>
+    <!-- Core CSS -->
+    <link href="<?= base_url('assets/css/app.min.css'); ?>" rel="stylesheet">
 </head>
 
 <body>
+    <div class="app">
+        <div class="container-fluid p-0 h-100">
+            <div class="row no-gutters h-100 full-height">
 
-<div class="login-container row g-0">
+                <!-- LEFT IMAGE PANEL -->
+                <div class="col-lg-5 d-none d-lg-flex bg" style="background-image:url('<?= base_url('assets/images/others/login-1.jpg'); ?>')">
+                    <div class="d-flex h-100 p-h-40 p-v-15 flex-column justify-content-between">
 
-    <!-- LEFT DESIGN PANEL -->
-    <div class="col-md-6 left-panel">
+                        <!-- Top Logo -->
+                        <div class="d-flex justify-content-center mb-4">
+                            <div style="background: white; display: inline-block; padding: 10px 30px; border-radius: 8px;">
+                                <img src="<?= base_url('assets/images/logo/logo_transparent.png'); ?>" alt="Logo" style="height:50px;">
+                            </div>
+                        </div>
 
-        <h2>Integrated Service Delivery (ISD) Monitoring System</h2>
+                        <!-- Middle Content -->
+                        <div>
+                            <h2 class="text-white m-b-20 font-weight-normal">Integrated Service Delivery (ISD) Monitoring System</h2>
+                            <p class="text-white font-size-16 lh-2 w-80 opacity-08">
+                                Digital platform designed to support Integrated Service Delivery (ISD) 
+                                monitoring in North Waziristan by enabling secure data collection, 
+                                automated data flow, validation, and interactive dashboard reporting.
+                            </p>
+                            <p class="text-white mt-4 opacity-08">
+                                ✔ Digitized Data Collection<br>
+                                ✔ Automated Dashboard & Analytics<br>
+                                ✔ Data Quality & Validation<br>
+                                ✔ Field Monitoring Support
+                            </p>
+                        </div>
 
-        <p>
-            Digital platform designed to support Integrated Service Delivery (ISD) 
-            monitoring in North Waziristan by enabling secure data collection, 
-            automated data flow, validation, and interactive dashboard reporting.
-        </p>
+                        <!-- Footer -->
+                        <div class="d-flex justify-content-between">
+                            <span class="text-white">© 2026 Health MIS</span>
+                <!--            <ul class="list-inline">
+                                <li class="list-inline-item">
+                                    <a class="text-white text-link" href="#">Legal</a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a class="text-white text-link" href="#">Privacy</a>
+                                </li>
+                            </ul>-->
+                        </div>
 
-        <p class="mt-4">
-            ✔ Digitized Data Collection  
-            <br>✔ Automated Dashboard & Analytics  
-            <br>✔ Data Quality & Validation  
-            <br>✔ Field Monitoring Support  
-        </p>
+                    </div>
+                </div>
 
-    </div>
+                <!-- LOGIN FORM PANEL -->
+                <div class="col-lg-7 bg-white">
+                    <div class="container h-100">
+                        <div class="row no-gutters h-100 align-items-center">
+                            <div class="col-md-8 col-lg-7 col-xl-6 mx-auto">
+
+                                <!-- Portal Logos -->
+                                <!-- Logos Section -->
+                                <div class="text-center mb-4">
+
+                                    <!-- Top KP Logo -->
+                                    <div class="mb-4">
+                                        <img src="<?= base_url('assets/images/logo/kp_logo.png'); ?>" alt="KP Logo" height="60">
+                                    </div>
+
+                                    <!-- Other Three Logos -->
+                                    <div class="d-flex justify-content-center align-items-center gap-3">
+                                        <img src="<?= base_url('assets/images/logo/pf.png'); ?>" alt="PF Logo" height="50">
+                                        <img src="<?= base_url('assets/images/logo/integral_global.png'); ?>" alt="Integral Global Logo" height="50">
+                                        <img src="<?= base_url('assets/images/logo/dsi_logo.png'); ?>" alt="DSI Logo" height="50">
+                                    </div>
+
+                                </div>
 
 
-    <!-- LOGIN FORM -->
-    <div class="col-md-6 form-section">
+                                <h2 class="m-b-10">Portal Login</h2>
+                                <p class="m-b-30">Enter your credentials to access the system</p>
 
-        <div class="logo-row">
-            <!-- Replace with your logos -->
-            <img src="<?= base_url('assets/images/logo/kp_logo.png'); ?>">
-            <img src="<?= base_url('assets/images/logo/pf.png'); ?>">
+                                <?php if($this->session->flashdata('error')): ?>
+                                    <div class="alert alert-danger">
+                                        <?= $this->session->flashdata('error'); ?>
+                                    </div>
+                                <?php endif; ?>
+
+                                <form method="post" action="<?= base_url('auth/login'); ?>">
+                                    <div class="form-group">
+                                        <label class="font-weight-semibold" for="username">Username:</label>
+                                        <div class="input-affix">
+                                            <i class="prefix-icon anticon anticon-user"></i>
+                                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="font-weight-semibold" for="password">Password:</label>
+                                        <!--<a class="float-right font-size-13 text-muted" href="#">Forgot Password?</a>-->
+                                        <div class="input-affix m-b-10">
+                                            <i class="prefix-icon anticon anticon-lock"></i>
+                                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <button class="btn btn-primary w-100">Sign In</button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-        
-        <h3 class="portal-title mb-4">Portal Login</h3>
-
-        <?php if($this->session->flashdata('error')): ?>
-            <div class="alert alert-danger">
-                <?= $this->session->flashdata('error'); ?>
-            </div>
-        <?php endif; ?>
-
-        <form method="post" action="<?= base_url('auth/login'); ?>">
-
-            <div class="mb-3">
-                <label class="mb-2">Username</label>
-                <input type="text" name="username" class="form-control" required>
-            </div>
-
-            <div class="mb-4">
-                <label class="mb-2">Password</label>
-                <input type="password" name="password" class="form-control" required>
-            </div>
-
-            <button class="btn btn-primary w-100 btn-login">
-                Login
-            </button>
-
-        </form>
-
     </div>
 
-</div>
+    <!-- Core Vendors JS -->
+    <script src="<?= base_url('assets/js/vendors.min.js'); ?>"></script>
 
+    <!-- Core JS -->
+    <script src="<?= base_url('assets/js/app.min.js'); ?>"></script>
 </body>
+
 </html>

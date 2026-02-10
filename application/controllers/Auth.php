@@ -37,7 +37,7 @@ class Auth extends CI_Controller {
 
             $this->session->set_userdata($session_data);
 
-            redirect(base_url());
+            redirect(base_url('welcome/index'));
 
         }else{
 

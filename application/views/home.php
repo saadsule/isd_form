@@ -1,56 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>ISD Forms Dashboard</title>
+<div class="page-container">
+    <div class="main-content">
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+        <div class="page-header">
+            <h2 class="header-title">Welcome to ISD Dashboard</h2>
+        </div>
 
-<div class="container py-5">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="fw-bold mb-3">Integrated Service Delivery (ISD) Forms</h3>
+                <p class="text-muted mb-4">
+                    This dashboard allows you to manage, monitor, and analyze patient data efficiently.
+                    You can access different service forms, track child health, OPD, and MNCH records, and generate insightful reports.
+                </p>
 
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">Integrated Service Delivery (ISD) Forms Dashboard</h2>
-        <p class="text-muted">Select a form to proceed</p>
-    </div>
+                <div class="row justify-content-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 shadow-sm p-3">
+                            <h5 class="card-title fw-semibold">Child Health</h5>
+                            <p class="card-text text-muted">
+                                Record vaccinations, monitor growth, and manage child health visits.
+                            </p>
+                        </div>
+                    </div>
 
-    <div class="row justify-content-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 shadow-sm p-3">
+                            <h5 class="card-title fw-semibold">OPD & MNCH</h5>
+                            <p class="card-text text-muted">
+                                Document OPD visits and MNCH services for mothers and children.
+                            </p>
+                        </div>
+                    </div>
 
-        <!-- Child Health Form Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-semibold">Child Health Form</h5>
-                    <p class="card-text text-muted">
-                        Record and manage child health information
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 shadow-sm p-3">
+                            <h5 class="card-title fw-semibold">Reports & Insights</h5>
+                            <p class="card-text text-muted">
+                                Generate reports, analyze trends, and improve service delivery using collected data.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <p class="text-secondary">
+                        Navigate through the ISD forms to maintain accurate records and enhance decision-making for healthcare services.
                     </p>
-                    <a href="<?= base_url('forms/child_health') ?>" class="btn btn-primary">
-                        Open Form
-                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- OPD & MNCH Form Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-semibold">OPD & MNCH Form</h5>
-                    <p class="card-text text-muted">
-                        OPD and MNCH patient visit information
-                    </p>
-                    <a href="<?= base_url('forms/opd_mnch') ?>" class="btn btn-success">
-                        Open Form
-                    </a>
-                </div>
-            </div>
-        </div>
-
     </div>
-
-</div>
-
-</body>
-</html>

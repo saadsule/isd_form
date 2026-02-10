@@ -1,270 +1,177 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPD MNCH Form</title>
+<div class="page-container">
+<div class="main-content">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<style>
-body{
-    background:#f4f6f9;
-}
-
-/* MAIN PAPER */
-.form-page{
-    background:#fff;
-    max-width:1100px;
-    margin:25px auto;
-    padding:25px;
-    border:1px solid #bbb;
-    box-shadow:0 3px 10px rgba(0,0,0,.05);
-}
-
-/* HEADER */
-.header-table{
-    width:100%;
-    border-bottom:3px solid #000;
-    margin-bottom:20px;
-}
-
-.title-main{
-    margin:0;
-    font-size:26px;
-    font-weight:800;
-    text-align:center;
-    letter-spacing:1px;
-}
-
-.title-sub{
-    margin:0;
-    text-align:center;
-    font-size:14px;
-}
-
-/* SECTION */
-.section{
-    border:1.8px solid #000;
-    padding:18px;
-    margin-bottom:18px;
-}
-
-.section-title{
-    font-weight:800;
-    font-size:16px;
-    border-bottom:2px solid #000;
-    padding-bottom:6px;
-    margin-bottom:15px;
-}
-
-.label{
-    font-weight:700;
-    font-size:13px;
-}
-
-.form-control-sm{
-    border:1px solid #999;
-}
-
-.checkbox-group{
-    display:flex;
-    flex-wrap:wrap;
-}
-
-.form-check{
-    margin-right:20px;
-}
-
-.topbar{
-    background:#fff;
-    padding:10px 20px;
-    border-bottom:1px solid #ddd;
-    position:sticky;
-    top:0;
-    z-index:999;
-}
-
-.submit-btn{
-    padding:12px 60px;
-    font-size:18px;
-    font-weight:700;
-}
-
-/* SUBMIT BUTTON */
-.pro-submit-btn{
-    background: linear-gradient(135deg,#28a745,#1e7e34);
-    color:#fff;
-    border:none;
-    padding:16px 70px;
-    font-size:20px;
-    font-weight:700;
-    border-radius:10px;
-    letter-spacing:.5px;
-
-    box-shadow:0 6px 18px rgba(0,0,0,.15);
-    transition: all .25s ease;
-}
-
-/* hover */
-.pro-submit-btn:hover{
-    transform: translateY(-3px);
-    box-shadow:0 12px 28px rgba(0,0,0,.22);
-}
-
-/* click */
-.pro-submit-btn:active{
-    transform: translateY(0px);
-    box-shadow:0 4px 10px rgba(0,0,0,.18);
-}
-</style>
-</head>
-<body>
-
-<div class="topbar">
-<a href="<?php echo base_url(); ?>" class="btn btn-secondary btn-sm">
-← Back to Home
-</a>
+<div class="page-header">
+    <h1 class="header-title">OPD MNCH Form</h1>
 </div>
 
 <form method="post" action="<?php echo base_url('forms/save_opd_mnch'); ?>">
 
-<div class="form-page">
+<div class="card">
+<div class="card-body">
 
 <!-- HEADER -->
-<table class="header-table">
-<tr>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+    <img src="<?php echo base_url('assets/images/logo/kp_logo.png'); ?>" style="max-height:65px;">
+    
+    <img src="<?= base_url('assets/images/logo/integral_global.png') ?>" style="max-height:60px;">
+    <img src="<?= base_url('assets/images/logo/dsi_logo.png') ?>" style="max-height:60px;">
+    <img src="<?= base_url('assets/images/logo/pf.png') ?>" style="max-height:60px;">
+</div>
 
-<td style="width:20%">
-<img src="<?php echo base_url('assets/images/logo/kp_logo.png'); ?>" style="max-height:65px;">
-</td>
-
-<td style="width:60%">
-<h1 class="title-main">OPD MNCH FORM</h1>
-<p class="title-sub">Maternal, Newborn & Child Health</p>
-</td>
-
-<td style="width:20%; text-align:right;">
-<img src="<?php echo base_url('assets/images/logo/pf.png'); ?>" style="max-height:65px;">
-</td>
-
-</tr>
-</table>
 
 
 <!-- BASIC INFO -->
-<div class="section">
+<div class="card mb-4">
+    <div class="card-body">
 
-<div class="row">
+        <div class="text-right">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="visit_type" value="OPD" required="">
+                <label class="form-check-label">OPD</label>
+            </div>
 
-<div class="col-md-3">
-<span class="label">1. Date:</span>
-<input type="date" name="form_date" class="form-control form-control-sm">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="visit_type" value="MNCH" required="">
+                <label class="form-check-label">MNCH</label>
+            </div>
+        </div>
+        
+        <h4 class="mb-4">Basic Information</h4>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Date <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <input type="date" name="form_date" class="form-control" required>
+            </div>
+
+            <label class="col-sm-2 col-form-label">ANC Card# <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <input type="text" name="anc_card_no" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Client Type <span style="color:red;">*</span></label>
+            <div class="col-sm-10">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="client_type" value="New" required>
+                    <label class="form-check-label">New Client</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="client_type" value="Followup" required>
+                    <label class="form-check-label">Follow-up</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">District <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <input type="text" name="district" class="form-control" required>
+            </div>
+
+            <label class="col-sm-2 col-form-label">UC <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <input type="text" name="uc" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Village <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <input type="text" name="village" class="form-control" required>
+            </div>
+
+            <label class="col-sm-2 col-form-label">LHV Name <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <input type="text" name="lhv_name" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Patient Name <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <input type="text" name="patient_name" class="form-control" required>
+            </div>
+
+            <label class="col-sm-2 col-form-label">Guardian Name <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <input type="text" name="guardian_name" class="form-control" required>
+            </div>
+        </div>
+
+    </div>
 </div>
 
-<div class="col-md-3">
-<span class="label">2. ANC Card#:</span>
-<input type="text" name="anc_card_no" class="form-control form-control-sm">
+
+
+
+<!-- STATUS -->
+<div class="card mb-4">
+    <div class="card-body">
+
+        <h4 class="mb-4">Patient Status</h4>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Age Group <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="age_group" value="<1" required>
+                    <label class="form-check-label">&lt;1</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="age_group" value="1-5" required>
+                    <label class="form-check-label">1-5</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="age_group" value="15-49" required>
+                    <label class="form-check-label">15-49</label>
+                </div>
+            </div>
+
+            <label class="col-sm-2 col-form-label">Marital Status <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="marital_status" value="Married" required>
+                    <label class="form-check-label">Married</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="marital_status" value="Unmarried" required>
+                    <label class="form-check-label">Unmarried</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Pregnancy <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="pregnancy_status" value="Pregnant" required>
+                    <label class="form-check-label">Pregnant</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="pregnancy_status" value="Non-Pregnant" required>
+                    <label class="form-check-label">Non-Pregnant</label>
+                </div>
+            </div>
+
+            <label class="col-sm-2 col-form-label">Disability <span style="color:red;">*</span></label>
+            <div class="col-sm-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="disability" value="Yes" required>
+                    <label class="form-check-label">Yes</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="disability" value="No" required>
+                    <label class="form-check-label">No</label>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
-<div class="col-md-6 text-right pt-4">
-<label class="mr-3">
-<input type="radio" name="client_type" value="New"> New Client
-</label>
-
-<label>
-<input type="radio" name="client_type" value="Followup"> Follow-up
-</label>
-</div>
-
-</div>
-
-<hr>
-
-<div class="row">
-
-<div class="col-md-4">
-<span class="label">District:</span>
-<input type="text" name="district" class="form-control form-control-sm">
-</div>
-
-<div class="col-md-4">
-<span class="label">UC:</span>
-<input type="text" name="uc" class="form-control form-control-sm">
-</div>
-
-<div class="col-md-4">
-<span class="label">Village:</span>
-<input type="text" name="village" class="form-control form-control-sm">
-</div>
-
-</div>
-
-<div class="row mt-2">
-
-<div class="col-md-6">
-<span class="label">LHV Name:</span>
-<input type="text" name="lhv_name" class="form-control form-control-sm">
-</div>
-
-<div class="col-md-6">
-<span class="label">Patient Name:</span>
-<input type="text" name="patient_name" class="form-control form-control-sm">
-</div>
-
-</div>
-
-<div class="row mt-2">
-
-<div class="col-md-6">
-<span class="label">Guardian Name:</span>
-<input type="text" name="guardian_name" class="form-control form-control-sm">
-</div>
-
-</div>
-
-</div>
-
-
-<!-- STATUS BOX -->
-<div class="section">
-
-<div class="row">
-
-<div class="col-md-3">
-<span class="label">Age Group:</span><br>
-
-<label><input type="radio" name="age_group" value="<1"> &lt;1</label><br>
-<label><input type="radio" name="age_group" value="1-5"> 1-5</label><br>
-<label><input type="radio" name="age_group" value="15-49"> 15-49</label>
-
-</div>
-
-<div class="col-md-3">
-<span class="label">Marital Status:</span><br>
-
-<label><input type="radio" name="marital_status" value="Married"> Married</label><br>
-<label><input type="radio" name="marital_status" value="Unmarried"> Unmarried</label>
-</div>
-
-<div class="col-md-3">
-<span class="label">Pregnancy Status:</span><br>
-
-<label><input type="radio" name="pregnancy_status" value="Pregnant"> Pregnant</label><br>
-<label><input type="radio" name="pregnancy_status" value="Non-Pregnant"> Non-Pregnant</label>
-</div>
-
-<div class="col-md-3">
-<span class="label">Disability:</span><br>
-
-<label><input type="radio" name="disability" value="Yes"> Yes</label><br>
-<label><input type="radio" name="disability" value="No"> No</label>
-
-</div>
-
-</div>
-
-</div>
 
 
 
@@ -280,106 +187,107 @@ foreach($questions as $q){
 
 <?php foreach($sections as $section_name => $section_questions): ?>
 
-<div class="section">
+<div class="card mb-4">
+    <div class="card-body">
 
-<div class="section-title">
-<?php echo htmlspecialchars($section_name); ?>
-</div>
+        <h4 class="mb-4">
+            <?php echo htmlspecialchars($section_name); ?>
+        </h4>
 
-<div class="row">
+        <?php foreach($section_questions as $q): ?>
 
-<?php
-$col = count($section_questions) == 1 ? 'col-md-12' : 'col-md-6';
-?>
+        <div class="form-group row">
 
-<?php foreach($section_questions as $q): ?>
+            <label class="col-sm-5 col-form-label">
+                <?php echo htmlspecialchars($q->q_num.' '.$q->q_text); ?>
+            </label>
 
-<div class="<?php echo $col; ?> mb-3">
+            <div class="col-sm-7">
 
-<div class="label mb-1">
-<?php echo htmlspecialchars($q->q_num.' '.$q->q_text); ?>
-</div>
+                <?php
+                $options = isset($q->options) ? $q->options : array();
+                ?>
 
-<?php
-$options = isset($q->options) ? $q->options : array();
-?>
+                <?php if($q->q_type == 'text'): ?>
 
-<!-- TEXT -->
-<?php if($q->q_type == 'text'): ?>
+                    <?php if(!empty($options)): ?>
 
-<?php if(!empty($options)): ?>
+                        <div class="form-row">
+                            <?php foreach($options as $opt): ?>
+                                <div class="col-auto mb-2">
+                                    <small><?php echo htmlspecialchars($opt->option_text); ?></small>
+                                    <input type="text"
+                                           name="question[<?php echo $q->question_id; ?>][<?php echo $opt->option_id; ?>]"
+                                           class="form-control">
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
 
-<div class="d-flex flex-wrap">
+                    <?php else: ?>
 
-<?php foreach($options as $opt): ?>
+                        <input type="text"
+                               name="question[<?php echo $q->question_id; ?>][0]"
+                               class="form-control">
 
-<div class="mr-3 mb-2 d-flex align-items-center">
-<small class="mr-2"><?php echo htmlspecialchars($opt->option_text); ?></small>
+                    <?php endif; ?>
 
-<input type="text"
-name="question[<?php echo $q->question_id; ?>][<?php echo $opt->option_id; ?>]"
-class="form-control form-control-sm"
-style="width:90px;">
+                <?php else: ?>
+
+                    <?php if($q->q_type == 'checkbox' && count($options) > 1): ?>
+                        <!-- Multiple checkboxes horizontally -->
+                        <div class="d-flex flex-wrap gap-3">
+                            <?php foreach($options as $opt): ?>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="question[<?php echo $q->question_id; ?>][]"
+                                           value="<?php echo $opt->option_id; ?>"
+                                           id="q<?php echo $q->question_id; ?>_<?php echo $opt->option_id; ?>">
+                                    <label class="form-check-label" for="q<?php echo $q->question_id; ?>_<?php echo $opt->option_id; ?>">
+                                        <?php echo htmlspecialchars($opt->option_text); ?>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <!-- Single checkbox or radio -->
+                        <?php foreach($options as $opt): ?>
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="<?php echo $q->q_type; ?>"
+                                       name="question[<?php echo $q->question_id; ?>]<?php if($q->q_type=='checkbox') echo '[]'; ?>"
+                                       value="<?php echo $opt->option_id; ?>"
+                                       id="q<?php echo $q->question_id; ?>_<?php echo $opt->option_id; ?>">
+                                <label class="form-check-label" for="q<?php echo $q->question_id; ?>_<?php echo $opt->option_id; ?>">
+                                    <?php echo htmlspecialchars($opt->option_text); ?>
+                                </label>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+
+                <?php endif; ?>
+
+            </div>
+        </div>
+
+        <?php endforeach; ?>
+
+    </div>
 </div>
 
 <?php endforeach; ?>
 
+
+<div class="text-center mb-5">
+<button type="submit" class="btn btn-success btn-lg">
+<i class="anticon anticon-save"></i> Submit Form
+</button>
 </div>
-
-<?php else: ?>
-
-<input type="text"
-name="question[<?php echo $q->question_id; ?>][0]"
-class="form-control form-control-sm">
-
-<?php endif; ?>
-
-
-
-<!-- RADIO / CHECKBOX -->
-<?php else: ?>
-
-<div class="checkbox-group">
-
-<?php foreach($options as $opt): ?>
-
-<div class="form-check">
-
-<input class="form-check-input"
-type="<?php echo $q->q_type; ?>"
-name="question[<?php echo $q->question_id; ?>]<?php if($q->q_type=='checkbox') echo '[]'; ?>"
-value="<?php echo $opt->option_id; ?>">
-
-<label class="form-check-label">
-<?php echo htmlspecialchars($opt->option_text); ?>
-</label>
-
-</div>
-
-<?php endforeach; ?>
-
-</div>
-
-<?php endif; ?>
-
-</div>
-
-<?php endforeach; ?>
 
 </div>
 </div>
 
-<?php endforeach; ?>
-
-<div class="text-center my-5">
-    <button type="submit" class="pro-submit-btn">
-        <span class="btn-text">
-            Submit Form
-        </span>
-    </button>
-</div>
-
-</div>
 </form>
-</body>
-</html>
+
+</div>
+</div>

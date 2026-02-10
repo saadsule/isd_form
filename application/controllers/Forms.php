@@ -12,7 +12,10 @@ class Forms extends CI_Controller {
     {
         $this->load->model('Questions_model');
         $data['questions'] = $this->Questions_model->get_all_questions_by_form_type('chf');
-        $this->load->view('child_health_form', $data);
+        
+        $data['page_title'] = "Child Health Form";        
+        $data['main_content'] = $this->load->view('child_health_form', $data, TRUE);
+        $this->load->view('layout/main', $data);
     }
 
     public function opd_mnch()
@@ -21,7 +24,9 @@ class Forms extends CI_Controller {
         $data['questions'] = $this->Questions_model
             ->get_all_questions_by_form_type('opd');
 
-        $this->load->view('opd_mnch_form', $data);
+        $data['page_title'] = "OPD MNCH Form";        
+        $data['main_content'] = $this->load->view('opd_mnch_form', $data, TRUE);
+        $this->load->view('layout/main', $data);
     }
 
     
@@ -35,6 +40,7 @@ class Forms extends CI_Controller {
         // ---------- In Master table saved this info ----------
         $master = array(
 
+            'visit_type' => $this->input->post('visit_type'),
             'form_date' => $this->input->post('form_date'),
             'qr_code' => $this->input->post('qr_code'),
             'client_type' => $this->input->post('client_type'),
@@ -175,6 +181,7 @@ class Forms extends CI_Controller {
         // MASTER
         $master = [
 
+            'visit_type' => $this->input->post('visit_type'),
             'form_date' => $this->input->post('form_date'),
             'anc_card_no' => $this->input->post('anc_card_no'),
             'client_type' => $this->input->post('client_type'),
