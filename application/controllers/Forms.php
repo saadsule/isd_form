@@ -309,5 +309,90 @@ class Forms extends CI_Controller {
 
         redirect('forms/opd_mnch');
     }
+    
+    public function child_health_report()
+    {
+        $this->load->model('Forms_model');
+        $data['page_title'] = "Child Health Report";
+
+        // get all records
+        $data['records'] = $this->Forms_model->get_child_records();
+
+        $data['main_content'] = $this->load->view('reports/child_health_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
+    public function view_child_health($id)
+    {
+        $this->load->model('Forms_model');
+
+        $data['page_title'] = "View Child Health";
+
+        $data['form'] = $this->Forms_model->get_child_master($id);
+
+        $questions = $this->Forms_model
+            ->get_child_questions_with_answers($id);
+
+        /**
+         BUILD STRUCTURE:
+         section -> question -> options
+         */
+        $structured = [];
+
+        foreach($questions as $q){
+
+            $qid = $q->question_id;
+
+            if(!isset($structured[$q->q_section][$qid])){
+                $structured[$q->q_section][$qid] = $q;
+                $structured[$q->q_section][$qid]->options = [];
+            }
+
+            if($q->option_id){
+                $structured[$q->q_section][$qid]
+                    ->options[] = $q;
+            }
+        }
+
+        $data['questions'] = $structured;
+        $data['readonly'] = true;
+
+        $data['main_content'] =
+            $this->load->view('view_child_health',$data,TRUE);
+
+        $this->load->view('layout/main',$data);
+    }
+    
+    public function opd_report()
+    {
+        $this->load->model('Forms_model');
+
+        $data['page_title'] = "OPD MNCH Report";
+        $data['records'] = $this->Forms_model->get_opd_records();
+
+        $data['main_content'] =
+            $this->load->view('reports/opd_report',$data,TRUE);
+
+        $this->load->view('layout/main',$data);
+    }
+
+    public function view_opd_mnch($id)
+    {
+        $this->load->model('Forms_model');
+
+        $result = $this->Forms_model->get_opd_detail($id);
+
+        $data['master'] = $result['master'];
+        $data['questions'] = $result['questions'];
+
+        $data['page_title'] = "View OPD MNCH";
+
+        $data['main_content'] =
+            $this->load->view('view_opd_mnch',$data,TRUE);
+
+        $this->load->view('layout/main',$data);
+    }
+
+
 
 }

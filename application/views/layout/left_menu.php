@@ -27,7 +27,7 @@
             <li class="nav-item">
                 <a href="<?= base_url('forms/opd_mnch'); ?>">
                     <span class="icon-holder">
-                        <i class="anticon anticon-file"></i>
+                        <i class="anticon anticon-profile"></i> <!-- Use profile icon for patient forms -->
                     </span>
                     <span class="title">OPD & MNCH Form</span>
                 </a>
@@ -37,9 +37,29 @@
             <li class="nav-item">
                 <a href="<?= base_url('forms/child_health'); ?>">
                     <span class="icon-holder">
-                        <i class="anticon anticon-file"></i>
+                        <i class="anticon anticon-heart"></i> <!-- Heart icon for child health -->
                     </span>
                     <span class="title">Child Health Form</span>
+                </a>
+            </li>
+
+            <!-- Child Health Report -->
+            <li class="nav-item">
+                <a href="<?= base_url('forms/child_health_report'); ?>">
+                    <span class="icon-holder">
+                        <i class="anticon anticon-bar-chart"></i> <!-- Bar chart for reports -->
+                    </span>
+                    <span class="title">Child Health Report</span>
+                </a>
+            </li>
+
+            <!-- OPD & MNCH Report -->
+            <li class="nav-item">
+                <a href="<?= base_url('forms/opd_report'); ?>">
+                    <span class="icon-holder">
+                        <i class="anticon anticon-file-done"></i> <!-- File done icon for OPD reports -->
+                    </span>
+                    <span class="title">OPD/MNCH Report</span>
                 </a>
             </li>
 
