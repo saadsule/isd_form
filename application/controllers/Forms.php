@@ -203,6 +203,13 @@ class Forms extends CI_Controller {
         
         $this->db->trans_complete();
 
+        // Check if transaction was successful
+        if ($this->db->trans_status() === FALSE) {
+            $this->session->set_flashdata('error', 'Form could not be saved. Please try again.');
+        } else {
+            $this->session->set_flashdata('success', 'Form saved successfully!');
+        }
+
         redirect('forms/child_health');
     }
 
@@ -350,6 +357,13 @@ class Forms extends CI_Controller {
         $this->db->insert('form_logs', $log_data);
         
         $this->db->trans_complete();
+
+        // Check if transaction was successful
+        if ($this->db->trans_status() === FALSE) {
+            $this->session->set_flashdata('error', 'Form could not be saved. Please try again.');
+        } else {
+            $this->session->set_flashdata('success', 'Form saved successfully!');
+        }
 
         redirect('forms/opd_mnch');
     }

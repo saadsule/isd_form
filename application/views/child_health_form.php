@@ -1,5 +1,53 @@
+<?php if($this->session->flashdata('success')): ?>
+    <div id="flash-msg" class="flash-msg flash-success">
+        <i class="anticon anticon-file-done"></i>
+        <?= $this->session->flashdata('success') ?>
+    </div>
+<?php elseif($this->session->flashdata('error')): ?>
+    <div id="flash-msg" class="flash-msg flash-error">
+        <i class="anticon anticon-close-circle"></i>
+        <?= $this->session->flashdata('error') ?>
+    </div>
+<?php endif; ?>
 <style>
 
+.flash-msg {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    padding: 18px 35px;
+    font-size: 18px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    font-weight: 600;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.flash-success {
+    background: #28a745; /* green */
+}
+
+.flash-error {
+    background: #dc3545; /* red */
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Optional: make icon slightly bigger */
+.flash-msg .anticon {
+    font-size: 22px;
+}   
+    
 /* Page spacing */
 .page-container{
     background:#f4f6f9;
@@ -340,5 +388,10 @@ $(document).ready(function() {
         loadUC(district_id);
     }
 
+});
+$(document).ready(function(){
+    setTimeout(function(){
+        $('#flash-msg').fadeOut('slow');
+    }, 3000); // 3000ms = 3 seconds
 });
 </script>
