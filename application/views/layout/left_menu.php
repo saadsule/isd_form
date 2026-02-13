@@ -43,16 +43,6 @@
                 </a>
             </li>
 
-            <!-- Child Health Report -->
-            <li class="nav-item">
-                <a href="<?= base_url('forms/child_health_report'); ?>">
-                    <span class="icon-holder">
-                        <i class="anticon anticon-bar-chart"></i> <!-- Bar chart for reports -->
-                    </span>
-                    <span class="title">Child Health Report</span>
-                </a>
-            </li>
-
             <!-- OPD & MNCH Report -->
             <li class="nav-item">
                 <a href="<?= base_url('forms/opd_report'); ?>">
@@ -60,6 +50,16 @@
                         <i class="anticon anticon-file-done"></i> <!-- File done icon for OPD reports -->
                     </span>
                     <span class="title">OPD/MNCH Report</span>
+                </a>
+            </li>
+            
+            <!-- Child Health Report -->
+            <li class="nav-item">
+                <a href="<?= base_url('forms/child_health_report'); ?>">
+                    <span class="icon-holder">
+                        <i class="anticon anticon-bar-chart"></i> <!-- Bar chart for reports -->
+                    </span>
+                    <span class="title">Child Health Report</span>
                 </a>
             </li>
 

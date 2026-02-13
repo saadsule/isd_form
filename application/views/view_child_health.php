@@ -102,9 +102,9 @@
 </tr>
 <tr>
     <th>District</th>
-    <td><?= $form->district ?: '-' ?></td>
+    <td><?= $form->district_name ?: '-' ?></td>
     <th>UC</th>
-    <td><?= $form->uc ?: '-' ?></td>
+    <td><?= $form->uc_name ?: '-' ?></td>
 </tr>
 <tr>
     <th>Village</th>

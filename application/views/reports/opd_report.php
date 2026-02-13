@@ -19,7 +19,7 @@
     <th>Patient</th>
     <th>Guardian</th>
     <th>District</th>
-    <th>Village</th>
+    <th>UC</th>
     <th>Visit</th>
     <th>Client</th>
     <th width="120">Action</th>
@@ -36,7 +36,7 @@
 <td><?= htmlspecialchars($r->patient_name) ?></td>
 <td><?= htmlspecialchars($r->guardian_name) ?></td>
 <td><?= htmlspecialchars($r->district) ?></td>
-<td><?= htmlspecialchars($r->village) ?></td>
+<td><?= htmlspecialchars($r->uc) ?></td>
 
 <td>
 <span class="badge badge-warning">

@@ -7,7 +7,7 @@
     <title>Health MIS - Portal Login</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="<?= base_url('assets/images/logo/favicon.png'); ?>">
+    <link rel="shortcut icon" href="<?= base_url('assets/images/logo/logo-fold.png'); ?>">
 
     <!-- Core CSS -->
     <link href="<?= base_url('assets/css/app.min.css'); ?>" rel="stylesheet">

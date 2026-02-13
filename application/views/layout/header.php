@@ -76,12 +76,25 @@
                                             <img src="<?php echo base_url('assets/images/usericon.png') ?>" alt="">
                                         </div>
                                         <div class="m-l-10">
-                                            <p class="m-b-0 text-dark font-weight-semibold">Administrator</p>
-                                            <p class="m-b-0 opacity-07">Admin User</p>
+                                            <p class="m-b-0 text-dark font-weight-semibold">
+                                                <?= htmlspecialchars($this->session->userdata('full_name')) ?>
+                                            </p>
+                                            <p class="m-b-0 opacity-07">
+                                                <?php
+                                                $role = $this->session->userdata('role'); 
+                                                if($role == 1){
+                                                    echo 'Data Entry User';
+                                                } elseif($role == 2){
+                                                    echo 'Admin User';
+                                                } else {
+                                                    echo 'User';
+                                                }
+                                                ?>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
-                                <a href="javascript:void(0);" class="dropdown-item d-block p-h-15 p-v-10">
+                                <a href="<?= base_url('auth/logout') ?>" class="dropdown-item d-block p-h-15 p-v-10">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
                                             <i class="anticon opacity-04 font-size-16 anticon-logout"></i>

@@ -103,9 +103,9 @@
 </tr>
 <tr>
     <th>District</th>
-    <td><?= !empty($master->district) ? $master->district : '-' ?></td>
+    <td><?= !empty($master->district_name) ? $master->district_name : '-' ?></td>
     <th>UC</th>
-    <td><?= !empty($master->uc) ? $master->uc : '-' ?></td>
+    <td><?= !empty($master->uc_name) ? $master->uc_name : '-' ?></td>
 </tr>
 <tr>
     <th>Village</th>

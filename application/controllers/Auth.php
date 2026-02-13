@@ -14,14 +14,31 @@ class Auth extends CI_Controller {
         $this->load->view('auth/login');
     }
 
-    public function login(){
-
+    public function login()
+    {
         $username = trim($this->input->post('username'));
         $password = trim($this->input->post('password'));
 
         $user = $this->Auth_model->get_user($username);
 
+        // Prepare log data
+        $log_data = [
+            'username' => $username,
+            'ip_address' => $this->input->ip_address(),
+            'login_time' => date('Y-m-d H:i:s'),
+            'user_id' => $user ? $user->user_id : 0,
+            'login_success' => 0,
+            'remarks' => 'Invalid credentials'
+        ];
+
         if($user && md5($password) === $user->password){
+
+            // ✅ Successful login
+            $log_data['login_success'] = 1;
+            $log_data['remarks'] = 'Login successful';
+
+            $this->db->insert('user_access_log', $log_data);
+            $log_id = $this->db->insert_id();
 
             // regenerate session (security)
             $this->session->sess_regenerate(TRUE);
@@ -29,28 +46,38 @@ class Auth extends CI_Controller {
             $session_data = [
                 'user_id' => $user->user_id,
                 'username' => $user->username,
+                'full_name' => $user->full_name,
                 'province_id' => $user->province_id,
                 'district_id' => $user->district_id,
                 'role' => $user->role,
-                'logged_in' => TRUE
+                'logged_in' => TRUE,
+                'access_log_id' => $log_id // store log ID in session for logout
             ];
 
             $this->session->set_userdata($session_data);
 
             redirect(base_url('welcome/index'));
 
-        }else{
+        } else {
+            // ❌ Failed login
+            $this->db->insert('user_access_log', $log_data);
 
             $this->session->set_flashdata('error','Invalid Username or Password');
             redirect('auth');
-
         }
     }
 
-    public function logout(){
+    public function logout()
+    {
+        $access_log_id = $this->session->userdata('access_log_id');
+        
+        if($access_log_id){
+            $this->db->where('id', $access_log_id)
+                     ->update('user_access_log', ['logout_time' => date('Y-m-d H:i:s')]);
+        }
 
         $this->session->sess_destroy();
         redirect('auth');
-
     }
+
 }

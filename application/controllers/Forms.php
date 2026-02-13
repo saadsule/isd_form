@@ -7,22 +7,42 @@ class Forms extends CI_Controller {
     {
         $this->load->view('home');
     }
-
+    
     public function child_health()
     {
         $this->load->model('Questions_model');
+        $this->load->model('Location_model');
+
         $data['questions'] = $this->Questions_model->get_all_questions_by_form_type('chf');
-        
+
+        // Load districts
+        $data['districts'] = $this->Location_model->get_districts();
+
         $data['page_title'] = "Child Health Form";        
         $data['main_content'] = $this->load->view('child_health_form', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function get_uc_by_district()
+    {
+        $district_id = $this->input->post('district_id');
+
+        $this->load->model('Location_model');
+        $ucs = $this->Location_model->get_uc_by_district($district_id);
+
+        echo json_encode($ucs);
+    }
+
 
     public function opd_mnch()
     {
         $this->load->model('Questions_model');
-        $data['questions'] = $this->Questions_model
-            ->get_all_questions_by_form_type('opd');
+        $this->load->model('Location_model');
+        
+        $data['questions'] = $this->Questions_model->get_all_questions_by_form_type('opd');
+        
+        // Load districts
+        $data['districts'] = $this->Location_model->get_districts();
 
         $data['page_title'] = "OPD MNCH Form";        
         $data['main_content'] = $this->load->view('opd_mnch_form', $data, TRUE);
@@ -169,6 +189,18 @@ class Forms extends CI_Controller {
             }
         }
 
+        // ---------- Log table ----------
+        $log_data = [
+            'form_type' => 'child_health_form',      // change for opd/mnch dynamically
+            'master_id' => $master_id,
+            'data_json' => json_encode([
+                'master' => $master,
+                'details' => $batch
+            ])
+        ];
+
+        $this->db->insert('form_logs', $log_data);
+        
         $this->db->trans_complete();
 
         redirect('forms/child_health');
@@ -305,6 +337,18 @@ class Forms extends CI_Controller {
             }
         }
 
+        // ---------- Log table ----------
+        $log_data = [
+            'form_type' => 'opd_mnch_form',      // change for opd/mnch dynamically
+            'master_id' => $master_id,
+            'data_json' => json_encode([
+                'master' => $master,
+                'details' => $batch
+            ])
+        ];
+
+        $this->db->insert('form_logs', $log_data);
+        
         $this->db->trans_complete();
 
         redirect('forms/opd_mnch');

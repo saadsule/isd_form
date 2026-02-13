@@ -70,6 +70,13 @@
     box-shadow:0 6px 16px rgba(40,167,69,.25);
 }
 
+/* Focus for radio & checkbox */
+.form-check-input:focus{
+    outline: 3px solid rgb(63 135 245 / 20%) !important;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgb(63 135 245 / 20%);
+}
+
 </style>
 
 
@@ -156,12 +163,20 @@
 <div class="form-group row">
     <label class="col-sm-2 col-form-label">District *</label>
     <div class="col-sm-4">
-        <input type="text" name="district" class="form-control" required>
+        <select name="district" id="district" class="form-control" required>
+            <?php foreach($districts as $district){ ?>
+                <option value="<?= $district->district_id ?>" selected>
+                    <?= $district->district_name ?>
+                </option>
+            <?php } ?>
+        </select>
     </div>
 
     <label class="col-sm-2 col-form-label">UC *</label>
     <div class="col-sm-4">
-        <input type="text" name="uc" class="form-control" required>
+        <select name="uc" id="uc" class="form-control" required>
+            <option value="">Select UC</option>
+        </select>
     </div>
 </div>
 
@@ -297,3 +312,33 @@ value="<?= $opt->option_id; ?>">
 </form>
 
 </div>
+    
+<!-- Load jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+<script>
+$(document).ready(function() {
+
+    function loadUC(district_id) {
+        $.ajax({
+            url: "<?= base_url('forms/get_uc_by_district') ?>",
+            type: "POST",
+            data: { district_id: district_id },
+            dataType: "json",
+            success: function(data){
+                $('#uc').empty();
+                $('#uc').append('<option value="">Select UC</option>'); // keep placeholder for UC
+                $.each(data, function(i, obj){
+                    $('#uc').append('<option value="'+obj.pk_id+'">'+obj.uc+'</option>');
+                });
+            }
+        });
+    }
+
+    // Load UCs for the only district on page load
+    var district_id = $('#district').val();
+    if(district_id) {
+        loadUC(district_id);
+    }
+
+});
+</script>

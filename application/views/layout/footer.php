@@ -19,7 +19,7 @@
             <!-- Page Container END -->
         </div>
     </div>
-    
+
         <!-- page js -->
     <script src="<?php echo base_url('assets/vendors/datatables/jquery.dataTables.min.js') ?>"></script>
     <script src="<?php echo base_url('assets/vendors/datatables/dataTables.bootstrap.min.js') ?>"></script>
