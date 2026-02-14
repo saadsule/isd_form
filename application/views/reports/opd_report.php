@@ -55,6 +55,14 @@
    class="btn btn-sm btn-primary">
    View
 </a>
+    
+<?php if($this->session->userdata('user_id') == $r->created_by): ?>
+<a href="<?= base_url('forms/opd_mnch/'.$r->id) ?>"
+   class="btn btn-sm btn-success">
+   Edit
+</a>
+<?php endif; ?>
+
 </td>
 
 </tr>

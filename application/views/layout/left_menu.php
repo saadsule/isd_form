@@ -63,15 +63,16 @@
                 </a>
             </li>
 
-            <!-- Questions -->
-<!--            <li class="nav-item">
+            <?php if($this->session->userdata('role') == 3): ?>
+            <li class="nav-item">
                 <a href="<?= base_url('questions'); ?>">
                     <span class="icon-holder">
                         <i class="anticon anticon-question-circle"></i>
                     </span>
                     <span class="title">Questions</span>
                 </a>
-            </li>-->
+            </li>
+            <?php endif; ?>
 
         </ul>
     </div>

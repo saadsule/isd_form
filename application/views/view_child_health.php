@@ -86,7 +86,15 @@
 <!-- ================= BASIC INFORMATION ================= -->
 <div class="card mb-4 form-section">
 <div class="card-body">
-<h4 class="section-title">📋 Basic Information</h4>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="section-title mb-0">📋 Basic Information</h4>
+
+    <?php if(!empty($form->qr_code)): ?>
+        <img 
+        src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=<?= urlencode($form->qr_code) ?>" 
+        alt="QR Code">
+    <?php endif; ?>
+</div>
 <table class="table table-bordered">
 <tr>
     <th>Date</th>
@@ -118,6 +126,12 @@
     <th>Guardian</th>
     <td><?= $form->guardian_name ?: '-' ?></td>
 </tr>
+<?php if(isset($form->visit_type) && $form->visit_type == 'Fixed Site') { ?>
+<tr>
+    <th>Facility Name</th>
+    <td><?= $form->facility_name ?: '-' ?></td>
+</tr>
+<?php } ?>
 </table>
 </div>
 </div>

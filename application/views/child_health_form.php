@@ -135,7 +135,15 @@
     <h1 class="header-title">Child Health Form</h1>
 </div>
 
-<form method="post" action="<?= base_url('forms/save_child_health') ?>">
+<?php
+$rec = isset($record) ? $record : null;
+$details = isset($details) ? $details : array();
+?>
+    
+<form method="post"
+    action="<?= isset($is_edit) && $is_edit 
+    ? base_url('forms/update_child_health/'.$record->master_id)
+    : base_url('forms/save_child_health'); ?>">
 
 <div class="card">
 <div class="card-body">
@@ -161,7 +169,6 @@
 
 </div>
 
-
 <!-- ================= BASIC INFORMATION ================= -->
 <div class="card mb-4 form-section">
 <div class="card-body">
@@ -172,11 +179,13 @@
 <strong>Visit Type</strong>
 <div class="mt-2">
     <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="visit_type" value="Fixed Site" required>
+        <input class="form-check-input" type="radio" name="visit_type" value="Fixed Site" required
+            <?= (isset($rec->visit_type) && $rec->visit_type=='Fixed Site') ? 'checked' : '' ?>>
         <label class="form-check-label">Fixed Site</label>
     </div>
     <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="visit_type" value="Outreach" required>
+        <input class="form-check-input" type="radio" name="visit_type" value="Outreach" required
+            <?= (isset($rec->visit_type) && $rec->visit_type=='Outreach') ? 'checked' : '' ?>>
         <label class="form-check-label">Outreach</label>
     </div>
 </div>
@@ -185,45 +194,80 @@
 <div class="form-group row">
     <label class="col-sm-2 col-form-label">Date *</label>
     <div class="col-sm-4">
-        <input type="date" name="form_date" class="form-control" required>
+        <input type="date" name="form_date" class="form-control"
+            value="<?= isset($rec->form_date) ? $rec->form_date : '' ?>" required>
     </div>
 
     <label class="col-sm-2 col-form-label">QR Code *</label>
-    <div class="col-sm-4">
-        <input type="text" name="qr_code" class="form-control" required>
+
+    <div class="col-sm-2">
+        <input type="text" 
+               id="qr_input"
+               name="qr_code" 
+               class="form-control"
+               value="<?= isset($rec->qr_code) ? $rec->qr_code : '' ?>" 
+               required>
     </div>
+
+    <div class="col-sm-2">
+        <div id="qr_preview"
+            style="padding:5px; border:1px solid #ddd; border-radius:6px; display:inline-block;">
+       </div>
+    </div>
+
 </div>
 
 <div class="form-group row">
     <label class="col-sm-2 col-form-label">Client Type *</label>
     <div class="col-sm-10">
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="client_type" value="New" required>
+            <input class="form-check-input" type="radio" name="client_type" value="New" required
+                <?= (isset($rec->client_type) && $rec->client_type=='New') ? 'checked' : '' ?>>
             <label class="form-check-label">New Client</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="client_type" value="Followup" required>
+            <input class="form-check-input" type="radio" name="client_type" value="Followup" required
+                <?= (isset($rec->client_type) && $rec->client_type=='Followup') ? 'checked' : '' ?>>
             <label class="form-check-label">Follow-up</label>
         </div>
     </div>
 </div>
 
 <div class="form-group row">
-    <label class="col-sm-2 col-form-label">District *</label>
-    <div class="col-sm-4">
-        <select name="district" id="district" class="form-control" required>
-            <?php foreach($districts as $district){ ?>
-                <option value="<?= $district->district_id ?>" selected>
-                    <?= $district->district_name ?>
-                </option>
-            <?php } ?>
-        </select>
-    </div>
+<label class="col-sm-2 col-form-label">District *</label>
+<div class="col-sm-4">
+<select name="district" id="district" class="form-control" required>
+<?php foreach($districts as $district){ ?>
+<option value="<?= $district->district_id ?>"
+<?= (isset($rec->district) && $rec->district==$district->district_id)?'selected':'' ?>>
+<?= $district->district_name ?>
+</option>
+<?php } ?>
+</select>
+</div>
 
-    <label class="col-sm-2 col-form-label">UC *</label>
+<label class="col-sm-2 col-form-label">UC *</label>
+<div class="col-sm-4">
+<select name="uc" id="uc" class="form-control" required>
+<option value="">Select UC</option>
+<!-- Options will be loaded via AJAX -->
+</select>
+</div>
+</div>
+
+<div class="form-group row" id="facility-field">
+    <label class="col-sm-2 col-form-label">Facility *</label>
     <div class="col-sm-4">
-        <select name="uc" id="uc" class="form-control" required>
-            <option value="">Select UC</option>
+        <select name="facility_id" id="facility" class="form-control" required>
+            <option value="">Select Facility</option>
+            <?php if(isset($facilities) && $facilities): ?>
+                <?php foreach($facilities as $f): ?>
+                    <option value="<?= $f->id ?>" 
+                        <?= (isset($rec->facility_id) && $rec->facility_id == $f->id)?'selected':'' ?>>
+                        <?= htmlspecialchars($f->facility_name) ?>
+                    </option>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </select>
     </div>
 </div>
@@ -231,30 +275,33 @@
 <div class="form-group row">
     <label class="col-sm-2 col-form-label">HF/Village *</label>
     <div class="col-sm-4">
-        <input type="text" name="village" class="form-control" required>
+        <input type="text" name="village" class="form-control"
+            value="<?= isset($rec->village) ? $rec->village : '' ?>" required>
     </div>
 
     <label class="col-sm-2 col-form-label">Vaccinator *</label>
     <div class="col-sm-4">
-        <input type="text" name="vaccinator_name" class="form-control" required>
+        <input type="text" name="vaccinator_name" class="form-control"
+            value="<?= isset($rec->vaccinator_name) ? $rec->vaccinator_name : '' ?>" required>
     </div>
 </div>
 
 <div class="form-group row">
     <label class="col-sm-2 col-form-label">Patient Name *</label>
     <div class="col-sm-4">
-        <input type="text" name="patient_name" class="form-control" required>
+        <input type="text" name="patient_name" class="form-control"
+            value="<?= isset($rec->patient_name) ? $rec->patient_name : '' ?>" required>
     </div>
 
     <label class="col-sm-2 col-form-label">Father/Husband *</label>
     <div class="col-sm-4">
-        <input type="text" name="guardian_name" class="form-control" required>
+        <input type="text" name="guardian_name" class="form-control"
+            value="<?= isset($rec->guardian_name) ? $rec->guardian_name : '' ?>" required>
     </div>
 </div>
 
 </div>
 </div>
-
 
 <!-- ================= DEMOGRAPHICS ================= -->
 <div class="card mb-4 form-section">
@@ -265,17 +312,20 @@
 <div class="form-group row">
     <label class="col-sm-2 col-form-label">Date of Birth *</label>
     <div class="col-sm-4">
-        <input type="date" name="dob" class="form-control" required>
+        <input type="date" name="dob" class="form-control"
+            value="<?= isset($rec->dob) ? $rec->dob : '' ?>" required>
     </div>
 
     <label class="col-sm-2 col-form-label">Gender *</label>
     <div class="col-sm-4">
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="gender" value="Male" required>
+            <input class="form-check-input" type="radio" name="gender" value="Male" required
+                <?= (isset($rec->gender) && $rec->gender=='Male') ? 'checked' : '' ?>>
             <label class="form-check-label">Male</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="gender" value="Female" required>
+            <input class="form-check-input" type="radio" name="gender" value="Female" required
+                <?= (isset($rec->gender) && $rec->gender=='Female') ? 'checked' : '' ?>>
             <label class="form-check-label">Female</label>
         </div>
     </div>
@@ -283,7 +333,6 @@
 
 </div>
 </div>
-
 
 <!-- ================= DYNAMIC QUESTIONS ================= -->
 <?php
@@ -316,7 +365,8 @@ foreach($questions as $q){
 
 <input type="text"
 name="question[<?= $q->question_id ?>][0]"
-class="form-control">
+class="form-control"
+value="<?= isset($rec->question[$q->question_id][0]) ? $rec->question[$q->question_id][0] : '' ?>">
 
 <?php else: ?>
 
@@ -326,7 +376,8 @@ class="form-control">
 <input class="form-check-input"
 type="<?= $q->q_type; ?>"
 name="question[<?= $q->question_id ?>]<?= ($q->q_type=='checkbox') ? '[]' : '' ?>"
-value="<?= $opt->option_id; ?>">
+value="<?= $opt->option_id; ?>"
+<?= (isset($rec->question[$q->question_id]) && in_array($opt->option_id, (array)$rec->question[$q->question_id])) ? 'checked' : '' ?>>
 
 <label class="form-check-label">
 <?= htmlspecialchars($opt->option_text); ?>
@@ -350,7 +401,7 @@ value="<?= $opt->option_id; ?>">
 
 <div class="text-center mb-5">
 <button type="submit" class="btn btn-success save-btn">
-💾 Save Child Health Record
+<?= (isset($is_edit) && $is_edit) ? 'Update Record' : 'Save Patient Record' ?>
 </button>
 </div>
 
@@ -362,11 +413,14 @@ value="<?= $opt->option_id; ?>">
 </div>
     
 <!-- Load jQuery first -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
 <script>
+var selected_facility = <?= isset($rec->facility_id) ? json_encode($rec->facility_id) : '""' ?>;
+var selected_uc = "<?= isset($rec->uc) ? $rec->uc : '' ?>";
 $(document).ready(function() {
 
-    function loadUC(district_id) {
+    function loadUC(district_id, selected_uc = '') {
         $.ajax({
             url: "<?= base_url('forms/get_uc_by_district') ?>",
             type: "POST",
@@ -374,10 +428,18 @@ $(document).ready(function() {
             dataType: "json",
             success: function(data){
                 $('#uc').empty();
-                $('#uc').append('<option value="">Select UC</option>'); // keep placeholder for UC
+                $('#uc').append('<option value="">Select UC</option>');
+
                 $.each(data, function(i, obj){
                     $('#uc').append('<option value="'+obj.pk_id+'">'+obj.uc+'</option>');
                 });
+
+                if(selected_uc){
+                    $('#uc').val(selected_uc);
+
+                    // ✅ LOAD FACILITIES AFTER UC IS SET
+                    loadFacilities(selected_uc, selected_facility);
+                }
             }
         });
     }
@@ -385,7 +447,7 @@ $(document).ready(function() {
     // Load UCs for the only district on page load
     var district_id = $('#district').val();
     if(district_id) {
-        loadUC(district_id);
+        loadUC(district_id, selected_uc); // ✅ PASS IT HERE
     }
 
 });
@@ -393,5 +455,91 @@ $(document).ready(function(){
     setTimeout(function(){
         $('#flash-msg').fadeOut('slow');
     }, 3000); // 3000ms = 3 seconds
+});
+
+$(document).ready(function() {
+
+    function toggleFacilityField() {
+        const visitType = $('input[name="visit_type"]:checked').val();
+        if(visitType === 'Fixed Site') {
+            $('#facility-field').show();
+            $('#facility-field input').attr('required', true);
+        } else {
+            $('#facility-field').hide();
+            $('#facility-field input').removeAttr('required');
+        }
+    }
+
+    // Initial check on page load
+    toggleFacilityField();
+
+    // Run whenever the visit_type changes
+    $('input[name="visit_type"]').change(function() {
+        toggleFacilityField();
+    });
+});
+
+$(document).ready(function(){
+
+    function loadFacilities(uc_id, selected_facility = ''){
+        if(!uc_id){
+            $('#facility').html('<option value="">Select Facility</option>');
+            return;
+        }
+
+        $.ajax({
+            url: "<?= base_url('forms/get_facilities_by_uc') ?>",
+            type: "POST",
+            data: { uc_id: uc_id },
+            dataType: "json",
+            success: function(data){
+                $('#facility').empty();
+                $('#facility').append('<option value="">Select Facility</option>');
+                $.each(data, function(i, f){
+                    let selected = (f.id == selected_facility) ? 'selected' : '';
+                    $('#facility').append('<option value="'+f.id+'" '+selected+'>'+f.facility_name+'</option>');
+                });
+            }
+        });
+    }
+
+    // When UC changes manually
+    $('#uc').change(function(){
+        loadFacilities($(this).val());
+    });
+});
+
+//For QR code
+document.addEventListener("DOMContentLoaded", function() {
+
+    var qrInput = document.getElementById("qr_input");
+    var qrPreview = document.getElementById("qr_preview");
+
+    var qr = new QRCode(qrPreview, {
+        width: 80,
+        height: 80
+    });
+
+    function generateQR(value) {
+        qrPreview.innerHTML = "";
+        if(value.trim() !== "") {
+            new QRCode(qrPreview, {
+                text: value,
+                width: 80,
+                height: 80
+            });
+        }
+    }
+
+    // Generate on typing
+    qrInput.addEventListener("keyup", function() {
+        generateQR(this.value);
+    });
+
+    // If editing (value already exists)
+    if(qrInput.value !== ""){
+        generateQR(qrInput.value);
+    }
+
 });
 </script>

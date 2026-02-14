@@ -133,7 +133,15 @@
     <h1 class="header-title">OPD MNCH Form</h1>
 </div>
 
-<form method="post" action="<?php echo base_url('forms/save_opd_mnch'); ?>">
+<?php
+$rec = isset($record) ? $record : null;
+$details = isset($details) ? $details : array();
+?>
+
+<form method="post"
+action="<?= isset($is_edit) && $is_edit 
+? base_url('forms/update_opd_mnch/'.$record->id)
+: base_url('forms/save_opd_mnch'); ?>">
 
 <div class="card">
 <div class="card-body">
@@ -161,7 +169,6 @@
 </div>
 
 
-
 <!-- ================= BASIC INFO ================= -->
 
 <div class="card mb-4 form-section">
@@ -175,12 +182,14 @@
 
 <div class="mt-2">
     <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="visit_type" value="OPD" required>
+        <input class="form-check-input" type="radio" name="visit_type" value="OPD"
+        <?= ($rec && $rec->visit_type=='OPD')?'checked':'' ?> required>
         <label class="form-check-label">OPD</label>
     </div>
 
     <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="visit_type" value="MNCH" required>
+        <input class="form-check-input" type="radio" name="visit_type" value="MNCH"
+        <?= ($rec && $rec->visit_type=='MNCH')?'checked':'' ?> required>
         <label class="form-check-label">MNCH</label>
     </div>
 </div>
@@ -190,12 +199,14 @@
 <div class="form-group row">
 <label class="col-sm-2 col-form-label">Date *</label>
 <div class="col-sm-4">
-<input type="date" name="form_date" class="form-control" required>
+<input type="date" name="form_date" class="form-control"
+value="<?= $rec ? $rec->form_date : '' ?>" required>
 </div>
 
 <label class="col-sm-2 col-form-label">ANC Card# *</label>
 <div class="col-sm-4">
-<input type="text" name="anc_card_no" class="form-control" required>
+<input type="text" name="anc_card_no" class="form-control"
+value="<?= $rec ? htmlspecialchars($rec->anc_card_no):'' ?>" required>
 </div>
 </div>
 
@@ -205,34 +216,64 @@
 <div class="col-sm-10">
 
 <div class="form-check form-check-inline">
-<input class="form-check-input" type="radio" name="client_type" value="New" required>
+<input class="form-check-input" type="radio" name="client_type" value="New"
+<?= ($rec && $rec->client_type=='New')?'checked':'' ?> required>
 <label class="form-check-label">New Client</label>
 </div>
 
 <div class="form-check form-check-inline">
-<input class="form-check-input" type="radio" name="client_type" value="Followup" required>
+<input class="form-check-input" type="radio" name="client_type" value="Followup"
+<?= ($rec && $rec->client_type=='Followup')?'checked':'' ?> required>
 <label class="form-check-label">Follow-up</label>
 </div>
 
 </div>
 </div>
 
-<div class="form-group row">
-    <label class="col-sm-2 col-form-label">District *</label>
-    <div class="col-sm-4">
-        <select name="district" id="district" class="form-control" required>
-            <?php foreach($districts as $district){ ?>
-                <option value="<?= $district->district_id ?>" selected>
-                    <?= $district->district_name ?>
-                </option>
-            <?php } ?>
-        </select>
-    </div>
 
-    <label class="col-sm-2 col-form-label">UC *</label>
+<div class="form-group row">
+<label class="col-sm-2 col-form-label">District *</label>
+<div class="col-sm-4">
+<select name="district" id="district" class="form-control" required>
+
+<?php foreach($districts as $district){ ?>
+<option value="<?= $district->district_id ?>"
+<?= ($rec && $rec->district==$district->district_id)?'selected':'' ?>>
+<?= $district->district_name ?>
+</option>
+<?php } ?>
+
+</select>
+</div>
+
+<label class="col-sm-2 col-form-label">UC *</label>
+<div class="col-sm-4">
+<select name="uc" id="uc" class="form-control" required>
+
+<?php if(isset($ucs)){ foreach($ucs as $u){ ?>
+<option value="<?= $u->pk_id ?>"
+<?= ($rec && $rec->uc==$u->pk_id)?'selected':'' ?>>
+<?= $u->uc ?>
+</option>
+<?php }} ?>
+
+</select>
+</div>
+</div>
+
+<div class="form-group row" id="facility-field">
+    <label class="col-sm-2 col-form-label">Facility *</label>
     <div class="col-sm-4">
-        <select name="uc" id="uc" class="form-control" required>
-            <option value="">Select UC</option>
+        <select name="facility_id" id="facility" class="form-control" required>
+            <option value="">Select Facility</option>
+            <?php if(isset($facilities) && $facilities): ?>
+                <?php foreach($facilities as $f): ?>
+                    <option value="<?= $f->id ?>" 
+                        <?= (isset($rec->facility_id) && $rec->facility_id == $f->id)?'selected':'' ?>>
+                        <?= htmlspecialchars($f->facility_name) ?>
+                    </option>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </select>
     </div>
 </div>
@@ -240,12 +281,14 @@
 <div class="form-group row">
 <label class="col-sm-2 col-form-label">Village *</label>
 <div class="col-sm-4">
-<input type="text" name="village" class="form-control" required>
+<input type="text" name="village" class="form-control"
+value="<?= $rec ? htmlspecialchars($rec->village):'' ?>" required>
 </div>
 
 <label class="col-sm-2 col-form-label">LHV Name *</label>
 <div class="col-sm-4">
-<input type="text" name="lhv_name" class="form-control" required>
+<input type="text" name="lhv_name" class="form-control"
+value="<?= $rec ? htmlspecialchars($rec->lhv_name):'' ?>" required>
 </div>
 </div>
 
@@ -253,12 +296,14 @@
 <div class="form-group row">
 <label class="col-sm-2 col-form-label">Patient Name *</label>
 <div class="col-sm-4">
-<input type="text" name="patient_name" class="form-control" required>
+<input type="text" name="patient_name" class="form-control"
+value="<?= $rec ? htmlspecialchars($rec->patient_name):'' ?>" required>
 </div>
 
 <label class="col-sm-2 col-form-label">Guardian Name *</label>
 <div class="col-sm-4">
-<input type="text" name="guardian_name" class="form-control" required>
+<input type="text" name="guardian_name" class="form-control"
+value="<?= $rec ? htmlspecialchars($rec->guardian_name):'' ?>" required>
 </div>
 </div>
 
@@ -279,20 +324,14 @@
 <label class="col-sm-2 col-form-label">Age Group *</label>
 <div class="col-sm-4">
 
+<?php $ages=['<1','1-5','15-49']; foreach($ages as $age){ ?>
 <div class="form-check">
-<input class="form-check-input" type="radio" name="age_group" value="<1" required>
-<label class="form-check-label">&lt;1</label>
+<input class="form-check-input" type="radio" name="age_group"
+value="<?= $age ?>"
+<?= ($rec && $rec->age_group==$age)?'checked':'' ?> required>
+<label class="form-check-label"><?= $age ?></label>
 </div>
-
-<div class="form-check">
-<input class="form-check-input" type="radio" name="age_group" value="1-5" required>
-<label class="form-check-label">1-5</label>
-</div>
-
-<div class="form-check">
-<input class="form-check-input" type="radio" name="age_group" value="15-49" required>
-<label class="form-check-label">15-49</label>
-</div>
+<?php } ?>
 
 </div>
 
@@ -300,15 +339,14 @@
 <label class="col-sm-2 col-form-label">Marital Status *</label>
 <div class="col-sm-4">
 
+<?php $maritals=['Married','Unmarried']; foreach($maritals as $m){ ?>
 <div class="form-check">
-<input class="form-check-input" type="radio" name="marital_status" value="Married" required>
-<label class="form-check-label">Married</label>
+<input class="form-check-input" type="radio" name="marital_status"
+value="<?= $m ?>"
+<?= ($rec && $rec->marital_status==$m)?'checked':'' ?> required>
+<label class="form-check-label"><?= $m ?></label>
 </div>
-
-<div class="form-check">
-<input class="form-check-input" type="radio" name="marital_status" value="Unmarried" required>
-<label class="form-check-label">Unmarried</label>
-</div>
+<?php } ?>
 
 </div>
 </div>
@@ -320,15 +358,14 @@
 <label class="col-sm-2 col-form-label">Pregnancy *</label>
 <div class="col-sm-4">
 
+<?php $preg=['Pregnant','Non-Pregnant']; foreach($preg as $p){ ?>
 <div class="form-check">
-<input class="form-check-input" type="radio" name="pregnancy_status" value="Pregnant" required>
-<label class="form-check-label">Pregnant</label>
+<input class="form-check-input" type="radio" name="pregnancy_status"
+value="<?= $p ?>"
+<?= ($rec && $rec->pregnancy_status==$p)?'checked':'' ?> required>
+<label class="form-check-label"><?= $p ?></label>
 </div>
-
-<div class="form-check">
-<input class="form-check-input" type="radio" name="pregnancy_status" value="Non-Pregnant" required>
-<label class="form-check-label">Non-Pregnant</label>
-</div>
+<?php } ?>
 
 </div>
 
@@ -336,15 +373,14 @@
 <label class="col-sm-2 col-form-label">Disability *</label>
 <div class="col-sm-4">
 
+<?php $dis=['Yes','No']; foreach($dis as $d){ ?>
 <div class="form-check">
-<input class="form-check-input" type="radio" name="disability" value="Yes" required>
-<label class="form-check-label">Yes</label>
+<input class="form-check-input" type="radio" name="disability"
+value="<?= $d ?>"
+<?= ($rec && $rec->disability==$d)?'checked':'' ?> required>
+<label class="form-check-label"><?= $d ?></label>
 </div>
-
-<div class="form-check">
-<input class="form-check-input" type="radio" name="disability" value="No" required>
-<label class="form-check-label">No</label>
-</div>
+<?php } ?>
 
 </div>
 </div>
@@ -368,15 +404,15 @@ foreach($questions as $q){
 <div class="card mb-4 form-section">
 <div class="card-body">
 
-<h4 class="section-title">🩺 <?php echo htmlspecialchars($section_name); ?></h4>
+<h4 class="section-title">🩺 <?= htmlspecialchars($section_name); ?></h4>
 
 <?php foreach($section_questions as $q): ?>
 
 <div class="form-group row">
 
 <label class="col-sm-5 col-form-label">
-<span class="q-num"><?php echo $q->q_num; ?></span>
-<?php echo htmlspecialchars($q->q_text); ?>
+<span class="q-num"><?= $q->q_num; ?></span>
+<?= htmlspecialchars($q->q_text); ?>
 </label>
 
 <div class="col-sm-7">
@@ -386,21 +422,30 @@ foreach($questions as $q){
 <?php if($q->q_type == 'text'): ?>
 
 <input type="text"
-name="question[<?php echo $q->question_id; ?>][0]"
-class="form-control">
+name="question[<?= $q->question_id; ?>][0]"
+class="form-control"
+value="<?= isset($details[$q->question_id][0]) 
+? htmlspecialchars($details[$q->question_id][0]) : '' ?>">
 
 <?php else: ?>
 
-<?php foreach($options as $opt): ?>
+<?php foreach($options as $opt): 
+
+$checked = (
+isset($details[$q->question_id]) &&
+in_array($opt->option_id,$details[$q->question_id])
+) ? 'checked' : '';
+?>
 
 <div class="form-check">
 <input class="form-check-input"
-type="<?php echo $q->q_type; ?>"
-name="question[<?php echo $q->question_id; ?>]<?php if($q->q_type=='checkbox') echo '[]'; ?>"
-value="<?php echo $opt->option_id; ?>">
+type="<?= $q->q_type; ?>"
+name="question[<?= $q->question_id; ?>]<?= ($q->q_type=='checkbox')?'[]':''; ?>"
+value="<?= $opt->option_id; ?>"
+<?= $checked ?>>
 
 <label class="form-check-label">
-<?php echo htmlspecialchars($opt->option_text); ?>
+<?= htmlspecialchars($opt->option_text); ?>
 </label>
 </div>
 
@@ -421,7 +466,7 @@ value="<?php echo $opt->option_id; ?>">
 
 <div class="text-center mb-5">
 <button type="submit" class="btn btn-success save-btn">
-💾 Save Patient Record
+<?= (isset($is_edit) && $is_edit) ? 'Update Record' : 'Save Patient Record' ?>
 </button>
 </div>
 
@@ -430,14 +475,17 @@ value="<?php echo $opt->option_id; ?>">
 
 </form>
 
+
 </div>
     
 <!-- Load jQuery first -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
 <script>
+var selected_facility = <?= isset($rec->facility_id) ? json_encode($rec->facility_id) : '""' ?>;
+var selected_uc = "<?= isset($rec->uc) ? $rec->uc : '' ?>";
 $(document).ready(function() {
 
-    function loadUC(district_id) {
+    function loadUC(district_id, selected_uc = '') {
         $.ajax({
             url: "<?= base_url('forms/get_uc_by_district') ?>",
             type: "POST",
@@ -445,10 +493,18 @@ $(document).ready(function() {
             dataType: "json",
             success: function(data){
                 $('#uc').empty();
-                $('#uc').append('<option value="">Select UC</option>'); // keep placeholder for UC
+                $('#uc').append('<option value="">Select UC</option>');
+
                 $.each(data, function(i, obj){
                     $('#uc').append('<option value="'+obj.pk_id+'">'+obj.uc+'</option>');
                 });
+
+                if(selected_uc){
+                    $('#uc').val(selected_uc);
+
+                    // ✅ LOAD FACILITIES AFTER UC IS SET
+                    loadFacilities(selected_uc, selected_facility);
+                }
             }
         });
     }
@@ -456,7 +512,7 @@ $(document).ready(function() {
     // Load UCs for the only district on page load
     var district_id = $('#district').val();
     if(district_id) {
-        loadUC(district_id);
+        loadUC(district_id, selected_uc); // ✅ PASS IT HERE
     }
 
 });
@@ -464,5 +520,39 @@ $(document).ready(function(){
     setTimeout(function(){
         $('#flash-msg').fadeOut('slow');
     }, 3000); // 3000ms = 3 seconds
+});
+
+$(document).ready(function(){
+
+    function loadFacilities(uc_id, selected_facility = ''){
+        if(!uc_id){
+            $('#facility').html('<option value="">Select Facility</option>');
+            return;
+        }
+
+        $.ajax({
+            url: "<?= base_url('forms/get_facilities_by_uc') ?>",
+            type: "POST",
+            data: { uc_id: uc_id },
+            dataType: "json",
+            success: function(data){
+                $('#facility').empty();
+                $('#facility').append('<option value="">Select Facility</option>');
+
+                $.each(data, function(i, f){
+                    let selected = (f.id == selected_facility) ? 'selected' : '';
+                    $('#facility').append(
+                        '<option value="'+f.id+'" '+selected+'>'+f.facility_name+'</option>'
+                    );
+                });
+            }
+        });
+    }
+
+    // When UC changes
+    $('#uc').change(function(){
+        loadFacilities($(this).val());
+    });
+
 });
 </script> 

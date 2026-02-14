@@ -13,4 +13,13 @@ class Location_model extends CI_Model {
                         ->get('uc')
                         ->result();
     }
+    
+    public function get_facilities_by_uc($uc_id)
+    {
+        return $this->db
+                    ->where('uc_id', $uc_id)
+                    ->get('facilities')
+                    ->result();
+    }
+
 }

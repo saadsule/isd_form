@@ -69,7 +69,14 @@
    View
 
 </a>
-
+    
+<?php if($this->session->userdata('user_id') == $r->created_by): ?>
+<a href="<?= base_url('forms/child_health/'.$r->master_id) ?>"
+   class="btn btn-sm btn-success">
+   Edit
+</a>
+<?php endif; ?>
+    
 </td>
 
 </tr>

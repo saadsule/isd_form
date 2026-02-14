@@ -119,6 +119,10 @@
     <th>Guardian</th>
     <td><?= !empty($master->guardian_name) ? $master->guardian_name : '-' ?></td>
 </tr>
+<tr>
+    <th>Facility</th>
+    <td><?= !empty($master->facility_name) ? $master->facility_name : '-' ?></td>
+</tr>
 </table>
 </div>
 </div>
@@ -145,46 +149,41 @@
 </div>
 
 <!-- ================= DYNAMIC QUESTIONS ================= -->
-<?php
-$sections = array();
-foreach($questions as $q){
-    $sections[$q->q_section][] = $q;
-}
-?>
-
-<?php foreach($sections as $section => $qs): ?>
+<?php foreach($questions as $section => $qs): ?>
 <div class="card mb-4 form-section">
-<div class="card-body">
-<h4 class="section-title">🩺 <?= htmlspecialchars($section) ?></h4>
-<table class="table table-striped">
-<?php foreach($qs as $q): ?>
-<tr>
-<td width="65%">
-    <span class="q-num"><?= $q->q_num ?></span>
-    <?= htmlspecialchars($q->q_text) ?>
-</td>
-<td>
-<?php
-if($q->q_type == 'text'){
-    echo !empty($q->answer) ? $q->answer : '-';
-}else{
-    $answers = array();
-    if(!empty($q->options)){
-        foreach($q->options as $opt){
-            if((isset($opt->selected_option) && $opt->selected_option == $opt->option_id)
-               || (isset($opt->answer) && $opt->answer == $opt->option_id)){
-                $answers[] = $opt->option_text;
-            }
-        }
-    }
-    echo !empty($answers) ? implode(', ', $answers) : '-';
-}
-?>
-</td>
-</tr>
-<?php endforeach; ?>
-</table>
-</div>
+    <div class="card-body">
+        <h4 class="section-title">🩺 <?= htmlspecialchars($section) ?></h4>
+        <table class="table table-striped">
+            <?php foreach($qs as $q): ?>
+            <tr>
+                <td width="65%">
+                    <span class="q-num"><?= $q->q_num ?></span>
+                    <?= htmlspecialchars($q->q_text) ?>
+                </td>
+                <td>
+                    <?php
+                    if($q->q_type == 'text'){
+                        echo !empty($q->answer) ? htmlspecialchars($q->answer) : '-';
+                    } else {
+                        $answers = [];
+                        if(!empty($q->options)){
+                            foreach($q->options as $opt){
+                                if(
+                                    (isset($opt->selected_option) && $opt->selected_option == $opt->option_id)
+                                    || (isset($opt->answer) && $opt->answer == $opt->option_id)
+                                ){
+                                    $answers[] = $opt->option_text;
+                                }
+                            }
+                        }
+                        echo !empty($answers) ? implode(', ', $answers) : '-';
+                    }
+                    ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+    </div>
 </div>
 <?php endforeach; ?>
 

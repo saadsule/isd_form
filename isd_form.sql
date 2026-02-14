@@ -11,7 +11,7 @@
  Target Server Version : 100121
  File Encoding         : 65001
 
- Date: 13/02/2026 11:45:22
+ Date: 14/02/2026 15:37:42
 */
 
 SET NAMES utf8mb4;
@@ -31,7 +31,7 @@ CREATE TABLE `child_health_detail`  (
   PRIMARY KEY (`detail_id`) USING BTREE,
   INDEX `master_id`(`master_id`) USING BTREE,
   INDEX `question_id`(`question_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 105 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of child_health_detail
@@ -44,6 +44,49 @@ INSERT INTO `child_health_detail` VALUES (5, 1, 5, 15, 'PENTA III', '2026-02-13 
 INSERT INTO `child_health_detail` VALUES (6, 1, 5, 16, 'MR I', '2026-02-13 11:32:53');
 INSERT INTO `child_health_detail` VALUES (7, 1, 11, 65, 'No', '2026-02-13 11:32:53');
 INSERT INTO `child_health_detail` VALUES (8, 1, 13, NULL, '72', '2026-02-13 11:32:53');
+INSERT INTO `child_health_detail` VALUES (26, 2, 2, NULL, '4', '2026-02-14 00:10:01');
+INSERT INTO `child_health_detail` VALUES (27, 2, 3, 5, '17.2.1.  Fully immunized as per Age', '2026-02-14 00:10:01');
+INSERT INTO `child_health_detail` VALUES (28, 2, 3, 6, '17.2.2.  Vaccine not due', '2026-02-14 00:10:01');
+INSERT INTO `child_health_detail` VALUES (29, 2, 12, NULL, '67', '2026-02-14 00:10:01');
+INSERT INTO `child_health_detail` VALUES (30, 2, 13, NULL, '72', '2026-02-14 00:10:01');
+INSERT INTO `child_health_detail` VALUES (31, 2, 15, 76, 'No', '2026-02-14 00:10:01');
+INSERT INTO `child_health_detail` VALUES (32, 2, 16, 78, 'No', '2026-02-14 00:10:01');
+INSERT INTO `child_health_detail` VALUES (33, 2, 17, 80, 'No', '2026-02-14 00:10:01');
+INSERT INTO `child_health_detail` VALUES (60, 3, 4, 9, 'Demand Refusal', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (61, 3, 4, 10, 'Misconception Refusal ', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (62, 3, 4, 11, 'Religious Refusal', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (63, 3, 5, 28, 'ROTA II', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (64, 3, 5, 29, 'IPV I', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (65, 3, 6, 30, 'PENTA I', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (66, 3, 6, 31, 'PENTA II', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (67, 3, 6, 32, 'PENTA III', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (68, 3, 6, 33, 'MR I', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (69, 3, 6, 34, 'MR II', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (70, 3, 8, 57, 'OPV', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (71, 3, 12, NULL, '67', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (72, 3, 13, NULL, '72', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (73, 3, 15, 75, 'Yes', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (74, 3, 15, 76, 'No', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (75, 3, 16, 77, 'Yes', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (76, 3, 16, 78, 'No', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (77, 3, 17, 79, 'Yes', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (78, 3, 17, 80, 'No', '2026-02-14 00:17:08');
+INSERT INTO `child_health_detail` VALUES (79, 4, 6, 30, 'PENTA I', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (80, 4, 6, 31, 'PENTA II', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (81, 4, 6, 32, 'PENTA III', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (82, 4, 6, 33, 'MR I', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (83, 4, 6, 34, 'MR II', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (84, 4, 6, 35, 'PCV I', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (85, 4, 15, 75, 'Yes', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (86, 4, 15, 76, 'No', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (87, 4, 16, 77, 'Yes', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (88, 4, 16, 78, 'No', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (89, 4, 17, 80, 'No', '2026-02-14 00:35:11');
+INSERT INTO `child_health_detail` VALUES (100, 5, 3, 5, '17.2.1.  Fully immunized as per Age', '2026-02-14 14:20:12');
+INSERT INTO `child_health_detail` VALUES (101, 5, 3, 6, '17.2.2.  Vaccine not due', '2026-02-14 14:20:12');
+INSERT INTO `child_health_detail` VALUES (102, 5, 3, 7, '17.2.3.  Child is unwell', '2026-02-14 14:20:12');
+INSERT INTO `child_health_detail` VALUES (103, 5, 3, 8, '17.2.4.  Refusal', '2026-02-14 14:20:12');
+INSERT INTO `child_health_detail` VALUES (104, 5, 17, 80, 'No', '2026-02-14 14:20:12');
 
 -- ----------------------------
 -- Table structure for child_health_master
@@ -56,6 +99,7 @@ CREATE TABLE `child_health_master`  (
   `client_type` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `district` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `uc` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
+  `facility_id` int NULL DEFAULT NULL,
   `village` varchar(150) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `vaccinator_name` varchar(150) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `patient_name` varchar(150) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
@@ -72,13 +116,18 @@ CREATE TABLE `child_health_master`  (
   `nutrition_package` varchar(10) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `visit_type` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
+  `created_by` int NULL DEFAULT NULL,
   PRIMARY KEY (`master_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of child_health_master
 -- ----------------------------
-INSERT INTO `child_health_master` VALUES (1, '2026-02-20', '1231', 'New', '1', '6', 'Bannu', 'No', 'Shagufta', 'Khan', '1993-02-10', NULL, NULL, NULL, 'Female', NULL, NULL, NULL, NULL, NULL, '2026-02-13 11:32:53', 'Outreach');
+INSERT INTO `child_health_master` VALUES (1, '2026-02-20', '1231', 'New', '94', '6', 1, 'Bannu', 'No', 'Shagufta', 'Khan', '1993-02-10', NULL, NULL, NULL, 'Female', NULL, NULL, NULL, NULL, NULL, '2026-02-13 11:32:53', 'Outreach', 1);
+INSERT INTO `child_health_master` VALUES (2, '2026-02-19', '12311111111111', 'Followup', '94', '3', 1, 'qwe', '342222222222', '234', 'wdaaaaaaaaaa', '2026-02-26', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-13 12:12:38', 'Outreach', 1);
+INSERT INTO `child_health_master` VALUES (3, '2026-02-14', '1231s', 'Followup', '94', '8', 1, 'Attocks', '2131s', 'Razias', 'Khans', '2026-02-12', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-13 23:57:14', 'Outreach', 1);
+INSERT INTO `child_health_master` VALUES (4, '2026-03-06', '12321111111111111111111111', 'New', '94', '1', 1, 'ABC', '2131s', 'e1e', '123123', '2026-03-13', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-14 00:28:54', 'Fixed Site', 1);
+INSERT INTO `child_health_master` VALUES (5, '2026-02-13', '123456', 'Followup', '94', '2', 2, 'Attock', '342222222222', 'Saad', 'Azam', '2026-02-21', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-14 13:51:25', 'Fixed Site', 1);
 
 -- ----------------------------
 -- Table structure for districts
@@ -94,7 +143,29 @@ CREATE TABLE `districts`  (
 -- ----------------------------
 -- Records of districts
 -- ----------------------------
-INSERT INTO `districts` VALUES (1, 'North Waziristan', 1);
+INSERT INTO `districts` VALUES (94, 'North Waziristan', 3);
+
+-- ----------------------------
+-- Table structure for facilities
+-- ----------------------------
+DROP TABLE IF EXISTS `facilities`;
+CREATE TABLE `facilities`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `uc_id` int NOT NULL,
+  `facility_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `latitude` decimal(10, 7) NULL DEFAULT NULL,
+  `longitude` decimal(10, 7) NULL DEFAULT NULL,
+  `province_id` int NULL DEFAULT NULL,
+  `district_id` int NULL DEFAULT NULL,
+  `isd_status` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Records of facilities
+-- ----------------------------
+INSERT INTO `facilities` VALUES (1, 1, 'xyz', 123.0000000, 222.0000000, NULL, NULL, NULL);
+INSERT INTO `facilities` VALUES (2, 2, 'abc', 3.0000000, 123.0000000, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for form_logs
@@ -107,7 +178,7 @@ CREATE TABLE `form_logs`  (
   `data_json` longtext CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 28 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of form_logs
@@ -116,6 +187,29 @@ INSERT INTO `form_logs` VALUES (1, 'child_health_form', 12, '{\"master\":{\"visi
 INSERT INTO `form_logs` VALUES (2, 'opd_mnch_form', 7, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-28\",\"anc_card_no\":\"324\",\"client_type\":\"Followup\",\"district\":\"1\",\"uc\":\"5\",\"village\":\"Attock\",\"lhv_name\":\"1123\",\"patient_name\":\"Saad\",\"guardian_name\":\"Azam\",\"disability\":\"No\",\"age_group\":\"1-5\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"notes\":null},\"details\":[{\"master_id\":7,\"question_id\":18,\"option_id\":null,\"answer\":\"83\"},{\"master_id\":7,\"question_id\":20,\"option_id\":null,\"answer\":\"88\"},{\"master_id\":7,\"question_id\":21,\"option_id\":\"98\",\"answer\":\"9. Hepas\"},{\"master_id\":7,\"question_id\":21,\"option_id\":\"99\",\"answer\":\"10. Obstetric\"}]}', '2026-02-13 10:54:14');
 INSERT INTO `form_logs` VALUES (3, 'opd_mnch_form', 1, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-12\",\"anc_card_no\":\"12345\",\"client_type\":\"New\",\"district\":\"1\",\"uc\":\"5\",\"village\":\"ABC\",\"lhv_name\":\"Razia\",\"patient_name\":\"Razia\",\"guardian_name\":\"Sultan\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"notes\":null},\"details\":[{\"master_id\":1,\"question_id\":18,\"option_id\":null,\"answer\":\"82\"},{\"master_id\":1,\"question_id\":21,\"option_id\":\"93\",\"answer\":\"4. Eclampsia\"},{\"master_id\":1,\"question_id\":21,\"option_id\":\"94\",\"answer\":\"5. Gestaonal Diabetes\"},{\"master_id\":1,\"question_id\":24,\"option_id\":null,\"answer\":\"103\"},{\"master_id\":1,\"question_id\":27,\"option_id\":null,\"answer\":\"112\"},{\"master_id\":1,\"question_id\":26,\"option_id\":\"110\",\"answer\":\"No\"},{\"master_id\":1,\"question_id\":30,\"option_id\":\"128\",\"answer\":\"12.Crimean\\u2013Congo Hemorrhagic Fever (Suspected)\"},{\"master_id\":1,\"question_id\":30,\"option_id\":\"129\",\"answer\":\"13. Cutaneous Leishmaniasis (Suspected)\"},{\"master_id\":1,\"question_id\":30,\"option_id\":\"130\",\"answer\":\"14. Meningis Suspected Likely (Suspected Meningis\"},{\"master_id\":1,\"question_id\":33,\"option_id\":\"149\",\"answer\":\"2. Hygiene Kit (NW)\"},{\"master_id\":1,\"question_id\":35,\"option_id\":null,\"answer\":\"152\"}]}', '2026-02-13 11:31:30');
 INSERT INTO `form_logs` VALUES (4, 'child_health_form', 1, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-20\",\"qr_code\":\"1231\",\"client_type\":\"New\",\"district\":\"1\",\"uc\":\"6\",\"village\":\"Bannu\",\"vaccinator_name\":\"No\",\"patient_name\":\"Shagufta\",\"guardian_name\":\"Khan\",\"dob\":\"1993-02-10\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Female\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":1,\"question_id\":1,\"option_id\":null,\"answer\":\"2\"},{\"master_id\":1,\"question_id\":2,\"option_id\":null,\"answer\":\"4\"},{\"master_id\":1,\"question_id\":3,\"option_id\":\"6\",\"answer\":\"17.2.2.  Vaccine not due\"},{\"master_id\":1,\"question_id\":4,\"option_id\":\"11\",\"answer\":\"Religious Refusal\"},{\"master_id\":1,\"question_id\":5,\"option_id\":\"15\",\"answer\":\"PENTA III\"},{\"master_id\":1,\"question_id\":5,\"option_id\":\"16\",\"answer\":\"MR I\"},{\"master_id\":1,\"question_id\":11,\"option_id\":\"65\",\"answer\":\"No\"},{\"master_id\":1,\"question_id\":13,\"option_id\":null,\"answer\":\"72\"}]}', '2026-02-13 11:32:53');
+INSERT INTO `form_logs` VALUES (5, 'opd_mnch_form', 2, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-19\",\"anc_card_no\":\"324\",\"client_type\":\"Followup\",\"district\":\"1\",\"uc\":\"12\",\"village\":\"Attock\",\"lhv_name\":\"1123\",\"patient_name\":\"Ahmed\",\"guardian_name\":\"Azam\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"notes\":null},\"details\":[{\"master_id\":2,\"question_id\":30,\"option_id\":\"139\",\"answer\":\"23. AT Animal Bite \\/ An-Rabies Treatment\"},{\"master_id\":2,\"question_id\":30,\"option_id\":\"140\",\"answer\":\"24.Mumps Viral Infecon\"},{\"master_id\":2,\"question_id\":32,\"option_id\":null,\"answer\":\"147\"},{\"master_id\":2,\"question_id\":33,\"option_id\":\"149\",\"answer\":\"2. Hygiene Kit (NW)\"}]}', '2026-02-13 12:00:57');
+INSERT INTO `form_logs` VALUES (6, 'opd_mnch_form', 3, '{\"master\":{\"visit_type\":\"OPD\",\"form_date\":\"2026-02-20\",\"anc_card_no\":\"wdqd\",\"client_type\":\"New\",\"district\":\"1\",\"uc\":\"12\",\"village\":\"qw\",\"lhv_name\":\"wqe\",\"patient_name\":\"qwe\",\"guardian_name\":\"12\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"notes\":null},\"details\":[]}', '2026-02-13 12:08:30');
+INSERT INTO `form_logs` VALUES (7, 'opd_mnch_form', 4, '{\"master\":{\"visit_type\":\"OPD\",\"form_date\":\"2026-02-13\",\"anc_card_no\":\"324\",\"client_type\":\"Followup\",\"district\":\"1\",\"uc\":\"12\",\"village\":\"123\",\"lhv_name\":\"wqe\",\"patient_name\":\"e1e\",\"guardian_name\":\"qwe\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"notes\":null},\"details\":[{\"master_id\":4,\"question_id\":18,\"option_id\":null,\"answer\":\"82\"},{\"master_id\":4,\"question_id\":35,\"option_id\":null,\"answer\":\"151\"}]}', '2026-02-13 12:12:07');
+INSERT INTO `form_logs` VALUES (8, 'child_health_form', 2, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-02-19\",\"qr_code\":\"1231\",\"client_type\":\"Followup\",\"district\":\"1\",\"uc\":\"3\",\"village\":\"qwe\",\"vaccinator_name\":\"342\",\"patient_name\":\"234\",\"guardian_name\":\"wda\",\"dob\":\"2026-02-26\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":2,\"question_id\":3,\"option_id\":\"5\",\"answer\":\"17.2.1.  Fully immunized as per Age\"},{\"master_id\":2,\"question_id\":13,\"option_id\":null,\"answer\":\"72\"}]}', '2026-02-13 12:12:38');
+INSERT INTO `form_logs` VALUES (9, 'opd_mnch_form_update', 4, '{\"master\":{\"visit_type\":\"OPD\",\"form_date\":\"2026-02-13\",\"anc_card_no\":\"324\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"3\",\"village\":\"123\",\"lhv_name\":\"wqe\",\"patient_name\":\"e1e\",\"guardian_name\":\"qwe\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"notes\":null},\"details\":[{\"master_id\":\"4\",\"question_id\":18,\"option_id\":null,\"answer\":\"82\"},{\"master_id\":\"4\",\"question_id\":24,\"option_id\":null,\"answer\":\"103\"},{\"master_id\":\"4\",\"question_id\":27,\"option_id\":null,\"answer\":\"112\"},{\"master_id\":\"4\",\"question_id\":25,\"option_id\":null,\"answer\":\"107\"},{\"master_id\":\"4\",\"question_id\":28,\"option_id\":null,\"answer\":\"114\"},{\"master_id\":\"4\",\"question_id\":26,\"option_id\":\"110\",\"answer\":\"No\"},{\"master_id\":\"4\",\"question_id\":29,\"option_id\":null,\"answer\":\"116\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"141\",\"answer\":\"25. Severe Complicated Burns\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"142\",\"answer\":\"26. Unexplained Fever\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"143\",\"answer\":\"27.Severe Acute Malnutrion\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"144\",\"answer\":\"28. Injury All accidental or trauma-related injuries.\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"145\",\"answer\":\"29. Other\"},{\"master_id\":\"4\",\"question_id\":35,\"option_id\":null,\"answer\":\"151\"}]}', '2026-02-13 23:11:47');
+INSERT INTO `form_logs` VALUES (10, 'opd_mnch_form_update', 4, '{\"master\":{\"visit_type\":\"OPD\",\"form_date\":\"2026-02-13\",\"anc_card_no\":\"324\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"3\",\"village\":\"1233333333\",\"lhv_name\":\"wqeeeeeeee\",\"patient_name\":\"e1eeeeeee\",\"guardian_name\":\"qweeeeeeee\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"notes\":null},\"details\":[{\"master_id\":\"4\",\"question_id\":18,\"option_id\":null,\"answer\":\"82\"},{\"master_id\":\"4\",\"question_id\":20,\"option_id\":null,\"answer\":\"89\"},{\"master_id\":\"4\",\"question_id\":19,\"option_id\":null,\"answer\":\"87\"},{\"master_id\":\"4\",\"question_id\":21,\"option_id\":\"93\",\"answer\":\"4. Eclampsia\"},{\"master_id\":\"4\",\"question_id\":21,\"option_id\":\"94\",\"answer\":\"5. Gestaonal Diabetes\"},{\"master_id\":\"4\",\"question_id\":21,\"option_id\":\"95\",\"answer\":\"6. Asthma\"},{\"master_id\":\"4\",\"question_id\":21,\"option_id\":\"96\",\"answer\":\"7. Type 2 Diabetes\"},{\"master_id\":\"4\",\"question_id\":24,\"option_id\":null,\"answer\":\"103\"},{\"master_id\":\"4\",\"question_id\":27,\"option_id\":null,\"answer\":\"112\"},{\"master_id\":\"4\",\"question_id\":25,\"option_id\":null,\"answer\":\"107\"},{\"master_id\":\"4\",\"question_id\":28,\"option_id\":null,\"answer\":\"114\"},{\"master_id\":\"4\",\"question_id\":26,\"option_id\":\"110\",\"answer\":\"No\"},{\"master_id\":\"4\",\"question_id\":29,\"option_id\":null,\"answer\":\"116\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"141\",\"answer\":\"25. Severe Complicated Burns\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"142\",\"answer\":\"26. Unexplained Fever\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"143\",\"answer\":\"27.Severe Acute Malnutrion\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"144\",\"answer\":\"28. Injury All accidental or trauma-related injuries.\"},{\"master_id\":\"4\",\"question_id\":30,\"option_id\":\"145\",\"answer\":\"29. Other\"},{\"master_id\":\"4\",\"question_id\":35,\"option_id\":null,\"answer\":\"151\"}]}', '2026-02-13 23:12:40');
+INSERT INTO `form_logs` VALUES (11, 'opd_mnch_form_update', 3, '{\"master\":{\"visit_type\":\"OPD\",\"form_date\":\"2026-02-20\",\"anc_card_no\":\"wdqd\",\"client_type\":\"New\",\"district\":\"94\",\"uc\":\"12\",\"village\":\"qw\",\"lhv_name\":\"wqe\",\"patient_name\":\"qwe\",\"guardian_name\":\"12\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"notes\":null},\"details\":[{\"master_id\":\"3\",\"question_id\":26,\"option_id\":\"110\",\"answer\":\"No\"},{\"master_id\":\"3\",\"question_id\":29,\"option_id\":null,\"answer\":\"116\"},{\"master_id\":\"3\",\"question_id\":34,\"option_id\":null,\"answer\":\"sada\"},{\"master_id\":\"3\",\"question_id\":35,\"option_id\":null,\"answer\":\"152\"}]}', '2026-02-13 23:33:29');
+INSERT INTO `form_logs` VALUES (12, 'child_health_form', 2, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-02-19\",\"qr_code\":\"12311111111111\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"3\",\"village\":\"qwe\",\"vaccinator_name\":\"342222222222\",\"patient_name\":\"234\",\"guardian_name\":\"wdaaaaaaaaaa\",\"dob\":\"2026-02-26\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":\"2\",\"question_id\":12,\"option_id\":null,\"answer\":\"66\"},{\"master_id\":\"2\",\"question_id\":13,\"option_id\":null,\"answer\":\"70\"},{\"master_id\":\"2\",\"question_id\":15,\"option_id\":\"75\",\"answer\":\"Yes\"},{\"master_id\":\"2\",\"question_id\":16,\"option_id\":\"78\",\"answer\":\"No\"},{\"master_id\":\"2\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-13 23:54:23');
+INSERT INTO `form_logs` VALUES (13, 'child_health_form', 2, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-02-19\",\"qr_code\":\"12311111111111\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"3\",\"village\":\"qwe\",\"vaccinator_name\":\"342222222222\",\"patient_name\":\"234\",\"guardian_name\":\"wdaaaaaaaaaa\",\"dob\":\"2026-02-26\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":\"2\",\"question_id\":2,\"option_id\":null,\"answer\":\"4\"},{\"master_id\":\"2\",\"question_id\":3,\"option_id\":\"5\",\"answer\":\"17.2.1.  Fully immunized as per Age\"},{\"master_id\":\"2\",\"question_id\":3,\"option_id\":\"6\",\"answer\":\"17.2.2.  Vaccine not due\"},{\"master_id\":\"2\",\"question_id\":16,\"option_id\":\"78\",\"answer\":\"No\"},{\"master_id\":\"2\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-13 23:54:51');
+INSERT INTO `form_logs` VALUES (14, 'child_health_form', 3, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-14\",\"qr_code\":\"1231\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"8\",\"village\":\"Attock\",\"vaccinator_name\":\"2131\",\"patient_name\":\"Razia\",\"guardian_name\":\"Khan\",\"dob\":\"2026-02-12\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":3,\"question_id\":4,\"option_id\":\"9\",\"answer\":\"Demand Refusal\"},{\"master_id\":3,\"question_id\":4,\"option_id\":\"10\",\"answer\":\"Misconception Refusal \"},{\"master_id\":3,\"question_id\":4,\"option_id\":\"11\",\"answer\":\"Religious Refusal\"},{\"master_id\":3,\"question_id\":8,\"option_id\":\"57\",\"answer\":\"OPV\"},{\"master_id\":3,\"question_id\":16,\"option_id\":\"77\",\"answer\":\"Yes\"}]}', '2026-02-13 23:57:14');
+INSERT INTO `form_logs` VALUES (15, 'child_health_form', 2, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-19\",\"qr_code\":\"12311111111111\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"3\",\"village\":\"qwe\",\"vaccinator_name\":\"342222222222\",\"patient_name\":\"234\",\"guardian_name\":\"wdaaaaaaaaaa\",\"dob\":\"2026-02-26\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":\"2\",\"question_id\":2,\"option_id\":null,\"answer\":\"4\"},{\"master_id\":\"2\",\"question_id\":3,\"option_id\":\"5\",\"answer\":\"17.2.1.  Fully immunized as per Age\"},{\"master_id\":\"2\",\"question_id\":3,\"option_id\":\"6\",\"answer\":\"17.2.2.  Vaccine not due\"},{\"master_id\":\"2\",\"question_id\":12,\"option_id\":null,\"answer\":\"67\"},{\"master_id\":\"2\",\"question_id\":13,\"option_id\":null,\"answer\":\"72\"},{\"master_id\":\"2\",\"question_id\":15,\"option_id\":\"76\",\"answer\":\"No\"},{\"master_id\":\"2\",\"question_id\":16,\"option_id\":\"78\",\"answer\":\"No\"},{\"master_id\":\"2\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 00:10:01');
+INSERT INTO `form_logs` VALUES (16, 'child_health_form', 3, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-14\",\"qr_code\":\"1231\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"8\",\"village\":\"Attock\",\"vaccinator_name\":\"2131\",\"patient_name\":\"Razia\",\"guardian_name\":\"Khan\",\"dob\":\"2026-02-12\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":\"3\",\"question_id\":4,\"option_id\":\"9\",\"answer\":\"Demand Refusal\"},{\"master_id\":\"3\",\"question_id\":4,\"option_id\":\"10\",\"answer\":\"Misconception Refusal \"},{\"master_id\":\"3\",\"question_id\":4,\"option_id\":\"11\",\"answer\":\"Religious Refusal\"},{\"master_id\":\"3\",\"question_id\":8,\"option_id\":\"57\",\"answer\":\"OPV\"},{\"master_id\":\"3\",\"question_id\":12,\"option_id\":null,\"answer\":\"67\"},{\"master_id\":\"3\",\"question_id\":13,\"option_id\":null,\"answer\":\"70\"},{\"master_id\":\"3\",\"question_id\":15,\"option_id\":\"76\",\"answer\":\"No\"},{\"master_id\":\"3\",\"question_id\":16,\"option_id\":\"77\",\"answer\":\"Yes\"},{\"master_id\":\"3\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 00:10:32');
+INSERT INTO `form_logs` VALUES (17, 'child_health_form', 3, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-14\",\"qr_code\":\"1231\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"8\",\"village\":\"Attock\",\"vaccinator_name\":\"2131\",\"patient_name\":\"Razia\",\"guardian_name\":\"Khan\",\"dob\":\"2026-02-12\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":\"3\",\"question_id\":4,\"option_id\":\"9\",\"answer\":\"Demand Refusal\"},{\"master_id\":\"3\",\"question_id\":4,\"option_id\":\"10\",\"answer\":\"Misconception Refusal \"},{\"master_id\":\"3\",\"question_id\":4,\"option_id\":\"11\",\"answer\":\"Religious Refusal\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"30\",\"answer\":\"PENTA I\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"31\",\"answer\":\"PENTA II\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"32\",\"answer\":\"PENTA III\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"33\",\"answer\":\"MR I\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"34\",\"answer\":\"MR II\"},{\"master_id\":\"3\",\"question_id\":8,\"option_id\":\"57\",\"answer\":\"OPV\"},{\"master_id\":\"3\",\"question_id\":12,\"option_id\":null,\"answer\":\"67\"},{\"master_id\":\"3\",\"question_id\":13,\"option_id\":null,\"answer\":\"72\"},{\"master_id\":\"3\",\"question_id\":15,\"option_id\":\"75\",\"answer\":\"Yes\"},{\"master_id\":\"3\",\"question_id\":15,\"option_id\":\"76\",\"answer\":\"No\"},{\"master_id\":\"3\",\"question_id\":16,\"option_id\":\"77\",\"answer\":\"Yes\"},{\"master_id\":\"3\",\"question_id\":16,\"option_id\":\"78\",\"answer\":\"No\"},{\"master_id\":\"3\",\"question_id\":17,\"option_id\":\"79\",\"answer\":\"Yes\"},{\"master_id\":\"3\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 00:11:01');
+INSERT INTO `form_logs` VALUES (18, 'child_health_form', 3, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-14\",\"qr_code\":\"1231s\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"8\",\"village\":\"Attocks\",\"vaccinator_name\":\"2131s\",\"patient_name\":\"Razias\",\"guardian_name\":\"Khans\",\"dob\":\"2026-02-12\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":\"3\",\"question_id\":4,\"option_id\":\"9\",\"answer\":\"Demand Refusal\"},{\"master_id\":\"3\",\"question_id\":4,\"option_id\":\"10\",\"answer\":\"Misconception Refusal \"},{\"master_id\":\"3\",\"question_id\":4,\"option_id\":\"11\",\"answer\":\"Religious Refusal\"},{\"master_id\":\"3\",\"question_id\":5,\"option_id\":\"28\",\"answer\":\"ROTA II\"},{\"master_id\":\"3\",\"question_id\":5,\"option_id\":\"29\",\"answer\":\"IPV I\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"30\",\"answer\":\"PENTA I\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"31\",\"answer\":\"PENTA II\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"32\",\"answer\":\"PENTA III\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"33\",\"answer\":\"MR I\"},{\"master_id\":\"3\",\"question_id\":6,\"option_id\":\"34\",\"answer\":\"MR II\"},{\"master_id\":\"3\",\"question_id\":8,\"option_id\":\"57\",\"answer\":\"OPV\"},{\"master_id\":\"3\",\"question_id\":12,\"option_id\":null,\"answer\":\"67\"},{\"master_id\":\"3\",\"question_id\":13,\"option_id\":null,\"answer\":\"72\"},{\"master_id\":\"3\",\"question_id\":15,\"option_id\":\"75\",\"answer\":\"Yes\"},{\"master_id\":\"3\",\"question_id\":15,\"option_id\":\"76\",\"answer\":\"No\"},{\"master_id\":\"3\",\"question_id\":16,\"option_id\":\"77\",\"answer\":\"Yes\"},{\"master_id\":\"3\",\"question_id\":16,\"option_id\":\"78\",\"answer\":\"No\"},{\"master_id\":\"3\",\"question_id\":17,\"option_id\":\"79\",\"answer\":\"Yes\"},{\"master_id\":\"3\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 00:17:08');
+INSERT INTO `form_logs` VALUES (19, 'child_health_form', 4, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-03-06\",\"qr_code\":\"12321\",\"client_type\":\"New\",\"district\":\"94\",\"uc\":\"1\",\"village\":\"ABC\",\"vaccinator_name\":\"2131s\",\"patient_name\":\"e1e\",\"guardian_name\":\"123123\",\"dob\":\"2026-03-13\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null,\"created_by\":\"1\"},\"details\":null}', '2026-02-14 00:28:54');
+INSERT INTO `form_logs` VALUES (20, 'child_health_form', 4, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-03-06\",\"qr_code\":\"12321111111111111111111111\",\"client_type\":\"New\",\"district\":\"94\",\"uc\":\"1\",\"village\":\"ABC\",\"vaccinator_name\":\"2131s\",\"patient_name\":\"e1e\",\"guardian_name\":\"123123\",\"dob\":\"2026-03-13\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null},\"details\":[{\"master_id\":\"4\",\"question_id\":6,\"option_id\":\"30\",\"answer\":\"PENTA I\"},{\"master_id\":\"4\",\"question_id\":6,\"option_id\":\"31\",\"answer\":\"PENTA II\"},{\"master_id\":\"4\",\"question_id\":6,\"option_id\":\"32\",\"answer\":\"PENTA III\"},{\"master_id\":\"4\",\"question_id\":6,\"option_id\":\"33\",\"answer\":\"MR I\"},{\"master_id\":\"4\",\"question_id\":6,\"option_id\":\"34\",\"answer\":\"MR II\"},{\"master_id\":\"4\",\"question_id\":6,\"option_id\":\"35\",\"answer\":\"PCV I\"},{\"master_id\":\"4\",\"question_id\":15,\"option_id\":\"75\",\"answer\":\"Yes\"},{\"master_id\":\"4\",\"question_id\":15,\"option_id\":\"76\",\"answer\":\"No\"},{\"master_id\":\"4\",\"question_id\":16,\"option_id\":\"77\",\"answer\":\"Yes\"},{\"master_id\":\"4\",\"question_id\":16,\"option_id\":\"78\",\"answer\":\"No\"},{\"master_id\":\"4\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 00:35:11');
+INSERT INTO `form_logs` VALUES (21, 'child_health_form', 5, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-02-13\",\"qr_code\":\"testttt\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"1\",\"village\":\"Attock\",\"vaccinator_name\":\"342222222222\",\"patient_name\":\"Saad\",\"guardian_name\":\"Azam\",\"dob\":\"2026-02-21\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null,\"created_by\":\"1\",\"facility_id\":\"1\"},\"details\":[{\"master_id\":5,\"question_id\":3,\"option_id\":\"5\",\"answer\":\"17.2.1.  Fully immunized as per Age\"},{\"master_id\":5,\"question_id\":3,\"option_id\":\"6\",\"answer\":\"17.2.2.  Vaccine not due\"},{\"master_id\":5,\"question_id\":3,\"option_id\":\"7\",\"answer\":\"17.2.3.  Child is unwell\"},{\"master_id\":5,\"question_id\":3,\"option_id\":\"8\",\"answer\":\"17.2.4.  Refusal\"},{\"master_id\":5,\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 13:51:25');
+INSERT INTO `form_logs` VALUES (22, 'opd_mnch_form', 5, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-13\",\"anc_card_no\":\"fads\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"1\",\"village\":\"asda\",\"lhv_name\":\"ewq\",\"patient_name\":\"asda\",\"guardian_name\":\"asd\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"created_by\":\"1\",\"notes\":null},\"details\":[{\"master_id\":5,\"question_id\":18,\"option_id\":null,\"answer\":\"83\"},{\"master_id\":5,\"question_id\":35,\"option_id\":null,\"answer\":\"152\"}]}', '2026-02-14 14:01:48');
+INSERT INTO `form_logs` VALUES (23, 'opd_mnch_form_update', 5, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-13\",\"anc_card_no\":\"fads\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"asda\",\"lhv_name\":\"ewq\",\"patient_name\":\"asda\",\"guardian_name\":\"asd\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"created_by\":\"1\",\"facility_id\":\"2\",\"notes\":null},\"details\":[{\"master_id\":\"5\",\"question_id\":18,\"option_id\":null,\"answer\":\"83\"},{\"master_id\":\"5\",\"question_id\":35,\"option_id\":null,\"answer\":\"152\"}]}', '2026-02-14 14:05:14');
+INSERT INTO `form_logs` VALUES (24, 'child_health_form', 5, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-02-13\",\"qr_code\":\"testttt2nd\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"Attock\",\"vaccinator_name\":\"342222222222\",\"patient_name\":\"Saad\",\"guardian_name\":\"Azam\",\"dob\":\"2026-02-21\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null,\"created_by\":\"1\",\"facility_id\":\"2\"},\"details\":[{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"5\",\"answer\":\"17.2.1.  Fully immunized as per Age\"},{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"6\",\"answer\":\"17.2.2.  Vaccine not due\"},{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"7\",\"answer\":\"17.2.3.  Child is unwell\"},{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"8\",\"answer\":\"17.2.4.  Refusal\"},{\"master_id\":\"5\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 14:09:09');
+INSERT INTO `form_logs` VALUES (25, 'opd_mnch_form_update', 5, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-13\",\"anc_card_no\":\"fads3rd\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"1\",\"village\":\"asda\",\"lhv_name\":\"ewq\",\"patient_name\":\"asda\",\"guardian_name\":\"asd\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"created_by\":\"1\",\"facility_id\":\"1\",\"notes\":null},\"details\":[{\"master_id\":\"5\",\"question_id\":18,\"option_id\":null,\"answer\":\"83\"},{\"master_id\":\"5\",\"question_id\":35,\"option_id\":null,\"answer\":\"152\"}]}', '2026-02-14 14:09:24');
+INSERT INTO `form_logs` VALUES (26, 'child_health_form', 5, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-02-13\",\"qr_code\":\"123456\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"Attock\",\"vaccinator_name\":\"342222222222\",\"patient_name\":\"Saad\",\"guardian_name\":\"Azam\",\"dob\":\"2026-02-21\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null,\"created_by\":\"1\",\"facility_id\":\"2\"},\"details\":[{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"5\",\"answer\":\"17.2.1.  Fully immunized as per Age\"},{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"6\",\"answer\":\"17.2.2.  Vaccine not due\"},{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"7\",\"answer\":\"17.2.3.  Child is unwell\"},{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"8\",\"answer\":\"17.2.4.  Refusal\"},{\"master_id\":\"5\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 14:20:12');
+INSERT INTO `form_logs` VALUES (27, 'opd_mnch_form_update', 5, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-13\",\"anc_card_no\":\"fads3rd\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"asda\",\"lhv_name\":\"ewq\",\"patient_name\":\"asda\",\"guardian_name\":\"asd\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"created_by\":\"1\",\"facility_id\":\"2\",\"notes\":null},\"details\":[{\"master_id\":\"5\",\"question_id\":18,\"option_id\":null,\"answer\":\"83\"},{\"master_id\":\"5\",\"question_id\":22,\"option_id\":null,\"answer\":\"edddd\"},{\"master_id\":\"5\",\"question_id\":23,\"option_id\":null,\"answer\":\"explainnnnn\"},{\"master_id\":\"5\",\"question_id\":27,\"option_id\":null,\"answer\":\"112\"},{\"master_id\":\"5\",\"question_id\":25,\"option_id\":null,\"answer\":\"106\"},{\"master_id\":\"5\",\"question_id\":30,\"option_id\":\"117\",\"answer\":\"1. Acute Upper Respiratory Tract Infecon\"},{\"master_id\":\"5\",\"question_id\":30,\"option_id\":\"119\",\"answer\":\"3. Severe Acute Respiratory Infecon\"},{\"master_id\":\"5\",\"question_id\":30,\"option_id\":\"121\",\"answer\":\"5. Acute Watery Diarrhea\"},{\"master_id\":\"5\",\"question_id\":33,\"option_id\":\"148\",\"answer\":\"1. Clean Delivery Kit (NW)\"},{\"master_id\":\"5\",\"question_id\":33,\"option_id\":\"149\",\"answer\":\"2. Hygiene Kit (NW)\"},{\"master_id\":\"5\",\"question_id\":33,\"option_id\":\"150\",\"answer\":\"3. Learning Kit (NW\\/SW)\"},{\"master_id\":\"5\",\"question_id\":34,\"option_id\":null,\"answer\":\"test\"},{\"master_id\":\"5\",\"question_id\":35,\"option_id\":null,\"answer\":\"152\"}]}', '2026-02-14 15:15:32');
 
 -- ----------------------------
 -- Table structure for opd_mnch_detail
@@ -129,7 +223,7 @@ CREATE TABLE `opd_mnch_detail`  (
   `answer` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 73 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of opd_mnch_detail
@@ -145,6 +239,46 @@ INSERT INTO `opd_mnch_detail` VALUES (8, 1, 30, 129, '13. Cutaneous Leishmaniasi
 INSERT INTO `opd_mnch_detail` VALUES (9, 1, 30, 130, '14. Meningis Suspected Likely (Suspected Meningis', '2026-02-13 11:31:30');
 INSERT INTO `opd_mnch_detail` VALUES (10, 1, 33, 149, '2. Hygiene Kit (NW)', '2026-02-13 11:31:30');
 INSERT INTO `opd_mnch_detail` VALUES (11, 1, 35, NULL, '152', '2026-02-13 11:31:30');
+INSERT INTO `opd_mnch_detail` VALUES (12, 2, 30, 139, '23. AT Animal Bite / An-Rabies Treatment', '2026-02-13 12:00:57');
+INSERT INTO `opd_mnch_detail` VALUES (13, 2, 30, 140, '24.Mumps Viral Infecon', '2026-02-13 12:00:57');
+INSERT INTO `opd_mnch_detail` VALUES (14, 2, 32, NULL, '147', '2026-02-13 12:00:57');
+INSERT INTO `opd_mnch_detail` VALUES (15, 2, 33, 149, '2. Hygiene Kit (NW)', '2026-02-13 12:00:57');
+INSERT INTO `opd_mnch_detail` VALUES (31, 4, 18, NULL, '82', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (32, 4, 20, NULL, '89', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (33, 4, 19, NULL, '87', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (34, 4, 21, 93, '4. Eclampsia', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (35, 4, 21, 94, '5. Gestaonal Diabetes', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (36, 4, 21, 95, '6. Asthma', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (37, 4, 21, 96, '7. Type 2 Diabetes', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (38, 4, 24, NULL, '103', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (39, 4, 27, NULL, '112', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (40, 4, 25, NULL, '107', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (41, 4, 28, NULL, '114', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (42, 4, 26, 110, 'No', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (43, 4, 29, NULL, '116', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (44, 4, 30, 141, '25. Severe Complicated Burns', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (45, 4, 30, 142, '26. Unexplained Fever', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (46, 4, 30, 143, '27.Severe Acute Malnutrion', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (47, 4, 30, 144, '28. Injury All accidental or trauma-related injuries.', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (48, 4, 30, 145, '29. Other', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (49, 4, 35, NULL, '151', '2026-02-13 23:12:40');
+INSERT INTO `opd_mnch_detail` VALUES (50, 3, 26, 110, 'No', '2026-02-13 23:33:29');
+INSERT INTO `opd_mnch_detail` VALUES (51, 3, 29, NULL, '116', '2026-02-13 23:33:29');
+INSERT INTO `opd_mnch_detail` VALUES (52, 3, 34, NULL, 'sada', '2026-02-13 23:33:29');
+INSERT INTO `opd_mnch_detail` VALUES (53, 3, 35, NULL, '152', '2026-02-13 23:33:29');
+INSERT INTO `opd_mnch_detail` VALUES (60, 5, 18, NULL, '83', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (61, 5, 22, NULL, 'edddd', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (62, 5, 23, NULL, 'explainnnnn', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (63, 5, 27, NULL, '112', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (64, 5, 25, NULL, '106', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (65, 5, 30, 117, '1. Acute Upper Respiratory Tract Infecon', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (66, 5, 30, 119, '3. Severe Acute Respiratory Infecon', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (67, 5, 30, 121, '5. Acute Watery Diarrhea', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (68, 5, 33, 148, '1. Clean Delivery Kit (NW)', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (69, 5, 33, 149, '2. Hygiene Kit (NW)', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (70, 5, 33, 150, '3. Learning Kit (NW/SW)', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (71, 5, 34, NULL, 'test', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (72, 5, 35, NULL, '152', '2026-02-14 15:15:32');
 
 -- ----------------------------
 -- Table structure for opd_mnch_master
@@ -168,13 +302,19 @@ CREATE TABLE `opd_mnch_master`  (
   `notes` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `visit_type` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
+  `created_by` int NULL DEFAULT NULL,
+  `facility_id` int NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of opd_mnch_master
 -- ----------------------------
-INSERT INTO `opd_mnch_master` VALUES (1, '2026-02-12', '12345', 'New', '1', '5', 'ABC', 'Razia', 'Razia', 'Sultan', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 11:31:30', 'MNCH');
+INSERT INTO `opd_mnch_master` VALUES (1, '2026-02-12', '12345', 'New', '94', '5', 'ABC', 'Razia', 'Razia', 'Sultan', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 11:31:30', 'MNCH', 1, NULL);
+INSERT INTO `opd_mnch_master` VALUES (2, '2026-02-19', '324', 'Followup', '94', '12', 'Attock', '1123', 'Ahmed', 'Azam', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 12:00:57', 'MNCH', 1, NULL);
+INSERT INTO `opd_mnch_master` VALUES (3, '2026-02-20', 'wdqd', 'New', '94', '12', 'qw', 'wqe', 'qwe', '12', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 12:08:30', 'OPD', 1, NULL);
+INSERT INTO `opd_mnch_master` VALUES (4, '2026-02-13', '324', 'Followup', '94', '3', '1233333333', 'wqeeeeeeee', 'e1eeeeeee', 'qweeeeeeee', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 12:12:07', 'OPD', 1, NULL);
+INSERT INTO `opd_mnch_master` VALUES (5, '2026-02-13', 'fads3rd', 'Followup', '94', '2', 'asda', 'ewq', 'asda', 'asd', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-14 14:01:48', 'MNCH', 1, 2);
 
 -- ----------------------------
 -- Table structure for provinces
@@ -189,7 +329,7 @@ CREATE TABLE `provinces`  (
 -- ----------------------------
 -- Records of provinces
 -- ----------------------------
-INSERT INTO `provinces` VALUES (1, 'Khyber Pakhtunkhwa');
+INSERT INTO `provinces` VALUES (3, 'Khyber Pakhtunkhwa');
 
 -- ----------------------------
 -- Table structure for question_options
@@ -427,19 +567,19 @@ CREATE TABLE `uc`  (
 -- ----------------------------
 -- Records of uc
 -- ----------------------------
-INSERT INTO `uc` VALUES (1, 1, 'Datta Khel-1');
-INSERT INTO `uc` VALUES (2, 1, 'Datta Khel-2');
-INSERT INTO `uc` VALUES (3, 1, 'Datta Khel-3');
-INSERT INTO `uc` VALUES (4, 1, 'Mir Ali-5');
-INSERT INTO `uc` VALUES (5, 1, 'Mir Ali-6');
-INSERT INTO `uc` VALUES (6, 1, 'Mir Ali-7');
-INSERT INTO `uc` VALUES (7, 1, 'Shewa-1');
-INSERT INTO `uc` VALUES (8, 1, 'Shewa-2');
-INSERT INTO `uc` VALUES (9, 1, 'Spinwam-1');
-INSERT INTO `uc` VALUES (10, 1, 'Spinwam-2');
-INSERT INTO `uc` VALUES (11, 1, 'Garyum');
-INSERT INTO `uc` VALUES (12, 1, 'Razmak');
-INSERT INTO `uc` VALUES (13, 1, 'Dossali-2');
+INSERT INTO `uc` VALUES (1, 94, 'Datta Khel-1');
+INSERT INTO `uc` VALUES (2, 94, 'Datta Khel-2');
+INSERT INTO `uc` VALUES (3, 94, 'Datta Khel-3');
+INSERT INTO `uc` VALUES (4, 94, 'Mir Ali-5');
+INSERT INTO `uc` VALUES (5, 94, 'Mir Ali-6');
+INSERT INTO `uc` VALUES (6, 94, 'Mir Ali-7');
+INSERT INTO `uc` VALUES (7, 94, 'Shewa-1');
+INSERT INTO `uc` VALUES (8, 94, 'Shewa-2');
+INSERT INTO `uc` VALUES (9, 94, 'Spinwam-1');
+INSERT INTO `uc` VALUES (10, 94, 'Spinwam-2');
+INSERT INTO `uc` VALUES (11, 94, 'Garyum');
+INSERT INTO `uc` VALUES (12, 94, 'Razmak');
+INSERT INTO `uc` VALUES (13, 94, 'Dossali-2');
 
 -- ----------------------------
 -- Table structure for user_access_log
@@ -455,7 +595,7 @@ CREATE TABLE `user_access_log`  (
   `login_success` tinyint(1) NULL DEFAULT 0,
   `remarks` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of user_access_log
@@ -463,7 +603,22 @@ CREATE TABLE `user_access_log`  (
 INSERT INTO `user_access_log` VALUES (1, 1, 'internee1', '::1', '2026-02-13 06:37:48', '2026-02-13 06:42:25', 1, 'Login successful');
 INSERT INTO `user_access_log` VALUES (2, 1, 'internee1', '::1', '2026-02-13 06:42:29', '2026-02-13 06:43:35', 1, 'Login successful');
 INSERT INTO `user_access_log` VALUES (3, 1, 'internee1', '::1', '2026-02-13 06:43:57', '2026-02-13 06:44:22', 1, 'Login successful');
-INSERT INTO `user_access_log` VALUES (4, 1, 'internee1', '::1', '2026-02-13 06:44:35', NULL, 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (4, 1, 'internee1', '::1', '2026-02-13 06:44:35', '2026-02-13 07:46:47', 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (5, 1, 'internee1', '::1', '2026-02-13 07:46:51', NULL, 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (6, 1, 'internee1', '::1', '2026-02-13 14:36:22', NULL, 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (7, 1, 'internee1', '::1', '2026-02-13 18:58:17', '2026-02-13 19:07:49', 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (8, 2, 'internee2', '::1', '2026-02-13 19:07:57', '2026-02-13 19:08:15', 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (9, 1, 'internee1', '::1', '2026-02-13 19:08:28', NULL, 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (10, 0, '', '::1', '2026-02-14 09:09:36', NULL, 0, 'Invalid credentials');
+INSERT INTO `user_access_log` VALUES (11, 1, 'internee1', '::1', '2026-02-14 09:10:05', '2026-02-14 09:15:41', 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (12, 0, '', '::1', '2026-02-14 09:15:45', NULL, 0, 'Invalid credentials');
+INSERT INTO `user_access_log` VALUES (13, 0, '', '::1', '2026-02-14 09:15:50', NULL, 0, 'Invalid credentials');
+INSERT INTO `user_access_log` VALUES (14, 0, '', '::1', '2026-02-14 09:15:56', NULL, 0, 'Invalid credentials');
+INSERT INTO `user_access_log` VALUES (15, 0, '', '::1', '2026-02-14 09:16:00', NULL, 0, 'Invalid credentials');
+INSERT INTO `user_access_log` VALUES (16, 1, 'internee1', '::1', '2026-02-14 09:16:06', '2026-02-14 11:29:37', 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (17, 2, 'internee2', '::1', '2026-02-14 11:29:42', '2026-02-14 11:35:58', 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (18, 5, 'admin', '::1', '2026-02-14 11:36:02', '2026-02-14 11:36:15', 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (19, 2, 'internee2', '::1', '2026-02-14 11:36:20', NULL, 1, 'Login successful');
 
 -- ----------------------------
 -- Table structure for users
@@ -481,14 +636,15 @@ CREATE TABLE `users`  (
   `status` tinyint NULL DEFAULT 1,
   PRIMARY KEY (`user_id`) USING BTREE,
   UNIQUE INDEX `username`(`username`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO `users` VALUES (1, 'internee1', 'internee1', '202cb962ac59075b964b07152d234b70', 1, 1, '1', '2026-02-03 14:08:56', 1);
-INSERT INTO `users` VALUES (2, 'internee2', 'internee2', '202cb962ac59075b964b07152d234b70', 1, 1, '1', '2026-02-13 09:04:44', 1);
-INSERT INTO `users` VALUES (3, 'tawha', 'tawha', '202cb962ac59075b964b07152d234b70', 1, 1, '1', '2026-02-13 09:04:50', 1);
-INSERT INTO `users` VALUES (4, 'readonly', 'readonly', '202cb962ac59075b964b07152d234b70', 1, 1, '2', '2026-02-13 09:05:19', 1);
+INSERT INTO `users` VALUES (1, 'internee1', 'internee1', '202cb962ac59075b964b07152d234b70', 3, 94, '1', '2026-02-03 14:08:56', 1);
+INSERT INTO `users` VALUES (2, 'internee2', 'internee2', '202cb962ac59075b964b07152d234b70', 3, 94, '1', '2026-02-13 09:04:44', 1);
+INSERT INTO `users` VALUES (3, 'tawha', 'tawha', '202cb962ac59075b964b07152d234b70', 3, 94, '1', '2026-02-13 09:04:50', 1);
+INSERT INTO `users` VALUES (4, 'readonly', 'readonly', '202cb962ac59075b964b07152d234b70', 3, 94, '2', '2026-02-13 09:05:19', 1);
+INSERT INTO `users` VALUES (5, 'Admin', 'admin', '202cb962ac59075b964b07152d234b70', 3, 94, '3', '2026-02-14 15:35:01', 1);
 
 SET FOREIGN_KEY_CHECKS = 1;

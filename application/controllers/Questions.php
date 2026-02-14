@@ -8,6 +8,10 @@ class Questions extends CI_Controller {
         $this->load->model('Questions_model');
         $this->load->helper(['url', 'form']);
         $this->load->library('session');
+        
+        if (!$this->session->userdata('user_id')) {
+            redirect('auth/login');
+        }
     }
 
     // List all questions

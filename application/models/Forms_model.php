@@ -3,17 +3,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     class Forms_model extends CI_Model {
 
-
     public function get_child_master($id)
     {
         $this->db->select("
             ch.*,
             d.district_name AS district_name,
-            u.uc AS uc_name
+            u.uc AS uc_name,
+            f.facility_name
         ");
         $this->db->from('child_health_master ch');
         $this->db->join('districts d', 'd.district_id = ch.district', 'left');
         $this->db->join('uc u', 'u.pk_id = ch.uc', 'left');
+        $this->db->join('facilities f', 'f.id = ch.facility_id', 'left');
         $this->db->where('ch.master_id', $id);
 
         return $this->db->get()->row();
@@ -71,7 +72,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             ch.gender,
             ch.client_type,
             ch.created_at,
-            ch.visit_type
+            ch.visit_type,
+            ch.created_by
         ");
         $this->db->from('child_health_master ch');
         $this->db->join('districts d', 'd.district_id = ch.district', 'left');
@@ -93,7 +95,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             op.village,
             op.client_type,
             op.visit_type,
-            op.created_at
+            op.created_at,
+            op.created_by
         ");
         $this->db->from('opd_mnch_master op');
         $this->db->join('districts d', 'd.district_id = op.district', 'left');
@@ -107,67 +110,102 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     {
         // MASTER
         $master = $this->db
-            ->select("
-                op.*,
-                d.district_name AS district_name,
-                u.uc AS uc_name
-            ")
+            ->select("op.*, d.district_name, u.uc AS uc_name, f.facility_name")
             ->from('opd_mnch_master op')
-            ->join('districts d', 'd.district_id = op.district', 'left')
-            ->join('uc u', 'u.pk_id = op.uc', 'left')
+            ->join('districts d','d.district_id = op.district','left')
+            ->join('uc u','u.pk_id = op.uc','left')
+            ->join('facilities f','f.id = op.facility_id','left')
             ->where('op.id', $master_id)
             ->get()
             ->row();
 
-        // QUESTIONS
+        // QUESTIONS with OPTIONS
         $questions = $this->db
-            ->where('form_type','opd')
-            ->order_by('q_order','ASC')
-            ->get('questions')
+            ->select("q.question_id, q.q_section, q.q_num, q.q_text, q.q_type, q.q_order,
+                      o.option_id, o.option_text, d.answer, d.option_id AS selected_option")
+            ->from('questions q')
+            ->join('question_options o','o.question_id = q.question_id AND o.status=1','left')
+            ->join('opd_mnch_detail d','d.question_id = q.question_id AND d.master_id = '.$this->db->escape($master_id),'left')
+            ->where('q.form_type','opd')
+            ->where('q.status',1)
+            ->order_by('q.q_order','ASC')
+            ->get()
             ->result();
 
-        // QUESTION IDS
-        $question_ids = array_column($questions, 'question_id');
+        // Structure: section -> question -> options
+        $structured = [];
+        foreach($questions as $q){
+            $qid = $q->question_id;
+            if(!isset($structured[$q->q_section][$qid])){
+                $structured[$q->q_section][$qid] = $q;
+                $structured[$q->q_section][$qid]->options = [];
+            }
 
-        // OPTIONS
-        $options = [];
-        if(!empty($question_ids)){
-            $options = $this->db
-                ->where_in('question_id', $question_ids)
-                ->get('question_options')
-                ->result();
-        }
-
-        // ANSWERS
-        $answers = $this->db
-            ->where('id', $master_id)
-            ->get('opd_mnch_detail')
-            ->result();
-
-        // Map options & answers to questions
-        foreach($questions as &$q){
-            $q->options = [];
-            foreach($options as $opt){
-                if($opt->question_id == $q->question_id){
-                    $opt->selected_option = null;
-                    $opt->answer = null;
-                    foreach($answers as $ans){
-                        if($ans->question_id == $q->question_id){
-                            if($ans->option_id == $opt->option_id){
-                                $opt->selected_option = $ans->option_id;
-                                $opt->answer = $ans->answer;
-                            }
-                        }
-                    }
-                    $q->options[] = $opt;
-                }
+            // Attach options to question
+            if($q->option_id){
+                $structured[$q->q_section][$qid]->options[] = $q;
             }
         }
 
         return [
             'master' => $master,
-            'questions' => $questions
+            'questions' => $structured
         ];
+    }
+    
+    public function get_opd_master($master_id)
+    {
+        $this->db->select("
+            op.*,
+            d.district_name AS district_name,
+            u.uc AS uc_name
+        ");
+        $this->db->from('opd_mnch_master op');
+        $this->db->join('districts d', 'd.district_id = op.district', 'left');
+        $this->db->join('uc u', 'u.pk_id = op.uc', 'left');
+        $this->db->where('op.id', $master_id);
+
+        return $this->db->get()->row();
+    }
+    
+    public function get_opd_details($master_id)
+    {
+        $rows = $this->db
+            ->where('master_id', $master_id)
+            ->get('opd_mnch_detail')
+            ->result();
+
+        $answers = [];
+
+        foreach($rows as $r)
+        {
+            // If option_id exists, use it; otherwise use answer
+            $answers[$r->question_id][] = isset($r->option_id) && $r->option_id != '' 
+                ? $r->option_id 
+                : $r->answer;
+        }
+
+        return $answers;
+    }
+    
+    public function get_child_details($master_id)
+    {
+        $rows = $this->db
+            ->where('master_id', $master_id)
+            ->get('child_health_detail')
+            ->result();
+
+        $answers = [];
+
+        foreach($rows as $r)
+        {
+            // If option_id exists, use it; otherwise use answer
+            $answers[$r->question_id][] = isset($r->option_id) && $r->option_id != '' 
+                ? $r->option_id 
+                : $r->answer;
+        }
+
+        return $answers;
     }
 
 }
