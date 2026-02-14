@@ -55,10 +55,18 @@
 <div class="page-container">
 <div class="main-content">
 
-<div class="page-header mb-4">
+<div class="page-header mb-4 d-flex justify-content-between align-items-center">
     <h2 class="header-title">OPD / MNCH Form</h2>
+    <!-- Print Button -->
+    <div>
+        <button class="btn btn-primary" onclick="printForm();">
+            <i class="anticon anticon-printer"></i> Print
+        </button>
+    </div>
 </div>
 
+    
+<div id="printable-area">
 <div class="card">
 <div class="card-body">
 
@@ -87,12 +95,20 @@
 <!-- ================= BASIC INFORMATION ================= -->
 <div class="card mb-4 form-section">
 <div class="card-body">
-<h4 class="section-title">📋 Basic Information</h4>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="section-title mb-0">📋 Basic Information</h4>
+
+    <?php if(!empty($master->qr_code)): ?>
+        <img 
+        src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=<?= urlencode($master->qr_code) ?>" 
+        alt="QR Code">
+    <?php endif; ?>
+</div>
 <table class="table table-bordered">
 <tr>
     <th>Date</th>
     <td><?= !empty($master->form_date) ? $master->form_date : '-' ?></td>
-    <th>ANC Card #</th>
+    <th>ANC Card # (In case of MNCH)</th>
     <td><?= !empty($master->anc_card_no) ? $master->anc_card_no : '-' ?></td>
 </tr>
 <tr>
@@ -108,20 +124,22 @@
     <td><?= !empty($master->uc_name) ? $master->uc_name : '-' ?></td>
 </tr>
 <tr>
-    <th>Village</th>
+    <th>HF/Village</th>
     <td><?= !empty($master->village) ? $master->village : '-' ?></td>
-    <th>LHV Name</th>
+    <th>HT/ LHV Name</th>
     <td><?= !empty($master->lhv_name) ? $master->lhv_name : '-' ?></td>
 </tr>
 <tr>
-    <th>Patient</th>
+    <th>Patient’s name</th>
     <td><?= !empty($master->patient_name) ? $master->patient_name : '-' ?></td>
-    <th>Guardian</th>
+    <th>Father/ Husband’s name</th>
     <td><?= !empty($master->guardian_name) ? $master->guardian_name : '-' ?></td>
 </tr>
 <tr>
     <th>Facility</th>
     <td><?= !empty($master->facility_name) ? $master->facility_name : '-' ?></td>
+    <th>QR Code#</th>
+    <td><?= $master->qr_code ?: '-' ?></td>
 </tr>
 </table>
 </div>
@@ -135,14 +153,14 @@
 <tr>
     <th>Age Group</th>
     <td><?= !empty($master->age_group) ? $master->age_group : '-' ?></td>
-    <th>Marital Status</th>
-    <td><?= !empty($master->marital_status) ? $master->marital_status : '-' ?></td>
+    <th>Any Disability</th>
+    <td><?= !empty($master->disability) ? $master->disability : '-' ?></td>
 </tr>
 <tr>
-    <th>Pregnancy</th>
+    <th>Marital Status</th>
+    <td><?= !empty($master->marital_status) ? $master->marital_status : '-' ?></td>    
+    <th>Pregnancy Status</th>
     <td><?= !empty($master->pregnancy_status) ? $master->pregnancy_status : '-' ?></td>
-    <th>Disability</th>
-    <td><?= !empty($master->disability) ? $master->disability : '-' ?></td>
 </tr>
 </table>
 </div>
@@ -190,3 +208,15 @@
 </div>
 </div>
 </div>
+</div>
+    
+<script>
+    function printForm() {
+        var printContents = document.getElementById('printable-area').innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>

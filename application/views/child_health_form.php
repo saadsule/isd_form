@@ -175,32 +175,31 @@ $details = isset($details) ? $details : array();
 
 <h4 class="section-title">📋 Basic Information</h4>
 
-<div class="mb-4">
-<strong>Visit Type</strong>
-<div class="mt-2">
-    <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="visit_type" value="Fixed Site" required
-            <?= (isset($rec->visit_type) && $rec->visit_type=='Fixed Site') ? 'checked' : '' ?>>
-        <label class="form-check-label">Fixed Site</label>
+<div class="mb-4 text-center">
+    <div class="mt-2 d-flex justify-content-center">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visit_type" value="Fixed Site" required
+                <?= (isset($rec->visit_type) && $rec->visit_type=='Fixed Site') ? 'checked' : '' ?>>
+            <label class="form-check-label">Fixed Site</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visit_type" value="Outreach" required
+                <?= (isset($rec->visit_type) && $rec->visit_type=='Outreach') ? 'checked' : '' ?>>
+            <label class="form-check-label">Outreach</label>
+        </div>
     </div>
-    <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="visit_type" value="Outreach" required
-            <?= (isset($rec->visit_type) && $rec->visit_type=='Outreach') ? 'checked' : '' ?>>
-        <label class="form-check-label">Outreach</label>
-    </div>
-</div>
 </div>
 
+
 <div class="form-group row">
-    <label class="col-sm-2 col-form-label">Date *</label>
-    <div class="col-sm-4">
+    <div class="col-sm-3">
+        <label class="form-label font-weight-bold d-block">1. Date *</label>
         <input type="date" name="form_date" class="form-control"
             value="<?= isset($rec->form_date) ? $rec->form_date : '' ?>" required>
     </div>
 
-    <label class="col-sm-2 col-form-label">QR Code *</label>
-
-    <div class="col-sm-2">
+    <div class="col-sm-3">
+        <label class="form-label font-weight-bold d-block">2. QR Code# *</label>
         <input type="text" 
                id="qr_input"
                name="qr_code" 
@@ -210,31 +209,30 @@ $details = isset($details) ? $details : array();
     </div>
 
     <div class="col-sm-2">
+        <label class="form-label font-weight-bold d-block">&nbsp;</label>
         <div id="qr_preview"
             style="padding:5px; border:1px solid #ddd; border-radius:6px; display:inline-block;">
        </div>
     </div>
 
-</div>
-
-<div class="form-group row">
-    <label class="col-sm-2 col-form-label">Client Type *</label>
-    <div class="col-sm-10">
+    <div class="col-sm-4">
+        <label class="form-label font-weight-bold d-block">Client Type *</label>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="client_type" value="New" required
                 <?= (isset($rec->client_type) && $rec->client_type=='New') ? 'checked' : '' ?>>
-            <label class="form-check-label">New Client</label>
+            <label class="form-check-label fw-normal">New Client</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="client_type" value="Followup" required
                 <?= (isset($rec->client_type) && $rec->client_type=='Followup') ? 'checked' : '' ?>>
-            <label class="form-check-label">Follow-up</label>
+            <label class="form-check-label fw-normal">Follow-up</label>
         </div>
     </div>
 </div>
 
+
 <div class="form-group row">
-<label class="col-sm-2 col-form-label">District *</label>
+<label class="col-sm-2 col-form-label">3. District *</label>
 <div class="col-sm-4">
 <select name="district" id="district" class="form-control" required>
 <?php foreach($districts as $district){ ?>
@@ -246,7 +244,7 @@ $details = isset($details) ? $details : array();
 </select>
 </div>
 
-<label class="col-sm-2 col-form-label">UC *</label>
+<label class="col-sm-2 col-form-label">4. UC *</label>
 <div class="col-sm-4">
 <select name="uc" id="uc" class="form-control" required>
 <option value="">Select UC</option>
@@ -258,7 +256,7 @@ $details = isset($details) ? $details : array();
 <div class="form-group row" id="facility-field">
     <label class="col-sm-2 col-form-label">Facility *</label>
     <div class="col-sm-4">
-        <select name="facility_id" id="facility" class="form-control" required>
+        <select name="facility_id" id="facility" class="form-control">
             <option value="">Select Facility</option>
             <?php if(isset($facilities) && $facilities): ?>
                 <?php foreach($facilities as $f): ?>
@@ -273,13 +271,13 @@ $details = isset($details) ? $details : array();
 </div>
 
 <div class="form-group row">
-    <label class="col-sm-2 col-form-label">HF/Village *</label>
+    <label class="col-sm-2 col-form-label">5. HF/Village *</label>
     <div class="col-sm-4">
         <input type="text" name="village" class="form-control"
             value="<?= isset($rec->village) ? $rec->village : '' ?>" required>
     </div>
 
-    <label class="col-sm-2 col-form-label">Vaccinator *</label>
+    <label class="col-sm-2 col-form-label">6. Vaccinator name *</label>
     <div class="col-sm-4">
         <input type="text" name="vaccinator_name" class="form-control"
             value="<?= isset($rec->vaccinator_name) ? $rec->vaccinator_name : '' ?>" required>
@@ -287,13 +285,13 @@ $details = isset($details) ? $details : array();
 </div>
 
 <div class="form-group row">
-    <label class="col-sm-2 col-form-label">Patient Name *</label>
+    <label class="col-sm-2 col-form-label">7. Patient’s Name *</label>
     <div class="col-sm-4">
         <input type="text" name="patient_name" class="form-control"
             value="<?= isset($rec->patient_name) ? $rec->patient_name : '' ?>" required>
     </div>
 
-    <label class="col-sm-2 col-form-label">Father/Husband *</label>
+    <label class="col-sm-2 col-form-label">8. Father/ Husband’s name *</label>
     <div class="col-sm-4">
         <input type="text" name="guardian_name" class="form-control"
             value="<?= isset($rec->guardian_name) ? $rec->guardian_name : '' ?>" required>
@@ -309,26 +307,173 @@ $details = isset($details) ? $details : array();
 
 <h4 class="section-title">👶 Demographics</h4>
 
+<!-- ROW 1 -->
 <div class="form-group row">
-    <label class="col-sm-2 col-form-label">Date of Birth *</label>
+
+    <!-- Date of Birth -->
+    <label class="col-sm-2 col-form-label">9. Date of Birth *</label>
     <div class="col-sm-4">
         <input type="date" name="dob" class="form-control"
             value="<?= isset($rec->dob) ? $rec->dob : '' ?>" required>
     </div>
 
-    <label class="col-sm-2 col-form-label">Gender *</label>
+</div>
+
+<div class="form-group row">
+    <!-- Age -->
+    <label class="col-sm-2 col-form-label">10. Age *</label>
+    <div class="col-sm-2">
+        <input type="number" name="age_year" class="form-control"
+            placeholder="Y"
+            value="<?= isset($rec->age_year) ? $rec->age_year : '' ?>" required>
+    </div>
+    <div class="col-sm-2">
+        <input type="number" name="age_month" class="form-control"
+            placeholder="M"
+            value="<?= isset($rec->age_month) ? $rec->age_month : '' ?>" required>
+    </div>
+    <div class="col-sm-2">
+        <input type="number" name="age_day" class="form-control"
+            placeholder="D"
+            value="<?= isset($rec->age_day) ? $rec->age_day : '' ?>" required>
+    </div>
+</div>
+
+<!-- AGE GROUP RADIO -->
+<div class="form-group row">
+    
+    <label class="col-sm-2 col-form-label">Age Group *</label>
+    <div class="col-sm-10">
+
+        <?php
+        $selected_group = isset($rec->age_group) ? $rec->age_group : '';
+        $groups = ['<1 Year','1-2 Year','2-5 Year','15-49 Year'];
+        foreach($groups as $group): ?>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input"
+                       type="radio"
+                       name="age_group"
+                       value="<?= $group ?>"
+                       required
+                       <?= ($selected_group == $group) ? 'checked' : '' ?>>
+                <label class="form-check-label"><?= $group ?></label>
+            </div>
+        <?php endforeach; ?>
+
+    </div>
+</div>
+
+<hr>
+
+<!-- ROW 2 -->
+<div class="form-group row">
+
+    <!-- Gender -->
+    <label class="col-sm-2 col-form-label">11. Gender *</label>
     <div class="col-sm-4">
+        <?php $gender = isset($rec->gender) ? $rec->gender : ''; ?>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="gender" value="Male" required
-                <?= (isset($rec->gender) && $rec->gender=='Male') ? 'checked' : '' ?>>
+            <input class="form-check-input" type="radio" name="gender" value="Male"
+                <?= ($gender=='Male') ? 'checked' : '' ?> required>
             <label class="form-check-label">Male</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="gender" value="Female" required
-                <?= (isset($rec->gender) && $rec->gender=='Female') ? 'checked' : '' ?>>
+            <input class="form-check-input" type="radio" name="gender" value="Female"
+                <?= ($gender=='Female') ? 'checked' : '' ?> required>
             <label class="form-check-label">Female</label>
         </div>
     </div>
+
+    <!-- Marital Status -->
+    <label class="col-sm-2 col-form-label">12. Marital Status *</label>
+    <div class="col-sm-4">
+        <?php $marital = isset($rec->marital_status) ? $rec->marital_status : ''; ?>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="marital_status" value="Married"
+                <?= ($marital=='Married') ? 'checked' : '' ?> required>
+            <label class="form-check-label">Married</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="marital_status" value="Un-Married"
+                <?= ($marital=='Un-Married') ? 'checked' : '' ?> required>
+            <label class="form-check-label">Un-Married</label>
+        </div>
+    </div>
+
+</div>
+
+<!-- ROW 3 -->
+<div class="form-group row">
+
+    <!-- Pregnancy -->
+    <label class="col-sm-2 col-form-label">13. Pregnancy Status *</label>
+    <div class="col-sm-4">
+        <?php $preg = isset($rec->pregnancy_status) ? $rec->pregnancy_status : ''; ?>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pregnancy_status" value="Pregnant"
+                <?= ($preg=='Pregnant') ? 'checked' : '' ?> required>
+            <label class="form-check-label">Pregnant</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pregnancy_status" value="Non-Pregnant"
+                <?= ($preg=='Non-Pregnant') ? 'checked' : '' ?> required>
+            <label class="form-check-label">Non-Pregnant</label>
+        </div>
+    </div>
+
+    <!-- Disability -->
+    <label class="col-sm-2 col-form-label">14. Disability *</label>
+    <div class="col-sm-4">
+        <?php $dis = isset($rec->disability) ? $rec->disability : ''; ?>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="disability" value="Yes"
+                <?= ($dis=='Yes') ? 'checked' : '' ?> required>
+            <label class="form-check-label">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="disability" value="No"
+                <?= ($dis=='No') ? 'checked' : '' ?> required>
+            <label class="form-check-label">No</label>
+        </div>
+    </div>
+
+</div>
+
+<!-- ROW 4 -->
+<div class="form-group row">
+
+    <!-- Play & Learning Kit -->
+    <label class="col-sm-2 col-form-label">15. Play & Learning Kit *</label>
+    <div class="col-sm-4">
+        <?php $kit = isset($rec->play_learning_kit) ? $rec->play_learning_kit : ''; ?>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="play_learning_kit" value="Yes"
+                <?= ($kit=='Yes') ? 'checked' : '' ?> required>
+            <label class="form-check-label">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="play_learning_kit" value="No"
+                <?= ($kit=='No') ? 'checked' : '' ?> required>
+            <label class="form-check-label">No</label>
+        </div>
+    </div>
+
+    <!-- Nutrition Package -->
+    <label class="col-sm-2 col-form-label">16. Nutrition Package *</label>
+    <div class="col-sm-4">
+        <?php $nut = isset($rec->nutrition_package) ? $rec->nutrition_package : ''; ?>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="nutrition_package" value="Yes"
+                <?= ($nut=='Yes') ? 'checked' : '' ?> required>
+            <label class="form-check-label">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="nutrition_package" value="No"
+                <?= ($nut=='No') ? 'checked' : '' ?> required>
+            <label class="form-check-label">No</label>
+        </div>
+    </div>
+
 </div>
 
 </div>
@@ -461,22 +606,23 @@ $(document).ready(function() {
 
     function toggleFacilityField() {
         const visitType = $('input[name="visit_type"]:checked').val();
-        if(visitType === 'Fixed Site') {
+        if (visitType === 'Fixed Site') {
             $('#facility-field').show();
-            $('#facility-field input').attr('required', true);
+            $('#facility').find('select').attr('required', true); // target the select
         } else {
             $('#facility-field').hide();
-            $('#facility-field input').removeAttr('required');
+            $('#facility').find('select').removeAttr('required'); // remove required
         }
     }
 
-    // Initial check on page load
+    // Run on page load
     toggleFacilityField();
 
     // Run whenever the visit_type changes
     $('input[name="visit_type"]').change(function() {
         toggleFacilityField();
     });
+
 });
 
 $(document).ready(function(){

@@ -11,7 +11,7 @@
  Target Server Version : 100121
  File Encoding         : 65001
 
- Date: 14/02/2026 15:37:42
+ Date: 14/02/2026 23:01:49
 */
 
 SET NAMES utf8mb4;
@@ -31,7 +31,7 @@ CREATE TABLE `child_health_detail`  (
   PRIMARY KEY (`detail_id`) USING BTREE,
   INDEX `master_id`(`master_id`) USING BTREE,
   INDEX `question_id`(`question_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 105 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 123 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of child_health_detail
@@ -87,6 +87,13 @@ INSERT INTO `child_health_detail` VALUES (101, 5, 3, 6, '17.2.2.  Vaccine not du
 INSERT INTO `child_health_detail` VALUES (102, 5, 3, 7, '17.2.3.  Child is unwell', '2026-02-14 14:20:12');
 INSERT INTO `child_health_detail` VALUES (103, 5, 3, 8, '17.2.4.  Refusal', '2026-02-14 14:20:12');
 INSERT INTO `child_health_detail` VALUES (104, 5, 17, 80, 'No', '2026-02-14 14:20:12');
+INSERT INTO `child_health_detail` VALUES (114, 6, 3, 7, '17.2.3.  Child is unwell', '2026-02-14 21:32:24');
+INSERT INTO `child_health_detail` VALUES (115, 6, 3, 8, '17.2.4.  Refusal', '2026-02-14 21:32:24');
+INSERT INTO `child_health_detail` VALUES (116, 6, 15, 76, 'No', '2026-02-14 21:32:24');
+INSERT INTO `child_health_detail` VALUES (117, 6, 16, 78, 'No', '2026-02-14 21:32:24');
+INSERT INTO `child_health_detail` VALUES (118, 6, 17, 80, 'No', '2026-02-14 21:32:24');
+INSERT INTO `child_health_detail` VALUES (121, 7, 1, NULL, '1', '2026-02-14 22:34:33');
+INSERT INTO `child_health_detail` VALUES (122, 7, 2, NULL, '4', '2026-02-14 22:34:33');
 
 -- ----------------------------
 -- Table structure for child_health_master
@@ -117,17 +124,20 @@ CREATE TABLE `child_health_master`  (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `visit_type` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `created_by` int NULL DEFAULT NULL,
+  `age_group` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   PRIMARY KEY (`master_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of child_health_master
 -- ----------------------------
-INSERT INTO `child_health_master` VALUES (1, '2026-02-20', '1231', 'New', '94', '6', 1, 'Bannu', 'No', 'Shagufta', 'Khan', '1993-02-10', NULL, NULL, NULL, 'Female', NULL, NULL, NULL, NULL, NULL, '2026-02-13 11:32:53', 'Outreach', 1);
-INSERT INTO `child_health_master` VALUES (2, '2026-02-19', '12311111111111', 'Followup', '94', '3', 1, 'qwe', '342222222222', '234', 'wdaaaaaaaaaa', '2026-02-26', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-13 12:12:38', 'Outreach', 1);
-INSERT INTO `child_health_master` VALUES (3, '2026-02-14', '1231s', 'Followup', '94', '8', 1, 'Attocks', '2131s', 'Razias', 'Khans', '2026-02-12', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-13 23:57:14', 'Outreach', 1);
-INSERT INTO `child_health_master` VALUES (4, '2026-03-06', '12321111111111111111111111', 'New', '94', '1', 1, 'ABC', '2131s', 'e1e', '123123', '2026-03-13', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-14 00:28:54', 'Fixed Site', 1);
-INSERT INTO `child_health_master` VALUES (5, '2026-02-13', '123456', 'Followup', '94', '2', 2, 'Attock', '342222222222', 'Saad', 'Azam', '2026-02-21', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-14 13:51:25', 'Fixed Site', 1);
+INSERT INTO `child_health_master` VALUES (1, '2026-02-20', '1231', 'New', '94', '6', 1, 'Bannu', 'No', 'Shagufta', 'Khan', '1993-02-10', NULL, NULL, NULL, 'Female', NULL, NULL, NULL, NULL, NULL, '2026-02-13 11:32:53', 'Outreach', 1, NULL);
+INSERT INTO `child_health_master` VALUES (2, '2026-02-19', '12311111111111', 'Followup', '94', '3', 1, 'qwe', '342222222222', '234', 'wdaaaaaaaaaa', '2026-02-26', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-13 12:12:38', 'Outreach', 1, NULL);
+INSERT INTO `child_health_master` VALUES (3, '2026-02-14', '1231s', 'Followup', '94', '8', 1, 'Attocks', '2131s', 'Razias', 'Khans', '2026-02-12', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-13 23:57:14', 'Outreach', 1, NULL);
+INSERT INTO `child_health_master` VALUES (4, '2026-03-06', '12321111111111111111111111', 'New', '94', '1', 1, 'ABC', '2131s', 'e1e', '123123', '2026-03-13', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-14 00:28:54', 'Fixed Site', 1, NULL);
+INSERT INTO `child_health_master` VALUES (5, '2026-02-13', '123456', 'Followup', '94', '2', 2, 'Attock', '342222222222', 'Saad', 'Azam', '2026-02-21', NULL, NULL, NULL, 'Male', NULL, NULL, NULL, NULL, NULL, '2026-02-14 13:51:25', 'Fixed Site', 1, NULL);
+INSERT INTO `child_health_master` VALUES (6, '2026-02-13', '123213123', 'Followup', '94', '2', 0, '1esads', '11wq', '1323', '123', '1997-03-10', 199, 3, 1, 'Female', 'Married', 'Pregnant', 'Yes', 'Yes', 'Yes', '2026-02-14 21:22:59', 'Outreach', 1, '1-2 Year');
+INSERT INTO `child_health_master` VALUES (7, '2026-02-20', '1223344', 'New', '94', '1', 1, 'Attock', '2131wer', 'hahaha', 'abc', '2026-02-28', 12, 33, 4, 'Female', 'Married', 'Non-Pregnant', 'Yes', 'No', 'Yes', '2026-02-14 22:33:54', 'Fixed Site', 1, '1-2 Year');
 
 -- ----------------------------
 -- Table structure for districts
@@ -178,7 +188,7 @@ CREATE TABLE `form_logs`  (
   `data_json` longtext CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 28 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of form_logs
@@ -210,6 +220,13 @@ INSERT INTO `form_logs` VALUES (24, 'child_health_form', 5, '{\"master\":{\"visi
 INSERT INTO `form_logs` VALUES (25, 'opd_mnch_form_update', 5, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-13\",\"anc_card_no\":\"fads3rd\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"1\",\"village\":\"asda\",\"lhv_name\":\"ewq\",\"patient_name\":\"asda\",\"guardian_name\":\"asd\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"created_by\":\"1\",\"facility_id\":\"1\",\"notes\":null},\"details\":[{\"master_id\":\"5\",\"question_id\":18,\"option_id\":null,\"answer\":\"83\"},{\"master_id\":\"5\",\"question_id\":35,\"option_id\":null,\"answer\":\"152\"}]}', '2026-02-14 14:09:24');
 INSERT INTO `form_logs` VALUES (26, 'child_health_form', 5, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-02-13\",\"qr_code\":\"123456\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"Attock\",\"vaccinator_name\":\"342222222222\",\"patient_name\":\"Saad\",\"guardian_name\":\"Azam\",\"dob\":\"2026-02-21\",\"age_year\":null,\"age_month\":null,\"age_day\":null,\"gender\":\"Male\",\"marital_status\":null,\"pregnancy_status\":null,\"disability\":null,\"play_learning_kit\":null,\"nutrition_package\":null,\"created_by\":\"1\",\"facility_id\":\"2\"},\"details\":[{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"5\",\"answer\":\"17.2.1.  Fully immunized as per Age\"},{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"6\",\"answer\":\"17.2.2.  Vaccine not due\"},{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"7\",\"answer\":\"17.2.3.  Child is unwell\"},{\"master_id\":\"5\",\"question_id\":3,\"option_id\":\"8\",\"answer\":\"17.2.4.  Refusal\"},{\"master_id\":\"5\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 14:20:12');
 INSERT INTO `form_logs` VALUES (27, 'opd_mnch_form_update', 5, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-13\",\"anc_card_no\":\"fads3rd\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"asda\",\"lhv_name\":\"ewq\",\"patient_name\":\"asda\",\"guardian_name\":\"asd\",\"disability\":\"No\",\"age_group\":\"15-49\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"created_by\":\"1\",\"facility_id\":\"2\",\"notes\":null},\"details\":[{\"master_id\":\"5\",\"question_id\":18,\"option_id\":null,\"answer\":\"83\"},{\"master_id\":\"5\",\"question_id\":22,\"option_id\":null,\"answer\":\"edddd\"},{\"master_id\":\"5\",\"question_id\":23,\"option_id\":null,\"answer\":\"explainnnnn\"},{\"master_id\":\"5\",\"question_id\":27,\"option_id\":null,\"answer\":\"112\"},{\"master_id\":\"5\",\"question_id\":25,\"option_id\":null,\"answer\":\"106\"},{\"master_id\":\"5\",\"question_id\":30,\"option_id\":\"117\",\"answer\":\"1. Acute Upper Respiratory Tract Infecon\"},{\"master_id\":\"5\",\"question_id\":30,\"option_id\":\"119\",\"answer\":\"3. Severe Acute Respiratory Infecon\"},{\"master_id\":\"5\",\"question_id\":30,\"option_id\":\"121\",\"answer\":\"5. Acute Watery Diarrhea\"},{\"master_id\":\"5\",\"question_id\":33,\"option_id\":\"148\",\"answer\":\"1. Clean Delivery Kit (NW)\"},{\"master_id\":\"5\",\"question_id\":33,\"option_id\":\"149\",\"answer\":\"2. Hygiene Kit (NW)\"},{\"master_id\":\"5\",\"question_id\":33,\"option_id\":\"150\",\"answer\":\"3. Learning Kit (NW\\/SW)\"},{\"master_id\":\"5\",\"question_id\":34,\"option_id\":null,\"answer\":\"test\"},{\"master_id\":\"5\",\"question_id\":35,\"option_id\":null,\"answer\":\"152\"}]}', '2026-02-14 15:15:32');
+INSERT INTO `form_logs` VALUES (28, 'child_health_form', 6, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-13\",\"qr_code\":\"123213123\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"1esads\",\"vaccinator_name\":\"11wq\",\"patient_name\":\"1323\",\"guardian_name\":\"123\",\"dob\":\"2026-02-20\",\"age_year\":\"2023\",\"age_month\":\"12\",\"age_day\":\"1\",\"age_group\":\"1-2 Year\",\"gender\":\"Female\",\"marital_status\":\"Married\",\"pregnancy_status\":\"Pregnant\",\"disability\":\"Yes\",\"play_learning_kit\":\"Yes\",\"nutrition_package\":\"Yes\",\"created_by\":\"1\",\"facility_id\":\"\"},\"details\":[{\"master_id\":6,\"question_id\":3,\"option_id\":\"7\",\"answer\":\"17.2.3.  Child is unwell\"},{\"master_id\":6,\"question_id\":3,\"option_id\":\"8\",\"answer\":\"17.2.4.  Refusal\"},{\"master_id\":6,\"question_id\":16,\"option_id\":\"78\",\"answer\":\"No\"},{\"master_id\":6,\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 21:22:59');
+INSERT INTO `form_logs` VALUES (29, 'child_health_form', 6, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-13\",\"qr_code\":\"123213123\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"1esads\",\"vaccinator_name\":\"11wq\",\"patient_name\":\"1323\",\"guardian_name\":\"123\",\"dob\":\"2026-02-20\",\"age_year\":\"2024\",\"age_month\":\"12\",\"age_day\":\"1\",\"age_group\":\"1-2 Year\",\"gender\":\"Female\",\"marital_status\":\"Married\",\"pregnancy_status\":\"Pregnant\",\"disability\":\"Yes\",\"play_learning_kit\":\"Yes\",\"nutrition_package\":\"Yes\",\"created_by\":\"1\",\"facility_id\":\"\"},\"details\":[{\"master_id\":\"6\",\"question_id\":3,\"option_id\":\"7\",\"answer\":\"17.2.3.  Child is unwell\"},{\"master_id\":\"6\",\"question_id\":3,\"option_id\":\"8\",\"answer\":\"17.2.4.  Refusal\"},{\"master_id\":\"6\",\"question_id\":15,\"option_id\":\"76\",\"answer\":\"No\"},{\"master_id\":\"6\",\"question_id\":16,\"option_id\":\"78\",\"answer\":\"No\"},{\"master_id\":\"6\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 21:26:23');
+INSERT INTO `form_logs` VALUES (30, 'child_health_form', 6, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-13\",\"qr_code\":\"123213123\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"1esads\",\"vaccinator_name\":\"11wq\",\"patient_name\":\"1323\",\"guardian_name\":\"123\",\"dob\":\"1997-03-10\",\"age_year\":\"199\",\"age_month\":\"03\",\"age_day\":\"01\",\"age_group\":\"1-2 Year\",\"gender\":\"Female\",\"marital_status\":\"Married\",\"pregnancy_status\":\"Pregnant\",\"disability\":\"Yes\",\"play_learning_kit\":\"Yes\",\"nutrition_package\":\"Yes\",\"created_by\":\"1\",\"facility_id\":\"\"},\"details\":[{\"master_id\":\"6\",\"question_id\":3,\"option_id\":\"7\",\"answer\":\"17.2.3.  Child is unwell\"},{\"master_id\":\"6\",\"question_id\":3,\"option_id\":\"8\",\"answer\":\"17.2.4.  Refusal\"},{\"master_id\":\"6\",\"question_id\":15,\"option_id\":\"76\",\"answer\":\"No\"},{\"master_id\":\"6\",\"question_id\":16,\"option_id\":\"78\",\"answer\":\"No\"},{\"master_id\":\"6\",\"question_id\":17,\"option_id\":\"80\",\"answer\":\"No\"}]}', '2026-02-14 21:32:24');
+INSERT INTO `form_logs` VALUES (31, 'child_health_form', 7, '{\"master\":{\"visit_type\":\"Outreach\",\"form_date\":\"2026-02-20\",\"qr_code\":\"1223344\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"1\",\"village\":\"Attock\",\"vaccinator_name\":\"2131\",\"patient_name\":\"tessst\",\"guardian_name\":\"abc\",\"dob\":\"2026-02-28\",\"age_year\":\"12\",\"age_month\":\"33\",\"age_day\":\"4\",\"age_group\":\"1-2 Year\",\"gender\":\"Female\",\"marital_status\":\"Married\",\"pregnancy_status\":\"Non-Pregnant\",\"disability\":\"Yes\",\"play_learning_kit\":\"No\",\"nutrition_package\":\"Yes\",\"created_by\":\"1\",\"facility_id\":\"\"},\"details\":[{\"master_id\":7,\"question_id\":1,\"option_id\":null,\"answer\":\"1\"},{\"master_id\":7,\"question_id\":2,\"option_id\":null,\"answer\":\"4\"}]}', '2026-02-14 22:33:54');
+INSERT INTO `form_logs` VALUES (32, 'child_health_form', 7, '{\"master\":{\"visit_type\":\"Fixed Site\",\"form_date\":\"2026-02-20\",\"qr_code\":\"1223344\",\"client_type\":\"New\",\"district\":\"94\",\"uc\":\"1\",\"village\":\"Attock\",\"vaccinator_name\":\"2131wer\",\"patient_name\":\"hahaha\",\"guardian_name\":\"abc\",\"dob\":\"2026-02-28\",\"age_year\":\"12\",\"age_month\":\"33\",\"age_day\":\"4\",\"age_group\":\"1-2 Year\",\"gender\":\"Female\",\"marital_status\":\"Married\",\"pregnancy_status\":\"Non-Pregnant\",\"disability\":\"Yes\",\"play_learning_kit\":\"No\",\"nutrition_package\":\"Yes\",\"created_by\":\"1\",\"facility_id\":\"1\"},\"details\":[{\"master_id\":\"7\",\"question_id\":1,\"option_id\":null,\"answer\":\"1\"},{\"master_id\":\"7\",\"question_id\":2,\"option_id\":null,\"answer\":\"4\"}]}', '2026-02-14 22:34:33');
+INSERT INTO `form_logs` VALUES (33, 'opd_mnch_form', 6, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-21\",\"anc_card_no\":\"123213\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"1231\",\"lhv_name\":\"wqqqqq\",\"patient_name\":\"fahad\",\"guardian_name\":\"12312312\",\"disability\":\"No\",\"age_group\":\"15-49 Y\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"created_by\":\"1\",\"facility_id\":\"2\",\"qr_code\":\"123131231123\",\"notes\":null},\"details\":[{\"master_id\":6,\"question_id\":18,\"option_id\":null,\"answer\":\"83\"},{\"master_id\":6,\"question_id\":20,\"option_id\":null,\"answer\":\"89\"}]}', '2026-02-14 22:56:45');
+INSERT INTO `form_logs` VALUES (34, 'opd_mnch_form_update', 6, '{\"master\":{\"visit_type\":\"MNCH\",\"form_date\":\"2026-02-21\",\"anc_card_no\":\"123213\",\"client_type\":\"Followup\",\"district\":\"94\",\"uc\":\"2\",\"village\":\"1231\",\"lhv_name\":\"wqqqqq\",\"patient_name\":\"fahad\",\"guardian_name\":\"12312312\",\"disability\":\"No\",\"age_group\":\"15-49 Y\",\"marital_status\":\"Unmarried\",\"pregnancy_status\":\"Non-Pregnant\",\"created_by\":\"1\",\"facility_id\":\"2\",\"qr_code\":\"1231312311233\",\"notes\":null},\"details\":[{\"master_id\":\"6\",\"question_id\":18,\"option_id\":null,\"answer\":\"83\"},{\"master_id\":\"6\",\"question_id\":20,\"option_id\":null,\"answer\":\"89\"}]}', '2026-02-14 22:57:22');
 
 -- ----------------------------
 -- Table structure for opd_mnch_detail
@@ -223,7 +240,7 @@ CREATE TABLE `opd_mnch_detail`  (
   `answer` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 73 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 77 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of opd_mnch_detail
@@ -279,6 +296,8 @@ INSERT INTO `opd_mnch_detail` VALUES (69, 5, 33, 149, '2. Hygiene Kit (NW)', '20
 INSERT INTO `opd_mnch_detail` VALUES (70, 5, 33, 150, '3. Learning Kit (NW/SW)', '2026-02-14 15:15:32');
 INSERT INTO `opd_mnch_detail` VALUES (71, 5, 34, NULL, 'test', '2026-02-14 15:15:32');
 INSERT INTO `opd_mnch_detail` VALUES (72, 5, 35, NULL, '152', '2026-02-14 15:15:32');
+INSERT INTO `opd_mnch_detail` VALUES (75, 6, 18, NULL, '83', '2026-02-14 22:57:22');
+INSERT INTO `opd_mnch_detail` VALUES (76, 6, 20, NULL, '89', '2026-02-14 22:57:22');
 
 -- ----------------------------
 -- Table structure for opd_mnch_master
@@ -304,17 +323,19 @@ CREATE TABLE `opd_mnch_master`  (
   `visit_type` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   `created_by` int NULL DEFAULT NULL,
   `facility_id` int NULL DEFAULT NULL,
+  `qr_code` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = COMPACT;
 
 -- ----------------------------
 -- Records of opd_mnch_master
 -- ----------------------------
-INSERT INTO `opd_mnch_master` VALUES (1, '2026-02-12', '12345', 'New', '94', '5', 'ABC', 'Razia', 'Razia', 'Sultan', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 11:31:30', 'MNCH', 1, NULL);
-INSERT INTO `opd_mnch_master` VALUES (2, '2026-02-19', '324', 'Followup', '94', '12', 'Attock', '1123', 'Ahmed', 'Azam', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 12:00:57', 'MNCH', 1, NULL);
-INSERT INTO `opd_mnch_master` VALUES (3, '2026-02-20', 'wdqd', 'New', '94', '12', 'qw', 'wqe', 'qwe', '12', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 12:08:30', 'OPD', 1, NULL);
-INSERT INTO `opd_mnch_master` VALUES (4, '2026-02-13', '324', 'Followup', '94', '3', '1233333333', 'wqeeeeeeee', 'e1eeeeeee', 'qweeeeeeee', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 12:12:07', 'OPD', 1, NULL);
-INSERT INTO `opd_mnch_master` VALUES (5, '2026-02-13', 'fads3rd', 'Followup', '94', '2', 'asda', 'ewq', 'asda', 'asd', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-14 14:01:48', 'MNCH', 1, 2);
+INSERT INTO `opd_mnch_master` VALUES (1, '2026-02-12', '12345', 'New', '94', '5', 'ABC', 'Razia', 'Razia', 'Sultan', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 11:31:30', 'MNCH', 1, NULL, NULL);
+INSERT INTO `opd_mnch_master` VALUES (2, '2026-02-19', '324', 'Followup', '94', '12', 'Attock', '1123', 'Ahmed', 'Azam', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 12:00:57', 'MNCH', 1, NULL, NULL);
+INSERT INTO `opd_mnch_master` VALUES (3, '2026-02-20', 'wdqd', 'New', '94', '12', 'qw', 'wqe', 'qwe', '12', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 12:08:30', 'OPD', 1, NULL, NULL);
+INSERT INTO `opd_mnch_master` VALUES (4, '2026-02-13', '324', 'Followup', '94', '3', '1233333333', 'wqeeeeeeee', 'e1eeeeeee', 'qweeeeeeee', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-13 12:12:07', 'OPD', 1, NULL, NULL);
+INSERT INTO `opd_mnch_master` VALUES (5, '2026-02-13', 'fads3rd', 'Followup', '94', '2', 'asda', 'ewq', 'asda', 'asd', 'No', '15-49', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-14 14:01:48', 'MNCH', 1, 2, NULL);
+INSERT INTO `opd_mnch_master` VALUES (6, '2026-02-21', '123213', 'Followup', '94', '2', '1231', 'wqqqqq', 'fahad', '12312312', 'No', '15-49 Y', 'Unmarried', 'Non-Pregnant', NULL, '2026-02-14 22:56:45', 'MNCH', 1, 2, '1231312311233');
 
 -- ----------------------------
 -- Table structure for provinces
@@ -525,15 +546,15 @@ INSERT INTO `questions` VALUES (4, 'CHF', '17. Vaccination History (For Under Fi
 INSERT INTO `questions` VALUES (5, 'CHF', '18. Antigens Administered to child < 1 year', '', '', 5, 'checkbox', 1, '2026-02-04 13:58:03');
 INSERT INTO `questions` VALUES (6, 'CHF', '19. Antigens Administered to child 1-2 year', '', '', 6, 'checkbox', 1, '2026-02-04 14:04:40');
 INSERT INTO `questions` VALUES (7, 'CHF', '20. Antigens Administered to child 2-5 year', '', '', 7, 'checkbox', 1, '2026-02-04 14:08:02');
-INSERT INTO `questions` VALUES (8, 'CHF', '21. Vaccination', '', '21. Supplementary Vaccination', 1, 'checkbox', 1, '2026-02-05 06:09:42');
-INSERT INTO `questions` VALUES (9, 'CHF', '21. Vaccination', '', '22. Vaccination Card Issued to the client', 2, 'checkbox', 1, '2026-02-05 06:12:24');
-INSERT INTO `questions` VALUES (10, 'CHF', '21. Vaccination', '', '23. Adverse Event Following Immunization (AEFI)', 3, 'checkbox', 1, '2026-02-05 06:14:53');
-INSERT INTO `questions` VALUES (11, 'CHF', '21. Vaccination', '', '24. Referred', 4, 'checkbox', 1, '2026-02-05 06:15:32');
-INSERT INTO `questions` VALUES (12, 'CHF', '22. CBA Vaccination (For Females age from 15-49 years)', '', '1. Tetanus Vaccine Administered: (If yes skip Q2)', 1, 'radio', 1, '2026-02-05 06:17:15');
-INSERT INTO `questions` VALUES (13, 'CHF', '22. CBA Vaccination (For Females age from 15-49 years)', '', '1.1. In case of Yes, mention Dose:', 2, 'radio', 1, '2026-02-05 06:19:07');
-INSERT INTO `questions` VALUES (15, 'CHF', 'If the answer to Question 22 is \'No\', please select a reason from options 2.1 to 2.3:', '', '2.1 Refused for TT:', 1, 'checkbox', 1, '2026-02-05 06:21:38');
-INSERT INTO `questions` VALUES (16, 'CHF', 'If the answer to Question 22 is \'No\', please select a reason from options 2.1 to 2.3:', '', '2.2 Complete TT Schedule: ', 2, 'checkbox', 1, '2026-02-05 06:22:25');
-INSERT INTO `questions` VALUES (17, 'CHF', 'If the answer to Question 22 is \'No\', please select a reason from options 2.1 to 2.3:', '', '2.3 Dose Not Due: ', 3, 'checkbox', 1, '2026-02-05 06:22:50');
+INSERT INTO `questions` VALUES (8, 'CHF', '21. Vaccination', '', '21. Supplementary Vaccination', 8, 'checkbox', 1, '2026-02-05 06:09:42');
+INSERT INTO `questions` VALUES (9, 'CHF', '21. Vaccination', '', '22. Vaccination Card Issued to the client', 8, 'checkbox', 1, '2026-02-05 06:12:24');
+INSERT INTO `questions` VALUES (10, 'CHF', '21. Vaccination', '', '23. Adverse Event Following Immunization (AEFI)', 8, 'checkbox', 1, '2026-02-05 06:14:53');
+INSERT INTO `questions` VALUES (11, 'CHF', '21. Vaccination', '', '24. Referred', 8, 'checkbox', 1, '2026-02-05 06:15:32');
+INSERT INTO `questions` VALUES (12, 'CHF', '22. CBA Vaccination (For Females age from 15-49 years)', '', '1. Tetanus Vaccine Administered: (If yes skip Q2)', 9, 'radio', 1, '2026-02-05 06:17:15');
+INSERT INTO `questions` VALUES (13, 'CHF', '22. CBA Vaccination (For Females age from 15-49 years)', '', '1.1. In case of Yes, mention Dose:', 9, 'radio', 1, '2026-02-05 06:19:07');
+INSERT INTO `questions` VALUES (15, 'CHF', 'If the answer to Question 22 is \'No\', please select a reason from options 2.1 to 2.3:', '', '2.1 Refused for TT:', 10, 'checkbox', 1, '2026-02-05 06:21:38');
+INSERT INTO `questions` VALUES (16, 'CHF', 'If the answer to Question 22 is \'No\', please select a reason from options 2.1 to 2.3:', '', '2.2 Complete TT Schedule: ', 10, 'checkbox', 1, '2026-02-05 06:22:25');
+INSERT INTO `questions` VALUES (17, 'CHF', 'If the answer to Question 22 is \'No\', please select a reason from options 2.1 to 2.3:', '', '2.3 Dose Not Due: ', 10, 'checkbox', 1, '2026-02-05 06:22:50');
 INSERT INTO `questions` VALUES (18, 'opd', '18. Antenatal Care', '1', 'Trimester', 1, 'radio', 1, '2026-02-06 06:49:13');
 INSERT INTO `questions` VALUES (19, 'opd', '18. Antenatal Care', '2', 'Visit', 2, 'radio', 1, '2026-02-06 06:50:13');
 INSERT INTO `questions` VALUES (20, 'opd', '18. Antenatal Care', '3', 'Any\r\ncomplicaon?', 1, 'radio', 1, '2026-02-06 06:50:44');
@@ -595,7 +616,7 @@ CREATE TABLE `user_access_log`  (
   `login_success` tinyint(1) NULL DEFAULT 0,
   `remarks` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 23 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of user_access_log
@@ -619,6 +640,9 @@ INSERT INTO `user_access_log` VALUES (16, 1, 'internee1', '::1', '2026-02-14 09:
 INSERT INTO `user_access_log` VALUES (17, 2, 'internee2', '::1', '2026-02-14 11:29:42', '2026-02-14 11:35:58', 1, 'Login successful');
 INSERT INTO `user_access_log` VALUES (18, 5, 'admin', '::1', '2026-02-14 11:36:02', '2026-02-14 11:36:15', 1, 'Login successful');
 INSERT INTO `user_access_log` VALUES (19, 2, 'internee2', '::1', '2026-02-14 11:36:20', NULL, 1, 'Login successful');
+INSERT INTO `user_access_log` VALUES (20, 0, '', '::1', '2026-02-14 15:41:53', NULL, 0, 'Invalid credentials');
+INSERT INTO `user_access_log` VALUES (21, 0, '', '::1', '2026-02-14 15:41:53', NULL, 0, 'Invalid credentials');
+INSERT INTO `user_access_log` VALUES (22, 1, 'internee1', '::1', '2026-02-14 15:41:58', NULL, 1, 'Login successful');
 
 -- ----------------------------
 -- Table structure for users

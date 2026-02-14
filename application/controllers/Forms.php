@@ -95,6 +95,7 @@ class Forms extends CI_Controller {
             'age_year' => $this->input->post('age_year'),
             'age_month' => $this->input->post('age_month'),
             'age_day' => $this->input->post('age_day'),
+            'age_group' => $this->input->post('age_group'),
 
             'gender' => $this->input->post('gender'),
             'marital_status' => $this->input->post('marital_status'),
@@ -268,6 +269,7 @@ class Forms extends CI_Controller {
             'age_year' => $this->input->post('age_year'),
             'age_month' => $this->input->post('age_month'),
             'age_day' => $this->input->post('age_day'),
+            'age_group' => $this->input->post('age_group'),
 
             'gender' => $this->input->post('gender'),
             'marital_status' => $this->input->post('marital_status'),
@@ -467,6 +469,7 @@ class Forms extends CI_Controller {
             'pregnancy_status' => $this->input->post('pregnancy_status'),
             'created_by' => $this->session->userdata('user_id'),
             'facility_id' => $this->input->post('facility_id'),
+            'qr_code' => $this->input->post('qr_code'),
                 
             'notes' => $this->input->post('notes')
         ];
@@ -624,6 +627,7 @@ class Forms extends CI_Controller {
             'pregnancy_status' => $this->input->post('pregnancy_status'),
             'created_by' => $this->session->userdata('user_id'),
             'facility_id' => $this->input->post('facility_id'),
+            'qr_code' => $this->input->post('qr_code'),
 
             'notes' => $this->input->post('notes')
         ];

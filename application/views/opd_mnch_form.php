@@ -177,59 +177,71 @@ action="<?= isset($is_edit) && $is_edit
 <h4 class="section-title">📋 Basic Information</h4>
 
 <!-- Visit Type -->
-<div class="mb-4">
-<strong>Visit Type</strong>
+<div class="form-group row align-items-center">
+    <!-- Center: Visit Type -->
+    <div class="col-md-4">
+        <label class="form-label font-weight-bold d-block">Visit Type *</label>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visit_type" value="OPD"
+            <?= ($rec && $rec->visit_type=='OPD')?'checked':'' ?> required>
+            <label class="form-check-label fw-bold">OPD</label>
+        </div>
 
-<div class="mt-2">
-    <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="visit_type" value="OPD"
-        <?= ($rec && $rec->visit_type=='OPD')?'checked':'' ?> required>
-        <label class="form-check-label">OPD</label>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="visit_type" value="MNCH"
+            <?= ($rec && $rec->visit_type=='MNCH')?'checked':'' ?> required>
+            <label class="form-check-label fw-bold">MNCH</label>
+        </div>
     </div>
 
-    <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="visit_type" value="MNCH"
-        <?= ($rec && $rec->visit_type=='MNCH')?'checked':'' ?> required>
-        <label class="form-check-label">MNCH</label>
+    <!-- Right: QR Code -->
+    <div class="col-md-4 ms-auto">
+        <label class="form-label font-weight-bold d-block">QR Code# *</label>
+        <input type="text" 
+               id="qr_input"
+               name="qr_code" 
+               class="form-control"
+               value="<?= isset($rec->qr_code) ? $rec->qr_code : '' ?>" 
+               required>
+    </div>
+    <div class="col-sm-4">
+        <label class="form-label font-weight-bold d-block">&nbsp;</label>
+        <div id="qr_preview"
+            style="padding:5px; border:1px solid #ddd; border-radius:6px; display:inline-block;">
+       </div>
     </div>
 </div>
+
+<div class="form-row">
+    <!-- Date -->
+    <div class="col-sm-4 mb-3">
+        <label class="form-label font-weight-bold d-block">Date *</label>
+        <input type="date" name="form_date" class="form-control"
+               value="<?= $rec ? $rec->form_date : '' ?>" required>
+    </div>
+
+    <!-- ANC Card -->
+    <div class="col-sm-4 mb-3">
+        <label class="form-label font-weight-bold d-block">ANC Card# (In case of MNCH) *</label>
+        <input type="text" name="anc_card_no" class="form-control"
+               value="<?= $rec ? htmlspecialchars($rec->anc_card_no):'' ?>" required>
+    </div>
+
+    <!-- Client Type -->
+    <div class="col-sm-4 mb-3">
+        <label class="form-label font-weight-bold d-block">Client Type *</label>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="client_type" value="New"
+                   <?= ($rec && $rec->client_type=='New')?'checked':'' ?> required>
+            <label class="form-check-label">New Client</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="client_type" value="Followup"
+                   <?= ($rec && $rec->client_type=='Followup')?'checked':'' ?> required>
+            <label class="form-check-label">Follow-up</label>
+        </div>
+    </div>
 </div>
-
-
-<div class="form-group row">
-<label class="col-sm-2 col-form-label">Date *</label>
-<div class="col-sm-4">
-<input type="date" name="form_date" class="form-control"
-value="<?= $rec ? $rec->form_date : '' ?>" required>
-</div>
-
-<label class="col-sm-2 col-form-label">ANC Card# *</label>
-<div class="col-sm-4">
-<input type="text" name="anc_card_no" class="form-control"
-value="<?= $rec ? htmlspecialchars($rec->anc_card_no):'' ?>" required>
-</div>
-</div>
-
-
-<div class="form-group row">
-<label class="col-sm-2 col-form-label">Client Type *</label>
-<div class="col-sm-10">
-
-<div class="form-check form-check-inline">
-<input class="form-check-input" type="radio" name="client_type" value="New"
-<?= ($rec && $rec->client_type=='New')?'checked':'' ?> required>
-<label class="form-check-label">New Client</label>
-</div>
-
-<div class="form-check form-check-inline">
-<input class="form-check-input" type="radio" name="client_type" value="Followup"
-<?= ($rec && $rec->client_type=='Followup')?'checked':'' ?> required>
-<label class="form-check-label">Follow-up</label>
-</div>
-
-</div>
-</div>
-
 
 <div class="form-group row">
 <label class="col-sm-2 col-form-label">District *</label>
@@ -279,13 +291,13 @@ value="<?= $rec ? htmlspecialchars($rec->anc_card_no):'' ?>" required>
 </div>
 
 <div class="form-group row">
-<label class="col-sm-2 col-form-label">Village *</label>
+<label class="col-sm-2 col-form-label">HF/Village *</label>
 <div class="col-sm-4">
 <input type="text" name="village" class="form-control"
 value="<?= $rec ? htmlspecialchars($rec->village):'' ?>" required>
 </div>
 
-<label class="col-sm-2 col-form-label">LHV Name *</label>
+<label class="col-sm-2 col-form-label">HT/LHV Name *</label>
 <div class="col-sm-4">
 <input type="text" name="lhv_name" class="form-control"
 value="<?= $rec ? htmlspecialchars($rec->lhv_name):'' ?>" required>
@@ -294,13 +306,13 @@ value="<?= $rec ? htmlspecialchars($rec->lhv_name):'' ?>" required>
 
 
 <div class="form-group row">
-<label class="col-sm-2 col-form-label">Patient Name *</label>
+<label class="col-sm-2 col-form-label">Patients  Name *</label>
 <div class="col-sm-4">
 <input type="text" name="patient_name" class="form-control"
 value="<?= $rec ? htmlspecialchars($rec->patient_name):'' ?>" required>
 </div>
 
-<label class="col-sm-2 col-form-label">Guardian Name *</label>
+<label class="col-sm-2 col-form-label">Father/ Husband’s name *</label>
 <div class="col-sm-4">
 <input type="text" name="guardian_name" class="form-control"
 value="<?= $rec ? htmlspecialchars($rec->guardian_name):'' ?>" required>
@@ -324,7 +336,7 @@ value="<?= $rec ? htmlspecialchars($rec->guardian_name):'' ?>" required>
 <label class="col-sm-2 col-form-label">Age Group *</label>
 <div class="col-sm-4">
 
-<?php $ages=['<1','1-5','15-49']; foreach($ages as $age){ ?>
+<?php $ages=['0-14 Y','15-49 Y','50 Y +']; foreach($ages as $age){ ?>
 <div class="form-check">
 <input class="form-check-input" type="radio" name="age_group"
 value="<?= $age ?>"
@@ -335,7 +347,25 @@ value="<?= $age ?>"
 
 </div>
 
+<label class="col-sm-2 col-form-label">Any Disability *</label>
+<div class="col-sm-4">
 
+<?php $dis=['Yes','No']; foreach($dis as $d){ ?>
+<div class="form-check">
+<input class="form-check-input" type="radio" name="disability"
+value="<?= $d ?>"
+<?= ($rec && $rec->disability==$d)?'checked':'' ?> required>
+<label class="form-check-label"><?= $d ?></label>
+</div>
+<?php } ?>
+
+</div>
+</div>
+
+
+
+<div class="form-group row">
+    
 <label class="col-sm-2 col-form-label">Marital Status *</label>
 <div class="col-sm-4">
 
@@ -349,13 +379,8 @@ value="<?= $m ?>"
 <?php } ?>
 
 </div>
-</div>
 
-
-
-<div class="form-group row">
-
-<label class="col-sm-2 col-form-label">Pregnancy *</label>
+<label class="col-sm-2 col-form-label">Pregnancy Status *</label>
 <div class="col-sm-4">
 
 <?php $preg=['Pregnant','Non-Pregnant']; foreach($preg as $p){ ?>
@@ -369,20 +394,6 @@ value="<?= $p ?>"
 
 </div>
 
-
-<label class="col-sm-2 col-form-label">Disability *</label>
-<div class="col-sm-4">
-
-<?php $dis=['Yes','No']; foreach($dis as $d){ ?>
-<div class="form-check">
-<input class="form-check-input" type="radio" name="disability"
-value="<?= $d ?>"
-<?= ($rec && $rec->disability==$d)?'checked':'' ?> required>
-<label class="form-check-label"><?= $d ?></label>
-</div>
-<?php } ?>
-
-</div>
 </div>
 
 </div>
@@ -479,6 +490,7 @@ value="<?= $opt->option_id; ?>"
 </div>
     
 <!-- Load jQuery first -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
 <script>
 var selected_facility = <?= isset($rec->facility_id) ? json_encode($rec->facility_id) : '""' ?>;
@@ -553,6 +565,40 @@ $(document).ready(function(){
     $('#uc').change(function(){
         loadFacilities($(this).val());
     });
+
+});
+
+//For QR code
+document.addEventListener("DOMContentLoaded", function() {
+
+    var qrInput = document.getElementById("qr_input");
+    var qrPreview = document.getElementById("qr_preview");
+
+    var qr = new QRCode(qrPreview, {
+        width: 80,
+        height: 80
+    });
+
+    function generateQR(value) {
+        qrPreview.innerHTML = "";
+        if(value.trim() !== "") {
+            new QRCode(qrPreview, {
+                text: value,
+                width: 80,
+                height: 80
+            });
+        }
+    }
+
+    // Generate on typing
+    qrInput.addEventListener("keyup", function() {
+        generateQR(this.value);
+    });
+
+    // If editing (value already exists)
+    if(qrInput.value !== ""){
+        generateQR(qrInput.value);
+    }
 
 });
 </script> 

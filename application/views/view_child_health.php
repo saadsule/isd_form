@@ -55,10 +55,17 @@
 <div class="page-container">
 <div class="main-content">
 
-<div class="page-header mb-4">
-    <h2 class="header-title">Child Health Form</h2>
+<div class="page-header mb-4 d-flex justify-content-between align-items-center">
+    <h2 class="header-title mb-0">Child Health Form</h2>
+    <!-- Print Button -->
+    <div>
+        <button class="btn btn-primary" onclick="printForm();">
+            <i class="anticon anticon-printer"></i> Print
+        </button>
+    </div>
 </div>
-
+    
+<div id="printable-area">
 <div class="card">
 <div class="card-body">
 
@@ -99,7 +106,7 @@
 <tr>
     <th>Date</th>
     <td><?= $form->form_date ?: '-' ?></td>
-    <th>QR Code</th>
+    <th>QR Code#</th>
     <td><?= $form->qr_code ?: '-' ?></td>
 </tr>
 <tr>
@@ -115,15 +122,15 @@
     <td><?= $form->uc_name ?: '-' ?></td>
 </tr>
 <tr>
-    <th>Village</th>
+    <th>HF/Village</th>
     <td><?= $form->village ?: '-' ?></td>
-    <th>Vaccinator</th>
+    <th>Vaccinator name</th>
     <td><?= $form->vaccinator_name ?: '-' ?></td>
 </tr>
 <tr>
-    <th>Patient Name</th>
+    <th>Patient’s name</th>
     <td><?= $form->patient_name ?: '-' ?></td>
-    <th>Guardian</th>
+    <th>Father/ Husband’s name</th>
     <td><?= $form->guardian_name ?: '-' ?></td>
 </tr>
 <?php if(isset($form->visit_type) && $form->visit_type == 'Fixed Site') { ?>
@@ -138,39 +145,62 @@
 
 <!-- ================= DEMOGRAPHICS ================= -->
 <div class="card mb-4 form-section">
-<div class="card-body">
-<h4 class="section-title">👶 Demographics</h4>
-<table class="table table-bordered">
-<tr>
-    <th>DOB</th>
-    <td><?= $form->dob ?: '-' ?></td>
-    <th>Age</th>
-    <td>
-        <?= $form->age_year ?: '0' ?>Y
-        <?= $form->age_month ?: '0' ?>M
-        <?= $form->age_day ?: '0' ?>D
-    </td>
-</tr>
-<tr>
-    <th>Gender</th>
-    <td><?= $form->gender ?: '-' ?></td>
-    <th>Marital Status</th>
-    <td><?= $form->marital_status ?: '-' ?></td>
-</tr>
-<tr>
-    <th>Pregnancy Status</th>
-    <td><?= $form->pregnancy_status ?: '-' ?></td>
-    <th>Disability</th>
-    <td><?= $form->disability ?: '-' ?></td>
-</tr>
-<tr>
-    <th>Play Kit</th>
-    <td><?= $form->play_learning_kit ?: '-' ?></td>
-    <th>Nutrition</th>
-    <td><?= $form->nutrition_package ?: '-' ?></td>
-</tr>
-</table>
-</div>
+    <div class="card-body">
+    <h4 class="section-title">👶 Demographics</h4>
+
+    <table class="table table-bordered">
+
+    <?php
+        if(!empty($form->dob) && $form->dob != '0000-00-00'){
+            $dob = new DateTime($form->dob);
+            $today = new DateTime();
+            $age = $today->diff($dob); // DateInterval object
+            $age_display = $age->y . 'Y ' . $age->m . 'M ' . $age->d . 'D';
+        } else {
+            $age_display = '-';
+        }
+    ?>
+    <tr>
+        <th>DOB</th>
+        <td><?= !empty($form->dob) ? $form->dob : '-' ?></td>
+        <th>Age</th>
+        <td><?= $age_display ?></td>
+    </tr>
+
+    <tr>
+        <th>Age Group</th>
+        <td><?= $form->age_group ?: '-' ?></td>
+
+        <th>Gender</th>
+        <td><?= $form->gender ?: '-' ?></td>
+    </tr>
+
+    <tr>
+        <th>Marital Status</th>
+        <td><?= $form->marital_status ?: '-' ?></td>
+
+        <th>Pregnancy Status</th>
+        <td><?= $form->pregnancy_status ?: '-' ?></td>
+    </tr>
+
+    <tr>
+        <th>Disability</th>
+        <td><?= $form->disability ?: '-' ?></td>
+
+        <th>Play & Learning Kit</th>
+        <td><?= $form->play_learning_kit ?: '-' ?></td>
+    </tr>
+
+    <tr>
+        <th>Nutrition Package</th>
+        <td><?= $form->nutrition_package ?: '-' ?></td>
+
+        <th></th>
+        <td></td>
+    </tr>
+
+    </table>
+    </div>
 </div>
 
 <!-- ================= DYNAMIC QUESTIONS ================= -->
@@ -214,3 +244,15 @@ if($q->q_type == 'text'){
 </div>
 </div>
 </div>
+</div>
+    
+<script>
+    function printForm() {
+        var printContents = document.getElementById('printable-area').innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>
