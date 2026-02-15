@@ -22,14 +22,16 @@
                     <span class="title">Dashboard</span>
                 </a>
             </li>
-
+<hr/>
+&nbsp;&nbsp;&nbsp;Data Entry
+<hr/>
             <!-- OPD & MNCH Form -->
             <li class="nav-item">
                 <a href="<?= base_url('forms/opd_mnch'); ?>">
                     <span class="icon-holder">
                         <i class="anticon anticon-profile"></i> <!-- Use profile icon for patient forms -->
                     </span>
-                    <span class="title">OPD & MNCH Form</span>
+                    <span class="title">OPD/MNCH - New Form</span>
                 </a>
             </li>
 
@@ -39,9 +41,12 @@
                     <span class="icon-holder">
                         <i class="anticon anticon-heart"></i> <!-- Heart icon for child health -->
                     </span>
-                    <span class="title">Child Health Form</span>
+                    <span class="title">Child Health - New Form</span>
                 </a>
             </li>
+<hr/>
+     &nbsp;&nbsp;&nbsp;View Data
+<hr/>
 
             <!-- OPD & MNCH Report -->
             <li class="nav-item">
@@ -49,7 +54,7 @@
                     <span class="icon-holder">
                         <i class="anticon anticon-file-done"></i> <!-- File done icon for OPD reports -->
                     </span>
-                    <span class="title">OPD/MNCH Report</span>
+                    <span class="title">View OPD/MNCH Data</span>
                 </a>
             </li>
             
@@ -59,7 +64,7 @@
                     <span class="icon-holder">
                         <i class="anticon anticon-bar-chart"></i> <!-- Bar chart for reports -->
                     </span>
-                    <span class="title">Child Health Report</span>
+                    <span class="title">View Child Health Data</span>
                 </a>
             </li>
 
