@@ -20,13 +20,8 @@
         </div>
     </div>
 
-        <!-- page js -->
-    <script src="<?php echo base_url('assets/vendors/datatables/jquery.dataTables.min.js') ?>"></script>
-    <script src="<?php echo base_url('assets/vendors/datatables/dataTables.bootstrap.min.js') ?>"></script>
     <!-- Core Vendors JS -->
     <script src="<?php echo base_url('assets/js/vendors.min.js') ?>"></script>
-
-    <!-- page js -->
 
     <!-- Core JS -->
     <script src="<?php echo base_url('assets/js/app.min.js') ?>"></script>

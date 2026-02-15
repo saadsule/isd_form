@@ -132,7 +132,6 @@ class Forms extends CI_Controller {
                 $option_map[$opt->option_id] = $opt->option_text;
             }
 
-
             foreach($questions as $question_id => $answer)
             {
                 // CASE 1 — ARRAY ANSWER
@@ -193,16 +192,27 @@ class Forms extends CI_Controller {
                 {
                     if(trim($answer) != '')
                     {
-                        $batch[] = [
-                            'master_id' => $master_id,
-                            'question_id' => $question_id,
-                            'option_id' => NULL,
-                            'answer' => $answer
-                        ];
+                        if(is_numeric($answer)) // ✔ Radio button
+                        {
+                            $batch[] = [
+                                'master_id'  => $master_id,
+                                'question_id'=> $question_id,
+                                'option_id'  => (int)$answer,
+                                'answer' => isset($option_map[(int)$answer]) ? $option_map[(int)$answer] : NULL
+                            ];
+                        }
+                        else // ✔ Pure text input
+                        {
+                            $batch[] = [
+                                'master_id'  => $master_id,
+                                'question_id'=> $question_id,
+                                'option_id'  => NULL,
+                                'answer'     => $answer
+                            ];
+                        }
                     }
                 }
             }
-
 
             if(!empty($batch))
             {
@@ -353,14 +363,26 @@ class Forms extends CI_Controller {
                 } 
                 else // PURE TEXT
                 {
-                    if (trim($answer) != '') 
+                    if(trim($answer) != '')
                     {
-                        $batch[] = [
-                            'master_id' => $master_id,
-                            'question_id' => $question_id,
-                            'option_id' => NULL,
-                            'answer' => $answer
-                        ];
+                        if(is_numeric($answer)) // ✔ Radio button
+                        {
+                            $batch[] = [
+                                'master_id'  => $master_id,
+                                'question_id'=> $question_id,
+                                'option_id'  => (int)$answer,
+                                'answer' => isset($option_map[(int)$answer]) ? $option_map[(int)$answer] : NULL
+                            ];
+                        }
+                        else // ✔ Pure text input
+                        {
+                            $batch[] = [
+                                'master_id'  => $master_id,
+                                'question_id'=> $question_id,
+                                'option_id'  => NULL,
+                                'answer'     => $answer
+                            ];
+                        }
                     }
                 }
             }
@@ -560,12 +582,24 @@ class Forms extends CI_Controller {
                 {
                     if(trim($answer) != '')
                     {
-                        $batch[] = [
-                            'master_id'   => $master_id,
-                            'question_id' => $question_id,
-                            'option_id'   => NULL,
-                            'answer'      => $answer
-                        ];
+                        if(is_numeric($answer)) // ✔ Radio button
+                        {
+                            $batch[] = [
+                                'master_id'  => $master_id,
+                                'question_id'=> $question_id,
+                                'option_id'  => (int)$answer,
+                                'answer' => isset($option_map[(int)$answer]) ? $option_map[(int)$answer] : NULL
+                            ];
+                        }
+                        else // ✔ Pure text input
+                        {
+                            $batch[] = [
+                                'master_id'  => $master_id,
+                                'question_id'=> $question_id,
+                                'option_id'  => NULL,
+                                'answer'     => $answer
+                            ];
+                        }
                     }
                 }
             }
@@ -728,12 +762,24 @@ class Forms extends CI_Controller {
                 {
                     if(trim($answer) != '')
                     {
-                        $batch[] = [
-                            'master_id'   => $master_id,
-                            'question_id' => $question_id,
-                            'option_id'   => NULL,
-                            'answer'      => $answer
-                        ];
+                        if(is_numeric($answer)) // ✔ Radio button
+                        {
+                            $batch[] = [
+                                'master_id'  => $master_id,
+                                'question_id'=> $question_id,
+                                'option_id'  => (int)$answer,
+                                'answer' => isset($option_map[(int)$answer]) ? $option_map[(int)$answer] : NULL
+                            ];
+                        }
+                        else // ✔ Pure text input
+                        {
+                            $batch[] = [
+                                'master_id'  => $master_id,
+                                'question_id'=> $question_id,
+                                'option_id'  => NULL,
+                                'answer'     => $answer
+                            ];
+                        }
                     }
                 }
             }
@@ -777,15 +823,30 @@ class Forms extends CI_Controller {
     public function child_health_report()
     {
         $this->load->model('Forms_model');
+        $this->load->model('Location_model');
+
+        $filters = array(
+            'from_date'   => $this->input->get('from_date'),
+            'to_date'     => $this->input->get('to_date'),
+            'uc_id'       => $this->input->get('uc_id'),
+            'facility_id' => $this->input->get('facility_id'),
+            'search'      => $this->input->get('search')
+        );
+
+        $data['filters'] = $filters;
+
+        // get filtered records
+        $data['records'] = $this->Forms_model->get_child_records($filters);
+
+        // dropdowns
+        $data['ucs'] = $this->Location_model->get_all_uc();
+        $data['facilities'] = $this->Location_model->get_all_facilities($filters['uc_id']);
+
         $data['page_title'] = "Child Health Report";
-
-        // get all records
-        $data['records'] = $this->Forms_model->get_child_records();
-
         $data['main_content'] = $this->load->view('reports/child_health_report', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
-    
+
     public function view_child_health($id)
     {
         $this->load->model('Forms_model');
@@ -830,9 +891,23 @@ class Forms extends CI_Controller {
     public function opd_report()
     {
         $this->load->model('Forms_model');
+        $this->load->model('Location_model');
 
-        $data['page_title'] = "OPD MNCH Report";
-        $data['records'] = $this->Forms_model->get_opd_records();
+        $filters = array(
+            'from_date'  => $this->input->get('from_date'),
+            'to_date'    => $this->input->get('to_date'),
+            'uc_id'      => $this->input->get('uc_id'),
+            'facility_id'=> $this->input->get('facility_id'),
+            'search'     => $this->input->get('search')
+        );
+
+        $data['filters'] = $filters;
+
+        $data['records'] = $this->Forms_model->get_opd_records($filters);
+
+        // Load dropdown data
+        $data['ucs'] = $this->Location_model->get_all_uc();
+        $data['facilities'] = $this->Location_model->get_all_facilities($filters['uc_id']);
 
         $data['main_content'] =
             $this->load->view('reports/opd_report',$data,TRUE);

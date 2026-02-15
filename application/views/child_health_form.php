@@ -311,10 +311,14 @@ $details = isset($details) ? $details : array();
 <div class="form-group row">
 
     <!-- Date of Birth -->
-    <label class="col-sm-2 col-form-label">9. Date of Birth *</label>
+    <label class="col-sm-2 col-form-label">9. Date of Birth </label>
     <div class="col-sm-4">
-        <input type="date" name="dob" class="form-control"
-            value="<?= isset($rec->dob) ? $rec->dob : '' ?>" required>
+        <input type="date" 
+               id="dob"
+               name="dob" 
+               class="form-control"
+               value="<?= isset($rec->dob) ? $rec->dob : '' ?>"
+               max="<?= date('Y-m-d', strtotime('-1 day')) ?>">
     </div>
 
 </div>
@@ -323,17 +327,17 @@ $details = isset($details) ? $details : array();
     <!-- Age -->
     <label class="col-sm-2 col-form-label">10. Age *</label>
     <div class="col-sm-2">
-        <input type="number" name="age_year" class="form-control"
+        <input type="number" id="age_year" name="age_year" class="form-control"
             placeholder="Y"
             value="<?= isset($rec->age_year) ? $rec->age_year : '' ?>" required>
     </div>
     <div class="col-sm-2">
-        <input type="number" name="age_month" class="form-control"
+        <input type="number" id="age_month" name="age_month" class="form-control"
             placeholder="M"
             value="<?= isset($rec->age_month) ? $rec->age_month : '' ?>" required>
     </div>
     <div class="col-sm-2">
-        <input type="number" name="age_day" class="form-control"
+        <input type="number" id="age_day" name="age_day" class="form-control"
             placeholder="D"
             value="<?= isset($rec->age_day) ? $rec->age_day : '' ?>" required>
     </div>
@@ -688,4 +692,52 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 });
+
+document.getElementById('dob').addEventListener('change', function () {
+
+    if (!this.value) return; // If no date selected → do nothing
+
+    const dob = new Date(this.value);
+    const today = new Date();
+
+    let years = today.getFullYear() - dob.getFullYear();
+    let months = today.getMonth() - dob.getMonth();
+    let days = today.getDate() - dob.getDate();
+
+    if (days < 0) {
+        months--;
+        days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+    }
+
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    // Set Age fields
+    document.getElementById('age_year').value = years;
+    document.getElementById('age_month').value = months;
+    document.getElementById('age_day').value = days;
+
+    // Auto select Age Group
+    let group = '';
+
+    if (years === 0) {
+        group = '<1 Year';
+    } else if (years >= 1 && years < 2) {
+        group = '1-2 Year';
+    } else if (years >= 2 && years <= 5) {
+        group = '2-5 Year';
+    } else if (years >= 15 && years <= 49) {
+        group = '15-49 Year';
+    }
+
+    if (group !== '') {
+        const radios = document.querySelectorAll('input[name="age_group"]');
+        radios.forEach(radio => {
+            radio.checked = (radio.value === group);
+        });
+    }
+});
+
 </script>

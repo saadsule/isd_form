@@ -59,7 +59,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         return $this->db->get()->result();
     }
     
-    public function get_child_records()
+    public function get_child_records($filters = array())
     {
         $this->db->select("
             ch.master_id,
@@ -68,22 +68,51 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             ch.guardian_name,
             d.district_name AS district,
             u.uc AS uc,
+            f.facility_name AS facility,
             ch.village,
             ch.gender,
             ch.client_type,
-            ch.created_at,
             ch.visit_type,
+            ch.created_at,
             ch.created_by
         ");
         $this->db->from('child_health_master ch');
+
+        // Joins
         $this->db->join('districts d', 'd.district_id = ch.district', 'left');
         $this->db->join('uc u', 'u.pk_id = ch.uc', 'left');
+        $this->db->join('facilities f', 'f.id = ch.facility_id', 'left');
+
+        // 🔹 Filters
+        if (!empty($filters['from_date'])) {
+            $this->db->where('ch.form_date >=', $filters['from_date']);
+        }
+
+        if (!empty($filters['to_date'])) {
+            $this->db->where('ch.form_date <=', $filters['to_date']);
+        }
+
+        if (!empty($filters['uc_id'])) {
+            $this->db->where('ch.uc', $filters['uc_id']);
+        }
+
+        if (!empty($filters['facility_id'])) {
+            $this->db->where('ch.facility_id', $filters['facility_id']);
+        }
+
+        if (!empty($filters['search'])) {
+            $this->db->group_start();
+            $this->db->like('ch.patient_name', $filters['search']);
+            $this->db->or_like('ch.qr_code', $filters['search']);
+            $this->db->group_end();
+        }
+
         $this->db->order_by('ch.master_id', 'DESC');
 
         return $this->db->get()->result();
     }
-    
-    public function get_opd_records()
+
+    public function get_opd_records($filters = array())
     {
         $this->db->select("
             op.id,
@@ -92,6 +121,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             op.guardian_name,
             d.district_name AS district,
             u.uc AS uc,
+            f.facility_name AS facility,
             op.village,
             op.client_type,
             op.visit_type,
@@ -99,13 +129,42 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             op.created_by
         ");
         $this->db->from('opd_mnch_master op');
+
+        // Joins
         $this->db->join('districts d', 'd.district_id = op.district', 'left');
         $this->db->join('uc u', 'u.pk_id = op.uc', 'left');
+        $this->db->join('facilities f', 'f.id = op.facility_id', 'left');
+
+        // 🔹 Filters
+        if (!empty($filters['from_date'])) {
+            $this->db->where('op.form_date >=', $filters['from_date']);
+        }
+
+        if (!empty($filters['to_date'])) {
+            $this->db->where('op.form_date <=', $filters['to_date']);
+        }
+
+        if (!empty($filters['uc_id'])) {
+            $this->db->where('op.uc', $filters['uc_id']);
+        }
+
+        if (!empty($filters['facility_id'])) {
+            $this->db->where('op.facility_id', $filters['facility_id']);
+        }
+
+        if (!empty($filters['search'])) {
+            $this->db->group_start();
+            $this->db->like('op.patient_name', $filters['search']);
+            $this->db->or_like('op.qr_code', $filters['search']);
+            $this->db->or_like('op.anc_card_no', $filters['search']);
+            $this->db->group_end();
+        }
+
         $this->db->order_by('op.id', 'DESC');
 
         return $this->db->get()->result();
     }
-    
+
     public function get_opd_detail($master_id)
     {
         // MASTER

@@ -21,5 +21,23 @@ class Location_model extends CI_Model {
                     ->get('facilities')
                     ->result();
     }
+    
+    public function get_all_uc()
+    {
+        return $this->db->order_by('uc','ASC')
+                        ->get('uc')
+                        ->result();
+    }
+
+    public function get_all_facilities($uc_id = null)
+    {
+        if(!empty($uc_id)){
+            $this->db->where('uc_id', $uc_id);
+        }
+
+        return $this->db->order_by('facility_name','ASC')
+                        ->get('facilities')
+                        ->result();
+    }
 
 }
