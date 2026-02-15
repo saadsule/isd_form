@@ -70,65 +70,73 @@
     
 <div class="table-responsive">
 
-<table id="data-table" class="table">
-
+<table id="data-table" class="table table-bordered table-hover">
 <thead class="thead-light">
 <tr>
     <th>#</th>
     <th>Date</th>
-    <th>Patient</th>
-    <th>Guardian</th>
-    <th>District</th>
-    <th>UC</th>
+    <th>District / UC / Facility</th>
+    <th>Patient / Guardian</th>
+    <th>QR Code</th>
+    <th>ANC</th>
     <th>Visit</th>
     <th>Client</th>
-    <th width="120">Action</th>
+    <th>Action</th>
 </tr>
 </thead>
-
 <tbody>
-
 <?php $i=1; foreach($records as $r): ?>
-
 <tr>
-<td><?= $i++ ?></td>
-<td><?= date('d-M-Y',strtotime($r->form_date)) ?></td>
-<td><?= htmlspecialchars($r->patient_name) ?></td>
-<td><?= htmlspecialchars($r->guardian_name) ?></td>
-<td><?= htmlspecialchars($r->district) ?></td>
-<td><?= htmlspecialchars($r->uc) ?></td>
+    <td><?= $i++ ?></td>
+    <td><?= date('d-M-Y', strtotime($r->form_date)) ?></td>
 
-<td>
-<span class="badge badge-warning">
-<?= $r->visit_type ?>
-</span>
-</td>
+    <!-- District / UC / Facility -->
+    <td>
+        <?= htmlspecialchars($r->district) ?><br>
+        <?= htmlspecialchars($r->uc) ?><br>
+        <?= htmlspecialchars($r->facility) ?>
+    </td>
 
-<td>
-<span class="badge badge-info">
-<?= $r->client_type ?>
-</span>
-</td>
+    <!-- Patient / Guardian -->
+    <td>
+        <?= htmlspecialchars($r->patient_name) ?><br>
+        <?= htmlspecialchars($r->guardian_name) ?>
+    </td>
 
-<td>
-<a href="<?= base_url('forms/view_opd_mnch/'.$r->id) ?>"
-   class="btn btn-sm btn-primary">
-   View
-</a>
-    
-<?php if($this->session->userdata('user_id') == $r->created_by): ?>
-<a href="<?= base_url('forms/opd_mnch/'.$r->id) ?>"
-   class="btn btn-sm btn-success">
-   Edit
-</a>
-<?php endif; ?>
+    <!-- QR Code -->
+    <td><?= htmlspecialchars(!empty($r->qr_code) ? $r->qr_code : '-') ?></td>
 
+    <!-- ANC -->
+    <td><?= htmlspecialchars($r->anc_card_no ?  $r->anc_card_no : '-') ?></td>
+
+    <!-- Visit Type with icon -->
+    <td>
+        <span class="badge badge-warning">
+            <i class="fa fa-stethoscope" aria-hidden="true"></i> <?= htmlspecialchars($r->visit_type) ?>
+        </span>
+    </td>
+
+    <!-- Client Type with icon -->
+    <td>
+        <span class="badge badge-info">
+            <i class="fa fa-user" aria-hidden="true"></i> <?= htmlspecialchars($r->client_type) ?>
+        </span>
+    </td>
+
+    <td>
+    <a href="<?= base_url('forms/view_opd_mnch/'.$r->id) ?>" class="badge badge-primary" title="View">
+        <i class="fa fa-eye"></i>
+    </a>
+
+    <?php if($this->session->userdata('user_id') == $r->created_by): ?>
+    <a href="<?= base_url('forms/opd_mnch/'.$r->id) ?>" class="badge badge-success" title="Edit">
+        <i class="fa fa-edit"></i>
+    </a>
+    <?php endif; ?>
 </td>
 
 </tr>
-
 <?php endforeach; ?>
-
 </tbody>
 </table>
 

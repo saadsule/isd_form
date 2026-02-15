@@ -73,6 +73,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             ch.gender,
             ch.client_type,
             ch.visit_type,
+            ch.qr_code,
             ch.created_at,
             ch.created_by
         ");
@@ -108,6 +109,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         }
 
         $this->db->order_by('ch.master_id', 'DESC');
+        
+        // Default last 20 records if no filter
+        if (empty(array_filter($filters))) {
+            $this->db->limit(20);
+        }
 
         return $this->db->get()->result();
     }
@@ -125,6 +131,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             op.village,
             op.client_type,
             op.visit_type,
+            op.qr_code,
+            op.anc_card_no,
             op.created_at,
             op.created_by
         ");
@@ -161,6 +169,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         }
 
         $this->db->order_by('op.id', 'DESC');
+        
+        // Show only last 20 by default if no filters
+        if (empty(array_filter($filters))) {
+            $this->db->limit(20);
+        }
 
         return $this->db->get()->result();
     }

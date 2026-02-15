@@ -70,87 +70,69 @@
     
 <div class="table-responsive">
 
-<table id="data-table" class="table">
+<table id="data-table" class="table table-bordered table-hover">
+    <thead class="thead-light">
+    <tr>
+        <th>#</th>
+        <th>Date</th>
+        <th>District / UC / Facility</th>
+        <th>Patient / Guardian</th>
+        <th>QR Code#</th>
+        <th>Visit</th>
+        <th>Client</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php $i=1; foreach($records as $r): ?>
+    <tr>
+        <td><?= $i++ ?></td>
+        <td><?= date('d-M-Y', strtotime($r->form_date)) ?></td>
 
-<thead class="thead-light">
-<tr>
-    <th>#</th>
-    <th>Date</th>
-    <th>Patient</th>
-    <th>Guardian</th>
-    <th>District</th>
-    <th>UC</th>
-    <th>Visit</th>
-    <th>Client</th>
-    <th width="120">Action</th>
-</tr>
-</thead>
+        <!-- District / UC / Facility -->
+        <td>
+            <?= htmlspecialchars($r->district) ?><br>
+            <?= htmlspecialchars($r->uc) ?><br>
+            <?= htmlspecialchars($r->facility) ?>
+        </td>
+        
+        <!-- Patient / Guardian -->
+        <td>
+            <?= htmlspecialchars($r->patient_name) ?><br>
+            <?= htmlspecialchars($r->guardian_name) ?>
+        </td>
+        
+        <!-- qr_code -->
+        <td>
+            <?= htmlspecialchars($r->qr_code) ?>
+        </td>
+        
+        <!-- Visit / Client badges with icons -->
+        <td>
+            <span class="badge badge-warning">
+                <i class="fa fa-stethoscope"></i> <?= htmlspecialchars($r->visit_type) ?>
+            </span>
+        </td>
+        <td>
+            <span class="badge badge-info">
+                <i class="fa fa-user"></i> <?= htmlspecialchars($r->client_type) ?>
+            </span>
+        </td>
 
-<tbody>
-
-<?php if(!empty($records)): ?>
-
-<?php $i=1; foreach($records as $r): ?>
-
-<tr>
-
-<td><?= $i++ ?></td>
-
-<td><?= date('d-M-Y',strtotime($r->form_date)) ?></td>
-
-<td><?= htmlspecialchars($r->patient_name) ?></td>
-
-<td><?= htmlspecialchars($r->guardian_name) ?></td>
-
-<td><?= htmlspecialchars($r->district) ?></td>
-
-<td><?= htmlspecialchars($r->uc) ?></td>
-
-<td>
-<span class="badge badge-warning">
-<?= $r->visit_type ?>
-</span>
-</td>
-
-<td>
-<span class="badge badge-info">
-<?= $r->client_type ?>
-</span>
-</td>
-
-<td>
-
-<a href="<?= base_url('forms/view_child_health/'.$r->master_id) ?>"
-   class="btn btn-sm btn-primary">
-
-   View
-
-</a>
-    
-<?php if($this->session->userdata('user_id') == $r->created_by): ?>
-<a href="<?= base_url('forms/child_health/'.$r->master_id) ?>"
-   class="btn btn-sm btn-success">
-   Edit
-</a>
-<?php endif; ?>
-    
-</td>
-
-</tr>
-
-<?php endforeach; ?>
-
-<?php else: ?>
-
-<tr>
-<td colspan="9" class="text-center">
-No records found
-</td>
-</tr>
-
-<?php endif; ?>
-
-</tbody>
+        <!-- Actions: View / Edit as badges -->
+        <td>
+            <a href="<?= base_url('forms/view_child_health/'.$r->master_id) ?>" class="badge badge-primary mr-1" title="View">
+                <i class="fa fa-eye"></i>
+            </a>
+            <?php if($this->session->userdata('user_id') == $r->created_by): ?>
+            <a href="<?= base_url('forms/child_health/'.$r->master_id) ?>" class="badge badge-success" title="Edit">
+                <i class="fa fa-edit"></i>
+            </a>
+            <?php endif; ?>
+        </td>
+    </tr>
+    <?php endforeach; ?>
+    </tbody>
 </table>
 
 </div>

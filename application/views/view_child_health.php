@@ -228,9 +228,20 @@ if($q->q_type == 'text'){
         ){
             $answers[] = $opt->option_text;
         }
-
     }
-    echo $answers ? implode(', ', $answers) : '-';
+    if(!empty($answers)){
+        if(count($answers) === 1){
+            // single answer stays inline
+            echo htmlspecialchars($answers[0]);
+        } else {
+            // multiple answers → show each in new line with tick
+            foreach($answers as $ans){
+                echo '<div><i class="fa fa-check text-success mr-1"></i>' . htmlspecialchars($ans) . '</div>';
+            }
+        }
+    } else {
+        echo '-';
+    }
 }
 ?>
 </td>

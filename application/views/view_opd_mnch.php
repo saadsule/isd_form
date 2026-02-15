@@ -194,7 +194,20 @@
                                 }
                             }
                         }
-                        echo !empty($answers) ? implode(', ', $answers) : '-';
+
+                        if(!empty($answers)){
+                            if(count($answers) == 1){
+                                // Single answer → show in one line
+                                echo htmlspecialchars($answers[0]);
+                            } else {
+                                // Multiple answers → show each on separate line with tick
+                                foreach($answers as $ans){
+                                    echo '<div><i class="fa fa-check text-success mr-1"></i> ' . htmlspecialchars($ans) . '</div>';
+                                }
+                            }
+                        } else {
+                            echo '-';
+                        }
                     }
                     ?>
                 </td>
@@ -204,6 +217,7 @@
     </div>
 </div>
 <?php endforeach; ?>
+
 
 </div>
 </div>

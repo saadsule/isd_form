@@ -195,7 +195,8 @@ $details = isset($details) ? $details : array();
     <div class="col-sm-3">
         <label class="form-label font-weight-bold d-block">1. Date *</label>
         <input type="date" name="form_date" class="form-control"
-            value="<?= isset($rec->form_date) ? $rec->form_date : '' ?>" required>
+            value="<?= isset($rec->form_date) ? $rec->form_date : '' ?>" required
+            max="<?= date('Y-m-d', strtotime('-1 day')) ?>">
     </div>
 
     <div class="col-sm-3">
@@ -351,7 +352,7 @@ $details = isset($details) ? $details : array();
 
         <?php
         $selected_group = isset($rec->age_group) ? $rec->age_group : '';
-        $groups = ['<1 Year','1-2 Year','2-5 Year','15-49 Year'];
+        $groups = ['<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year'];
         foreach($groups as $group): ?>
             <div class="form-check form-check-inline">
                 <input class="form-check-input"
@@ -726,8 +727,10 @@ document.getElementById('dob').addEventListener('change', function () {
         group = '<1 Year';
     } else if (years >= 1 && years < 2) {
         group = '1-2 Year';
-    } else if (years >= 2 && years <= 5) {
+    } else if (years >= 2 && years < 5) {
         group = '2-5 Year';
+    } else if (years >= 5 && years < 15) {
+        group = '5-15 Year';
     } else if (years >= 15 && years <= 49) {
         group = '15-49 Year';
     }

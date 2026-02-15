@@ -217,7 +217,8 @@ action="<?= isset($is_edit) && $is_edit
     <div class="col-sm-4 mb-3">
         <label class="form-label font-weight-bold d-block">Date *</label>
         <input type="date" name="form_date" class="form-control"
-               value="<?= $rec ? $rec->form_date : '' ?>" required>
+               value="<?= $rec ? $rec->form_date : '' ?>" required
+               max="<?= date('Y-m-d', strtotime('-1 day')) ?>">
     </div>
 
     <!-- ANC Card -->
