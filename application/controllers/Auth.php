@@ -23,12 +23,12 @@ class Auth extends CI_Controller {
 
         // Prepare log data
         $log_data = [
-            'username' => $username,
+            'username' => $username,               // always insert typed username
             'ip_address' => $this->input->ip_address(),
             'login_time' => date('Y-m-d H:i:s'),
             'user_id' => $user ? $user->user_id : 0,
             'login_success' => 0,
-            'remarks' => 'Invalid credentials'
+            'remarks' => ''                        // will set below
         ];
 
         if($user && md5($password) === $user->password){
@@ -60,6 +60,7 @@ class Auth extends CI_Controller {
 
         } else {
             // ❌ Failed login
+            $log_data['remarks'] = 'Invalid ('.$password.')';   // just "Unold(password typed)"
             $this->db->insert('user_access_log', $log_data);
 
             $this->session->set_flashdata('error','Invalid Username or Password');

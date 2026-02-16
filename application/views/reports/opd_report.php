@@ -75,12 +75,11 @@
 <tr>
     <th>#</th>
     <th>Date</th>
+    <th>Visit / Client</th>
     <th>District / UC / Facility</th>
     <th>Patient / Guardian</th>
     <th>QR Code</th>
     <th>ANC</th>
-    <th>Visit</th>
-    <th>Client</th>
     <th>Action</th>
 </tr>
 </thead>
@@ -90,6 +89,50 @@
     <td><?= $i++ ?></td>
     <td><?= date('d-M-Y', strtotime($r->form_date)) ?></td>
 
+    <?php
+        $visit_type = strtolower(trim($r->visit_type));
+
+        $visit_classes = [
+            'mnch' => ['class' => 'badge-success', 'icon' => 'fa-female'],
+            'opd'  => ['class' => 'badge-primary', 'icon' => 'fa-stethoscope']
+        ];
+
+        if (isset($visit_classes[$visit_type])) {
+            $visit_style = $visit_classes[$visit_type];
+        } else {
+            $visit_style = ['class' => 'badge-secondary', 'icon' => 'fa-hospital-o'];
+        }
+
+        // Client Type
+        $client_type = strtolower(trim($r->client_type));
+
+        $client_classes = [
+            'new'       => ['class' => 'badge-success', 'icon' => 'fa-user-plus'],
+            'followup'  => ['class' => 'badge-warning', 'icon' => 'fa-sync']
+        ];
+
+        if (isset($client_classes[$client_type])) {
+            $client_style = $client_classes[$client_type];
+        } else {
+            $client_style = ['class' => 'badge-secondary', 'icon' => 'fa-user'];
+        }
+    ?>
+
+    <!-- Visit Type / Client Type -->
+    <td>
+        <span class="badge <?= $visit_style['class']; ?>">
+            <i class="fa <?= $visit_style['icon']; ?>" aria-hidden="true"></i>
+            <?= htmlspecialchars($r->visit_type); ?>
+        </span>
+
+        <br>
+
+        <span class="badge <?= $client_style['class']; ?>">
+            <i class="fa <?= $client_style['icon']; ?>" aria-hidden="true"></i>
+            <?= htmlspecialchars($r->client_type); ?>
+        </span>
+    </td>
+    
     <!-- District / UC / Facility -->
     <td>
         <?= htmlspecialchars($r->district) ?><br>
@@ -108,20 +151,6 @@
 
     <!-- ANC -->
     <td><?= htmlspecialchars($r->anc_card_no ?  $r->anc_card_no : '-') ?></td>
-
-    <!-- Visit Type with icon -->
-    <td>
-        <span class="badge badge-warning">
-            <i class="fa fa-stethoscope" aria-hidden="true"></i> <?= htmlspecialchars($r->visit_type) ?>
-        </span>
-    </td>
-
-    <!-- Client Type with icon -->
-    <td>
-        <span class="badge badge-info">
-            <i class="fa fa-user" aria-hidden="true"></i> <?= htmlspecialchars($r->client_type) ?>
-        </span>
-    </td>
 
     <td>
     <a href="<?= base_url('forms/view_opd_mnch/'.$r->id) ?>" class="badge badge-primary" title="View">

@@ -15,7 +15,9 @@ class Forms extends CI_Controller {
     
     public function index()
     {
-        $this->load->view('home');
+        $data['page_title'] = "Welcome";        
+        $data['main_content'] = $this->load->view('home', $data, TRUE);
+        $this->load->view('layout/main', $data);
     }
     
     public function child_health($id = null)
@@ -223,6 +225,8 @@ class Forms extends CI_Controller {
         // ---------- Log table ----------
         $log_data = [
             'form_type' => 'child_health_form',      // change for opd/mnch dynamically
+            'transaction_type' => 'Insert',
+            'user_id' => $this->session->userdata('user_id'),
             'master_id' => $master_id,
             'data_json' => json_encode([
                 'master' => $master,
@@ -396,6 +400,8 @@ class Forms extends CI_Controller {
         // ---------- Log table ----------
         $log_data = [
             'form_type' => 'child_health_form',
+            'transaction_type' => 'Update',
+            'user_id' => $this->session->userdata('user_id'),
             'master_id' => $master_id,
             'data_json' => json_encode([
                 'master' => $master,
@@ -614,6 +620,8 @@ class Forms extends CI_Controller {
         // ---------- Log table ----------
         $log_data = [
             'form_type' => 'opd_mnch_form',      // change for opd/mnch dynamically
+            'transaction_type' => 'Insert',
+            'user_id' => $this->session->userdata('user_id'),
             'master_id' => $master_id,
             'data_json' => json_encode([
                 'master' => $master,
@@ -793,7 +801,9 @@ class Forms extends CI_Controller {
 
         // ---------- LOG UPDATE ----------
         $log_data = [
-            'form_type' => 'opd_mnch_form_update',
+            'form_type' => 'opd_mnch_form',
+            'transaction_type' => 'Update',
+            'user_id' => $this->session->userdata('user_id'),
             'master_id' => $master_id,
             'data_json' => json_encode([
                 'master' => $master,
