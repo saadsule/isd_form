@@ -2,7 +2,7 @@
 <div class="main-content">
 
 <div class="page-header">
-    <h2 class="header-title">UC Wise Report</h2>
+    <h2 class="header-title">No. of forms digitized - UC Wise</h2>
 </div>
 
 <div class="card">
@@ -28,12 +28,12 @@
 
     <!-- Child Health Total -->
     <td>
-        <span class="badge badge-info"><?= $r->child_health_total ?></span>
+        <span class="badge badgex-info"><?= $r->child_health_total ?></span>
     </td>
 
     <!-- OPD / MNCH Total -->
     <td>
-        <span class="badge badge-success"><?= $r->opd_total ?></span>
+        <span class="badge badgex-success"><?= $r->opd_total ?></span>
     </td>
 </tr>
 <?php endforeach; ?>

@@ -2,7 +2,7 @@
 <div class="main-content">
 
 <div class="page-header">
-    <h2 class="header-title">Child Health Report</h2>
+    <h2 class="header-title">View Entered Data - Child Health</h2>
 </div>
 
 <div class="card">
@@ -159,15 +159,15 @@
         
         <!-- District / UC / Facility -->
         <td>
-            <?= htmlspecialchars($r->district) ?><br>
-            <?= htmlspecialchars($r->uc) ?><br>
-            <?= htmlspecialchars($r->facility) ?>
+        <b>Dist:</b> <?= htmlspecialchars($r->district) ?><br>
+        <b>UC:</b> <?= htmlspecialchars($r->uc) ?><br>
+        <b>Fac:</b> <?= htmlspecialchars($r->facility) ?>
         </td>
         
         <!-- Patient / Guardian -->
         <td>
-            <?= htmlspecialchars($r->patient_name) ?><br>
-            <?= htmlspecialchars($r->guardian_name) ?>
+        <b>Patient:</b> <?= htmlspecialchars($r->patient_name) ?><br>
+        <b>Father:</b> <?= htmlspecialchars($r->guardian_name) ?>
         </td>
         
         <!-- qr_code -->

@@ -37,16 +37,16 @@
     <td><?= htmlspecialchars($r->user) ?></td>
 
     <!-- Child Health -->
-    <td><span class="badge badge-info"><?= $r->ch_new ?></span></td>
-    <td><span class="badge badge-primary"><?= $r->ch_follow ?></span></td>
-    <td><span class="badge badge-warning"><?= $r->ch_fixed ?></span></td>
-    <td><span class="badge badge-secondary"><?= $r->ch_outreach ?></span></td>
+    <td><span class="badgex badgex-info"><?= $r->ch_new ?></span></td>
+    <td><span class="badgex badgex-primary"><?= $r->ch_follow ?></span></td>
+    <td><span class="badgex badgex-warning"><?= $r->ch_fixed ?></span></td>
+    <td><span class="badgex badgex-secondary"><?= $r->ch_outreach ?></span></td>
 
     <!-- OPD / MNCH -->
-    <td><span class="badge badge-success"><?= $r->opd_new ?></span></td>
-    <td><span class="badge badge-dark"><?= $r->opd_follow ?></span></td>
-    <td><span class="badge badge-danger"><?= $r->opd ?></span></td>
-    <td><span class="badge badge-info"><?= $r->mnch ?></span></td>
+    <td><span class="badgex badgex-success"><?= $r->opd_new ?></span></td>
+    <td><span class="badgex badgex-dark"><?= $r->opd_follow ?></span></td>
+    <td><span class="badgex badgex-danger"><?= $r->opd ?></span></td>
+    <td><span class="badgex badgex-info"><?= $r->mnch ?></span></td>
 </tr>
 <?php endforeach; ?>
 </tbody>
