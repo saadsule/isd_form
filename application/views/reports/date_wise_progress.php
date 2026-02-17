@@ -25,7 +25,7 @@
                         $total_user = 0;
                     ?>
                     <tr>
-                        <td><?= htmlspecialchars($user['username']) ?></td>
+                        <td><?= htmlspecialchars($user['full_name']) ?></td>
                         <?php foreach($report['dates'] as $idx => $date): 
                             $count = isset($report['progress'][$user_id][$date]) ? $report['progress'][$user_id][$date] : 0;
                             $total_user += $count;
@@ -43,9 +43,9 @@
                     <tr class="table-secondary fw-bold">
                         <td>Total</td>
                         <?php foreach($grand_totals as $gt): ?>
-                        <td><?= $gt ?></td>
+                        <td><strong><?= $gt ?></strong></td>
                         <?php endforeach; ?>
-                        <td><?= $overall_total ?></td>
+                        <td><strong><?= $overall_total ?></strong></td>
                     </tr>
                 </tbody>
             </table>

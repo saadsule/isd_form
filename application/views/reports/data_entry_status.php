@@ -18,6 +18,7 @@
     <th colspan="2" class="text-center">Child Health (Visit Type)</th>
     <th colspan="2" class="text-center">OPD / MNCH (Client Type)</th>
     <th colspan="2" class="text-center">OPD / MNCH (Visit Type)</th>
+    <th rowspan="2">Total</th> <!-- Row total -->
 </tr>
 <tr>
     <th>New</th>
@@ -31,7 +32,30 @@
 </tr>
 </thead>
 <tbody>
-<?php $i=1; foreach($report as $r): ?>
+<?php 
+// Initialize column totals
+$totals = [
+    'ch_new'=>0, 'ch_follow'=>0, 'ch_fixed'=>0, 'ch_outreach'=>0,
+    'opd_new'=>0, 'opd_follow'=>0, 'opd'=>0, 'mnch'=>0
+];
+
+$i=1; 
+foreach($report as $r): 
+
+    // Calculate row total
+    $row_total = $r->ch_new + $r->ch_follow + $r->ch_fixed + $r->ch_outreach
+                 + $r->opd_new + $r->opd_follow + $r->opd + $r->mnch;
+
+    // Add to column totals
+    $totals['ch_new'] += $r->ch_new;
+    $totals['ch_follow'] += $r->ch_follow;
+    $totals['ch_fixed'] += $r->ch_fixed;
+    $totals['ch_outreach'] += $r->ch_outreach;
+    $totals['opd_new'] += $r->opd_new;
+    $totals['opd_follow'] += $r->opd_follow;
+    $totals['opd'] += $r->opd;
+    $totals['mnch'] += $r->mnch;
+?>
 <tr>
     <td><?= $i++ ?></td>
     <td><?= htmlspecialchars($r->user) ?></td>
@@ -47,12 +71,32 @@
     <td><?= $r->opd_follow ?></td>
     <td><?= $r->opd ?></td>
     <td><?= $r->mnch ?></td>
+
+    <td><strong><?= $row_total ?></strong></td> <!-- Row total -->
 </tr>
 <?php endforeach; ?>
 </tbody>
+
+<!-- Column totals -->
+<tfoot>
+<tr>
+    <th colspan="2">Total</th>
+    <th><?= $totals['ch_new'] ?></th>
+    <th><?= $totals['ch_follow'] ?></th>
+    <th><?= $totals['ch_fixed'] ?></th>
+    <th><?= $totals['ch_outreach'] ?></th>
+    <th><?= $totals['opd_new'] ?></th>
+    <th><?= $totals['opd_follow'] ?></th>
+    <th><?= $totals['opd'] ?></th>
+    <th><?= $totals['mnch'] ?></th>
+    <th>
+        <strong>
+        <?= array_sum($totals) // Total of all columns ?>
+        </strong>
+    </th>
+</tr>
+</tfoot>
 </table>
-
-
 </div>
 
 </div>

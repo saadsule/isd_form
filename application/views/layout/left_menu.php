@@ -120,6 +120,13 @@
                             
                         <?php endif; ?>
 
+                        <!-- Date Wise Report visible to role 2,3,4 -->
+                        <li class="<?= ($this->uri->segment(2) == 'date_wise_form_progress') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/date_wise_form_progress'); ?>">
+                                <span>Date Wise Form Progress</span>
+                            </a>
+                        </li>   
+                            
                         <!-- UC Wise Report visible to role 2,3,4 -->
                         <li class="<?= ($this->uri->segment(2) == 'uc_wise_report') ? 'active' : '' ?>">
                             <a href="<?= base_url('reports/uc_wise_report'); ?>">

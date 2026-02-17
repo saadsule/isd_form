@@ -158,7 +158,7 @@ class Reports_model extends CI_Model {
         }
 
         // Get all data entry users
-        $users = $this->db->select('user_id, username')
+        $users = $this->db->select('user_id, username, full_name')
                           ->from('users')
                           ->where('role', 1)
                           ->get()
@@ -179,4 +179,56 @@ class Reports_model extends CI_Model {
             'progress' => $progress
         ];
     }
+    
+    public function get_date_wise_form_progress()
+    {
+        // Fixed start and end date (1 Feb 2026 to today)
+        $start_date = '2026-02-17';
+        $end_date = date('Y-m-d');
+
+        // Child Health
+        $this->db->select('DATE(created_at) as entry_date, COUNT(*) as total_forms');
+        $this->db->from('child_health_master');
+        $this->db->where('DATE(created_at) >=', $start_date);
+        $this->db->where('DATE(created_at) <=', $end_date);
+        $this->db->group_by('entry_date');
+        $child = $this->db->get()->result_array();
+
+        // OPD/MNCH
+        $this->db->select('DATE(created_at) as entry_date, COUNT(*) as total_forms');
+        $this->db->from('opd_mnch_master');
+        $this->db->where('DATE(created_at) >=', $start_date);
+        $this->db->where('DATE(created_at) <=', $end_date);
+        $this->db->group_by('entry_date');
+        $opd = $this->db->get()->result_array();
+
+        // Initialize progress arrays
+        $progress = [
+            'child_health' => [],
+            'opd_mnch' => []
+        ];
+
+        foreach($child as $row){
+            $progress['child_health'][$row['entry_date']] = $row['total_forms'];
+        }
+
+        foreach($opd as $row){
+            $progress['opd_mnch'][$row['entry_date']] = $row['total_forms'];
+        }
+
+        // All dates in the range
+        $dates = [];
+        $current = strtotime($start_date);
+        $end = strtotime($end_date);
+        while($current <= $end){
+            $dates[] = date('Y-m-d', $current);
+            $current = strtotime('+1 day', $current);
+        }
+
+        return [
+            'dates' => $dates,
+            'progress' => $progress
+        ];
+    }
+
 }

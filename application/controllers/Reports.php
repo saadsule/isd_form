@@ -30,5 +30,16 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/date_wise_progress', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function date_wise_form_progress()
+    {
+        // Get report data from model
+        $data['report'] = $this->Reports_model->get_date_wise_form_progress();
+
+        // Load view
+        $data['main_content'] = $this->load->view('reports/date_wise_form_progress', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+
 
 }
