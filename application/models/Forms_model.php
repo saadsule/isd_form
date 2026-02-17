@@ -279,5 +279,47 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
         return $answers;
     }
+    
+    public function get_total_forms()
+    {
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('child_health_master');
+        $total_ch = $this->db->get()->row()->total;
+
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('opd_mnch_master');
+        $total_opd = $this->db->get()->row()->total;
+
+        return $total_ch + $total_opd;
+    }
+
+    public function get_child_health_total()
+    {
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('child_health_master');
+        return $this->db->get()->row()->total;
+    }
+
+    public function get_opd_total()
+    {
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('opd_mnch_master');
+        return $this->db->get()->row()->total;
+    }
+
+    public function get_today_total()
+    {
+        $today = date('Y-m-d');
+
+        // Today child health
+        $this->db->where('DATE(created_at)', $today);
+        $ch_today = $this->db->count_all_results('child_health_master');
+
+        // Today opd/mnch
+        $this->db->where('DATE(created_at)', $today);
+        $opd_today = $this->db->count_all_results('opd_mnch_master');
+
+        return $ch_today + $opd_today;
+    }
 
 }

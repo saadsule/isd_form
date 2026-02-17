@@ -82,6 +82,8 @@ class Reports_model extends CI_Model {
             GROUP BY created_by
         ) opd_count ON opd_count.created_by = u.user_id
 
+        WHERE u.role = 1
+        
         ORDER BY u.username
         ";
 
@@ -91,18 +93,22 @@ class Reports_model extends CI_Model {
 
     public function get_uc_wise_report()
     {
-        // Subquery for Child Health totals per UC
+        // Subquery for Child Health totals per UC (role = 1 only)
         $sub_ch = $this->db
-            ->select('uc as uc_id, COUNT(*) as total', false)
-            ->from('child_health_master')
-            ->group_by('uc')
+            ->select('ch.uc as uc_id, COUNT(*) as total', false)
+            ->from('child_health_master ch')
+            ->join('users u', 'u.user_id = ch.created_by')
+            ->where('u.role', 1)
+            ->group_by('ch.uc')
             ->get_compiled_select();
 
-        // Subquery for OPD/MNCH totals per UC
+        // Subquery for OPD/MNCH totals per UC (role = 1 only)
         $sub_op = $this->db
-            ->select('uc as uc_id, COUNT(*) as total', false)
-            ->from('opd_mnch_master')
-            ->group_by('uc')
+            ->select('op.uc as uc_id, COUNT(*) as total', false)
+            ->from('opd_mnch_master op')
+            ->join('users u', 'u.user_id = op.created_by')
+            ->where('u.role', 1)
+            ->group_by('op.uc')
             ->get_compiled_select();
 
         // Main query
@@ -112,13 +118,65 @@ class Reports_model extends CI_Model {
         ');
         $this->db->from('uc');
 
-        // Join aggregated subqueries
         $this->db->join("($sub_ch) ch", 'ch.uc_id = uc.pk_id', 'left');
         $this->db->join("($sub_op) op", 'op.uc_id = uc.pk_id', 'left');
 
         $this->db->order_by('uc.uc', 'ASC');
-        $query = $this->db->get();
 
-        return $query->result();
+        return $this->db->get()->result();
+    }
+    
+    public function get_date_wise_progress()
+    {
+        // Fixed start date
+        $start_date = '2026-02-17';
+        $end_date = date('Y-m-d'); // today
+
+        // Child Health data
+        $this->db->select('created_by, DATE(created_at) as entry_date, COUNT(*) as total_forms');
+        $this->db->from('child_health_master');
+        $this->db->where('DATE(created_at) >=', $start_date);
+        $this->db->where('DATE(created_at) <=', $end_date);
+        $this->db->group_by(['created_by', 'entry_date']);
+        $child = $this->db->get()->result_array();
+
+        // OPD/MNCH data
+        $this->db->select('created_by, DATE(created_at) as entry_date, COUNT(*) as total_forms');
+        $this->db->from('opd_mnch_master');
+        $this->db->where('DATE(created_at) >=', $start_date);
+        $this->db->where('DATE(created_at) <=', $end_date);
+        $this->db->group_by(['created_by', 'entry_date']);
+        $opd = $this->db->get()->result_array();
+
+        // Merge both arrays into a single structure
+        $progress = [];
+        foreach(array_merge($child, $opd) as $row){
+            $progress[$row['created_by']][$row['entry_date']] = 
+                isset($progress[$row['created_by']][$row['entry_date']]) 
+                ? $progress[$row['created_by']][$row['entry_date']] + $row['total_forms'] 
+                : $row['total_forms'];
+        }
+
+        // Get all data entry users
+        $users = $this->db->select('user_id, username')
+                          ->from('users')
+                          ->where('role', 1)
+                          ->get()
+                          ->result_array();
+
+        // Get all dates in range
+        $dates = [];
+        $current = strtotime($start_date);
+        $end = strtotime($end_date);
+        while ($current <= $end) {
+            $dates[] = date('Y-m-d', $current);
+            $current = strtotime('+1 day', $current);
+        }
+
+        return [
+            'users' => $users,
+            'dates' => $dates,
+            'progress' => $progress
+        ];
     }
 }

@@ -9,7 +9,7 @@
 <div class="card-body">
 
 <div class="table-responsive">
-<table id="data-table" class="table table-bordered table-hover">
+<table class="table table-bordered table-hover">
 <thead class="thead-light">
 <tr>
     <th>#</th>
@@ -28,12 +28,12 @@
 
     <!-- Child Health Total -->
     <td>
-        <span class="badge badgex-info"><?= $r->child_health_total ?></span>
+        <?= $r->child_health_total ?>
     </td>
 
     <!-- OPD / MNCH Total -->
     <td>
-        <span class="badge badgex-success"><?= $r->opd_total ?></span>
+        <?= $r->opd_total ?>
     </td>
 </tr>
 <?php endforeach; ?>
@@ -44,10 +44,3 @@
 </div>
 </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="<?php echo base_url('assets/vendors/datatables/jquery.dataTables.min.js') ?>"></script>
-<script src="<?php echo base_url('assets/vendors/datatables/dataTables.bootstrap.min.js') ?>"></script>
-<script>
-    $('#data-table').DataTable();
-</script>

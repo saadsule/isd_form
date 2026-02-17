@@ -29,8 +29,17 @@ class Welcome extends CI_Controller {
      */
     public function index()
     {
-            $data['page_title'] = "Welcome";        
-            $data['main_content'] = $this->load->view('home', $data, TRUE);
-            $this->load->view('layout/main', $data);
+        // Load model if needed
+        $this->load->model('Forms_model');
+
+        // Totals
+        $data['total_forms'] = $this->Forms_model->get_total_forms();
+        $data['child_health_total'] = $this->Forms_model->get_child_health_total();
+        $data['opd_total'] = $this->Forms_model->get_opd_total();
+        $data['today_total'] = $this->Forms_model->get_today_total();
+
+        $data['page_title'] = "Welcome";        
+        $data['main_content'] = $this->load->view('home', $data, TRUE);
+        $this->load->view('layout/main', $data);
     }
 }

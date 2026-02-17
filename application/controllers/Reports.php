@@ -23,4 +23,12 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/uc_wise_report', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function date_wise_progress()
+    {
+        $data['report'] = $this->Reports_model->get_date_wise_progress();
+        $data['main_content'] = $this->load->view('reports/date_wise_progress', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+
 }

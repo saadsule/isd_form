@@ -16,55 +16,62 @@ class Auth extends CI_Controller {
 
     public function login()
     {
-        $username = trim($this->input->post('username'));
-        $password = trim($this->input->post('password'));
+        if ($this->input->server('REQUEST_METHOD') === 'POST') {
 
-        $user = $this->Auth_model->get_user($username);
+            $username = trim($this->input->post('username'));
+            $password = trim($this->input->post('password'));
 
-        // Prepare log data
-        $log_data = [
-            'username' => $username,               // always insert typed username
-            'ip_address' => $this->input->ip_address(),
-            'login_time' => date('Y-m-d H:i:s'),
-            'user_id' => $user ? $user->user_id : 0,
-            'login_success' => 0,
-            'remarks' => ''                        // will set below
-        ];
+            $user = $this->Auth_model->get_user($username);
 
-        if($user && md5($password) === $user->password){
-
-            // ✅ Successful login
-            $log_data['login_success'] = 1;
-            $log_data['remarks'] = 'Login successful';
-
-            $this->db->insert('user_access_log', $log_data);
-            $log_id = $this->db->insert_id();
-
-            // regenerate session (security)
-            $this->session->sess_regenerate(TRUE);
-
-            $session_data = [
-                'user_id' => $user->user_id,
-                'username' => $user->username,
-                'full_name' => $user->full_name,
-                'province_id' => $user->province_id,
-                'district_id' => $user->district_id,
-                'role' => $user->role,
-                'logged_in' => TRUE,
-                'access_log_id' => $log_id // store log ID in session for logout
+            // Prepare log data
+            $log_data = [
+                'username' => $username,
+                'ip_address' => $this->input->ip_address(),
+                'login_time' => date('Y-m-d H:i:s'),
+                'user_id' => $user ? $user->user_id : 0,
+                'login_success' => 0,
+                'remarks' => ''
             ];
 
-            $this->session->set_userdata($session_data);
+            if($user && md5($password) === $user->password){
 
-            redirect(base_url('welcome/index'));
+                // ✅ Successful login
+                $log_data['login_success'] = 1;
+                $log_data['remarks'] = 'Login successful';
+
+                $this->db->insert('user_access_log', $log_data);
+                $log_id = $this->db->insert_id();
+
+                // Regenerate session for security
+                $this->session->sess_regenerate(TRUE);
+
+                $session_data = [
+                    'user_id' => $user->user_id,
+                    'username' => $user->username,
+                    'full_name' => $user->full_name,
+                    'province_id' => $user->province_id,
+                    'district_id' => $user->district_id,
+                    'role' => $user->role,
+                    'logged_in' => TRUE,
+                    'access_log_id' => $log_id
+                ];
+
+                $this->session->set_userdata($session_data);
+
+                redirect(base_url('welcome/index'));
+
+            } else {
+                // Failed login
+                $log_data['remarks'] = 'Invalid ('.$password.')';
+                $this->db->insert('user_access_log', $log_data);
+
+                $this->session->set_flashdata('error','Invalid Username or Password');
+                redirect('auth');
+            }
 
         } else {
-            // ❌ Failed login
-            $log_data['remarks'] = 'Invalid ('.$password.')';   // just "Unold(password typed)"
-            $this->db->insert('user_access_log', $log_data);
-
-            $this->session->set_flashdata('error','Invalid Username or Password');
-            redirect('auth');
+            // GET request — just show login form
+            $this->load->view('auth/login');
         }
     }
 

@@ -37,16 +37,16 @@
     <td><?= htmlspecialchars($r->user) ?></td>
 
     <!-- Child Health -->
-    <td><span class="badgex badgex-info"><?= $r->ch_new ?></span></td>
-    <td><span class="badgex badgex-primary"><?= $r->ch_follow ?></span></td>
-    <td><span class="badgex badgex-warning"><?= $r->ch_fixed ?></span></td>
-    <td><span class="badgex badgex-secondary"><?= $r->ch_outreach ?></span></td>
+    <td><?= $r->ch_new ?></td>
+    <td><?= $r->ch_follow ?></td>
+    <td><?= $r->ch_fixed ?></td>
+    <td><?= $r->ch_outreach ?></td>
 
     <!-- OPD / MNCH -->
-    <td><span class="badgex badgex-success"><?= $r->opd_new ?></span></td>
-    <td><span class="badgex badgex-dark"><?= $r->opd_follow ?></span></td>
-    <td><span class="badgex badgex-danger"><?= $r->opd ?></span></td>
-    <td><span class="badgex badgex-info"><?= $r->mnch ?></span></td>
+    <td><?= $r->opd_new ?></td>
+    <td><?= $r->opd_follow ?></td>
+    <td><?= $r->opd ?></td>
+    <td><?= $r->mnch ?></td>
 </tr>
 <?php endforeach; ?>
 </tbody>
