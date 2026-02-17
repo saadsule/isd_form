@@ -107,11 +107,11 @@
                     <ul class="dropdown-menu">
                         <?php if($role != 4): ?>
                             <!-- role 2 & 3 see all reports -->
-                            <li class="<?= ($this->uri->segment(2) == 'data_entry_status') ? 'active' : '' ?>">
+<!--                            <li class="<?= ($this->uri->segment(2) == 'data_entry_status') ? 'active' : '' ?>">
                                 <a href="<?= base_url('reports/data_entry_status'); ?>">
                                     <span>Data Entry Status</span>
                                 </a>
-                            </li>
+                            </li>-->
                             
                             <!-- role 2 & 3 see all reports -->
                             <li class="<?= ($this->uri->segment(2) == 'date_wise_progress') ? 'active' : '' ?>">
