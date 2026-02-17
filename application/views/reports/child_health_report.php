@@ -75,10 +75,10 @@
     <tr>
         <th>#</th>
         <th>Date</th>
-        <th>Visit / Client</th>
+        <th>Fixed/Outreach<br/>  New/Followup</th>
         <th>District / UC / Facility</th>
         <th>Patient / Guardian</th>
-        <th>QR Code#</th>
+        <th>QR Code / Verification</th>
         <th>Action</th>
     </tr>
     </thead>
@@ -94,12 +94,12 @@
             $visit_classes = [
 
                 'fixed site'  => [
-                    'class' => 'badge-primary',
+                    'class' => 'badge-pill badge-primary',
                     'icon'  => 'fa-hospital'
                 ],
 
                 'outreach'    => [
-                    'class' => 'badge-warning',
+                    'class' => 'badge-pill badge-secondary',
                     'icon'  => 'fa-ambulance'   // changed (compatible icon)
                 ]
 
@@ -109,7 +109,7 @@
                 $visit_style = $visit_classes[$visit_type];
             } else {
                 $visit_style = [
-                    'class' => 'badge-secondary',
+                    'class' => 'badge-pill badge-green',
                     'icon'  => 'fa-question-circle'
                 ];
             }
@@ -121,12 +121,12 @@
             $client_classes = [
 
                 'new' => [
-                    'class' => 'badge-success',
+                    'class' => 'badge-pill badge-success',
                     'icon'  => 'fa-user-plus'
                 ],
 
                 'followup' => [
-                    'class' => 'badge-info',   // changed color
+                    'class' => 'badge-pill badge-warning',   // changed color
                     'icon'  => 'fa-sync'    // more compatible than fa-sync
                 ]
 
@@ -173,30 +173,31 @@
         <!-- qr_code -->
         <td>
             <?= htmlspecialchars($r->qr_code) ?>
-        </td>
-
-        <!-- Actions: View / Edit as badges -->
-        <td>
-            <a href="<?= base_url('forms/view_child_health/'.$r->master_id) ?>" class="badge badge-primary mr-1" title="View">
-                <i class="fa fa-eye"></i>
-            </a>
-            <?php if($this->session->userdata('user_id') == $r->created_by): ?>
-            <a href="<?= base_url('forms/child_health/'.$r->master_id) ?>" class="badge badge-success" title="Edit">
-                <i class="fa fa-edit"></i>
-            </a>
-            <?php endif; ?>
-            
-            <!-- STATUS ICON -->
+			<!-- STATUS ICON -->
             <?php if($r->verification_status == 'Verified'): ?>
-                <span class="badge badge-success" title="Verified">
+                <span class="avatar avatar-icon avatar-cyan" title="Verified">
                     <i class="fa fa-check"></i>
                 </span>
 
             <?php elseif($r->verification_status == 'Reported'): ?>
-                <span class="badge badge-danger" title="Reported">
+                <span class="avatar avatar-icon avatar-magenta" title="Reported">
                     <i class="fa fa-flag"></i>
                 </span>
             <?php endif; ?>
+        </td>
+
+        <!-- Actions: View / Edit as badges -->
+        <td>
+            <a href="<?= base_url('forms/view_child_health/'.$r->master_id) ?>" class="btn btn-tone btn-success mr-1" title="View">
+                <i class="fa fa-eye"></i>
+            </a>
+            <?php if($this->session->userdata('user_id') == $r->created_by): ?>
+            <a href="<?= base_url('forms/child_health/'.$r->master_id) ?>" class="btn btn-tone btn-primary" title="Edit">
+                <i class="fa fa-edit"></i>
+            </a>
+            <?php endif; ?>
+            
+            
         </td>
     </tr>
     <?php endforeach; ?>

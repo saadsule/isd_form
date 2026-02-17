@@ -68,10 +68,17 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
 <div class="main-content">
 
 <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-    <h2 class="header-title mb-0">Child Health Form        
+    <h2 class="header-title mb-0">Child Health Form    
+<?php
+if($this->session->userdata('role') == 2  || $status!='Pending')
+{
+?>    
         <span class="badge badge-<?php echo $badge_color; ?>" style="font-size:14px;">
             <?php echo $status; ?>
         </span>
+		<?php
+}
+?>    
     </h2>
     <!-- Print Button -->
     <div>
