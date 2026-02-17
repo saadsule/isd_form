@@ -65,6 +65,26 @@
     </div>
 </div>
     
+<?php if($this->session->userdata('role') == 2 && $form->verification_status == 'Pending'): ?>
+
+<div class="mb-3 text-right">
+
+    <!-- VERIFY BUTTON -->
+    <form method="post" action="<?= base_url('forms/verify/'.$form->master_id) ?>" style="display:inline;">
+        <button type="submit" class="btn btn-success">
+            <i class="fa fa-check"></i> Verify
+        </button>
+    </form>
+
+    <!-- REPORT BUTTON -->
+    <button class="btn btn-danger" data-toggle="modal" data-target="#reportModal">
+        <i class="fa fa-flag"></i> Report
+    </button>
+
+</div>
+
+<?php endif; ?>
+    
 <div id="printable-area">
 <div class="card">
 <div class="card-body">
@@ -256,6 +276,27 @@ if($q->q_type == 'text'){
 </div>
 </div>
 </div>
+    
+<div class="modal fade" id="reportModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="<?= base_url('forms/report/'.$form->master_id) ?>">
+                <div class="modal-header">
+                    <h5 class="modal-title">Report Form</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <label>Reason for Reporting:</label>
+                    <textarea name="report_reason" class="form-control" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
     
 <script>
     function printForm() {

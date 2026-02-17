@@ -75,7 +75,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             ch.visit_type,
             ch.qr_code,
             ch.created_at,
-            ch.created_by
+            ch.created_by,
+            verification_status,
+            report_reason
         ");
         $this->db->from('child_health_master ch');
 
@@ -134,7 +136,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             op.qr_code,
             op.anc_card_no,
             op.created_at,
-            op.created_by
+            op.created_by,
+            verification_status,
+            report_reason
         ");
         $this->db->from('opd_mnch_master op');
 

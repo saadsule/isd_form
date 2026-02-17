@@ -27,7 +27,7 @@
             <?php endif; ?>
 
             <!-- Data Entry & View Data (role 1 & role 3) -->
-            <?php if(in_array($role, [1,3])): ?>
+            <?php if(in_array($role, [1,2,3])): ?>
                 <!-- Data Entry -->
                 <li class="nav-item dropdown 
                     <?= ($this->uri->segment(2) == 'opd_mnch' || $this->uri->segment(2) == 'child_health') ? 'open' : '' ?>">

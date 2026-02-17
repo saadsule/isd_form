@@ -958,5 +958,100 @@ class Forms extends CI_Controller {
         $facilities = $this->Location_model->get_facilities_by_uc($uc_id);
         echo json_encode($facilities);
     }
+    
+    public function verify($id)
+    {
+        if($this->session->userdata('role') != 2){
+            show_error('Unauthorized Access');
+        }
 
+        $data = [
+            'verification_status' => 'Verified',
+            'verified_by' => $this->session->userdata('user_id'),
+            'verified_at' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->where('master_id', $id);
+        $this->db->update('child_health_master', $data);
+
+        redirect('forms/view_child_health/'.$id);
+    }
+    
+    public function report($id)
+    {
+        if($this->session->userdata('role') != 2){
+            show_error('Unauthorized Access');
+        }
+
+        $data = [
+            'verification_status' => 'Reported',
+            'verified_by' => $this->session->userdata('user_id'),
+            'verified_at' => date('Y-m-d H:i:s'),
+            'report_reason' => $this->input->post('report_reason')
+        ];
+
+        $this->db->where('master_id', $id);
+        $this->db->update('child_health_master', $data);
+
+        redirect('forms/view_child_health/'.$id);
+    }
+    
+    public function verify_opd_mnch($id)
+    {
+        if($this->session->userdata('role') != 2){
+            show_error('Unauthorized Access');
+        }
+
+        // Prevent double processing
+        $form = $this->db->get_where('opd_mnch_master', ['id' => $id])->row();
+
+        if(!$form){
+            show_404();
+        }
+
+        if($form->verification_status != 'Pending'){
+            show_error('Form already processed.');
+        }
+
+        $data = [
+            'verification_status' => 'Verified',
+            'verified_by' => $this->session->userdata('user_id'),
+            'verified_at' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->where('id', $id);
+        $this->db->update('opd_mnch_master', $data);
+
+        redirect('forms/view_opd_mnch/'.$id);
+    }
+    
+    public function report_opd_mnch($id)
+    {
+        if($this->session->userdata('role') != 2){
+            show_error('Unauthorized Access');
+        }
+
+        $form = $this->db->get_where('opd_mnch_master', ['id' => $id])->row();
+
+        if(!$form){
+            show_404();
+        }
+
+        if($form->verification_status != 'Pending'){
+            show_error('Form already processed.');
+        }
+
+        $data = [
+            'verification_status' => 'Reported',
+            'verified_by' => $this->session->userdata('user_id'),
+            'verified_at' => date('Y-m-d H:i:s'),
+            'report_reason' => $this->input->post('report_reason')
+        ];
+
+        $this->db->where('id', $id);
+        $this->db->update('opd_mnch_master', $data);
+
+        redirect('forms/view_opd_mnch/'.$id);
+    }
+    
 }

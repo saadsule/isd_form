@@ -79,6 +79,7 @@
     <th>District / UC / Facility</th>
     <th>Patient / Guardian</th>
     <th>QR Code</th>
+    <th>Varification Status</th>
     <th>ANC</th>
     <th>Action</th>
 </tr>
@@ -149,20 +150,30 @@
     <!-- QR Code -->
     <td><?= htmlspecialchars(!empty($r->qr_code) ? $r->qr_code : '-') ?></td>
 
+    <td>
+        <?php if($r->verification_status == 'Verified'): ?>
+            <span class="badge badge-success">Verified</span>
+        <?php elseif($r->verification_status == 'Reported'): ?>
+            <span class="badge badge-danger">Reported</span>
+        <?php else: ?>
+            <span class="badge badge-warning">Pending</span>
+        <?php endif; ?>
+    </td>
+    
     <!-- ANC -->
     <td><?= htmlspecialchars($r->anc_card_no ?  $r->anc_card_no : '-') ?></td>
 
     <td>
-    <a href="<?= base_url('forms/view_opd_mnch/'.$r->id) ?>" class="badge badge-primary" title="View">
-        <i class="fa fa-eye"></i>
-    </a>
+        <a href="<?= base_url('forms/view_opd_mnch/'.$r->id) ?>" class="badge badge-primary" title="View">
+            <i class="fa fa-eye"></i>
+        </a>
 
-    <?php if($this->session->userdata('user_id') == $r->created_by): ?>
-    <a href="<?= base_url('forms/opd_mnch/'.$r->id) ?>" class="badge badge-success" title="Edit">
-        <i class="fa fa-edit"></i>
-    </a>
-    <?php endif; ?>
-</td>
+        <?php if($this->session->userdata('user_id') == $r->created_by): ?>
+        <a href="<?= base_url('forms/opd_mnch/'.$r->id) ?>" class="badge badge-success" title="Edit">
+            <i class="fa fa-edit"></i>
+        </a>
+        <?php endif; ?>
+    </td>
 
 </tr>
 <?php endforeach; ?>
