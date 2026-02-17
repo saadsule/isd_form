@@ -52,11 +52,28 @@
 }
 </style>
 
+
+<?php
+$status = isset($master->verification_status) ? $master->verification_status : 'Pending';
+
+$status_color = array(
+    'Pending'  => 'warning',
+    'Verified' => 'success',
+    'Reported' => 'danger'
+);
+
+$badge_color = isset($status_color[$status]) ? $status_color[$status] : 'secondary';
+?>
+
 <div class="page-container">
 <div class="main-content">
 
 <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-    <h2 class="header-title">OPD / MNCH Form</h2>
+    <h2 class="header-title">OPD / MNCH Form
+        <span class="badge badge-<?php echo $badge_color; ?>" style="font-size:14px;">
+            <?php echo $status; ?>
+        </span>
+    </h2>
     <!-- Print Button -->
     <div>
         <button class="btn btn-primary" onclick="printForm();">
@@ -64,8 +81,8 @@
         </button>
     </div>
 </div>
-
-<?php if($this->session->userdata('role') == 2 && $master->verification_status == 'Pending'): ?>
+    
+<?php if($this->session->userdata('role') == 2 && ($master->verification_status == 'Pending' || $master->verification_status == 'Reported')): ?>
 
 <div class="mb-3 text-right">
 

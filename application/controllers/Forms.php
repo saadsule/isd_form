@@ -965,6 +965,18 @@ class Forms extends CI_Controller {
             show_error('Unauthorized Access');
         }
 
+        $form = $this->db->get_where('child_health_master', ['master_id' => $id])->row();
+
+        if(!$form){
+            show_404();
+        }
+
+        // Only block if already verified
+        $status = isset($form->verification_status) ? $form->verification_status : 'Pending';
+        if($status == 'Verified'){
+            show_error('Form already verified.');
+        }
+
         $data = [
             'verification_status' => 'Verified',
             'verified_by' => $this->session->userdata('user_id'),
@@ -981,6 +993,19 @@ class Forms extends CI_Controller {
     {
         if($this->session->userdata('role') != 2){
             show_error('Unauthorized Access');
+        }
+
+        $form = $this->db->get_where('child_health_master', ['master_id' => $id])->row();
+
+        if(!$form){
+            show_404();
+        }
+
+        $status = isset($form->verification_status) ? $form->verification_status : 'Pending';
+
+        // Only block reporting if already verified
+        if($status == 'Verified'){
+            show_error('Verified form cannot be reported.');
         }
 
         $data = [
@@ -1009,8 +1034,9 @@ class Forms extends CI_Controller {
             show_404();
         }
 
-        if($form->verification_status != 'Pending'){
-            show_error('Form already processed.');
+        // Only block if already verified
+        if($form->verification_status == 'Verified'){
+            show_error('Form already verified.');
         }
 
         $data = [
@@ -1037,8 +1063,10 @@ class Forms extends CI_Controller {
             show_404();
         }
 
-        if($form->verification_status != 'Pending'){
-            show_error('Form already processed.');
+        // Only block if already verified
+        $status = isset($form->verification_status) ? $form->verification_status : 'Pending';
+        if($status == 'Verified'){
+            show_error('Verified form cannot be reported.');
         }
 
         $data = [
@@ -1053,5 +1081,5 @@ class Forms extends CI_Controller {
 
         redirect('forms/view_opd_mnch/'.$id);
     }
-    
+
 }

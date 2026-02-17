@@ -79,7 +79,6 @@
         <th>District / UC / Facility</th>
         <th>Patient / Guardian</th>
         <th>QR Code#</th>
-        <th>Varification Status</th>
         <th>Action</th>
     </tr>
     </thead>
@@ -176,16 +175,6 @@
             <?= htmlspecialchars($r->qr_code) ?>
         </td>
 
-        <td>
-            <?php if($r->verification_status == 'Verified'): ?>
-                <span class="badge badge-success">Verified</span>
-            <?php elseif($r->verification_status == 'Reported'): ?>
-                <span class="badge badge-danger">Reported</span>
-            <?php else: ?>
-                <span class="badge badge-warning">Pending</span>
-            <?php endif; ?>
-        </td>
-        
         <!-- Actions: View / Edit as badges -->
         <td>
             <a href="<?= base_url('forms/view_child_health/'.$r->master_id) ?>" class="badge badge-primary mr-1" title="View">
@@ -195,6 +184,18 @@
             <a href="<?= base_url('forms/child_health/'.$r->master_id) ?>" class="badge badge-success" title="Edit">
                 <i class="fa fa-edit"></i>
             </a>
+            <?php endif; ?>
+            
+            <!-- STATUS ICON -->
+            <?php if($r->verification_status == 'Verified'): ?>
+                <span class="badge badge-success" title="Verified">
+                    <i class="fa fa-check"></i>
+                </span>
+
+            <?php elseif($r->verification_status == 'Reported'): ?>
+                <span class="badge badge-danger" title="Reported">
+                    <i class="fa fa-flag"></i>
+                </span>
             <?php endif; ?>
         </td>
     </tr>
