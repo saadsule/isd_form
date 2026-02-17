@@ -58,7 +58,7 @@ foreach($report as $r):
 ?>
 <tr>
     <td><?= $i++ ?></td>
-    <td><?= htmlspecialchars($r->user) ?></td>
+    <td><?= htmlspecialchars($r->full_name) ?></td>
 
     <!-- Child Health -->
     <td><?= $r->ch_new ?></td>
