@@ -16,24 +16,39 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach($report['users'] as $user): 
+                    <?php 
+                    $grand_totals = array_fill(0, count($report['dates']), 0);
+                    $overall_total = 0;
+
+                    foreach($report['users'] as $user): 
                         $user_id = $user['user_id']; 
                         $total_user = 0;
                     ?>
                     <tr>
                         <td><?= htmlspecialchars($user['username']) ?></td>
-                        <?php foreach($report['dates'] as $date): 
+                        <?php foreach($report['dates'] as $idx => $date): 
                             $count = isset($report['progress'][$user_id][$date]) ? $report['progress'][$user_id][$date] : 0;
                             $total_user += $count;
+                            $grand_totals[$idx] += $count;
                         ?>
                         <td><?= $count ?></td>
                         <?php endforeach; ?>
                         <td><strong><?= $total_user ?></strong></td>
                     </tr>
-                    <?php endforeach; ?>
+                    <?php 
+                        $overall_total += $total_user;
+                    endforeach; 
+                    ?>
+                    <!-- Grand Total Row -->
+                    <tr class="table-secondary fw-bold">
+                        <td>Total</td>
+                        <?php foreach($grand_totals as $gt): ?>
+                        <td><?= $gt ?></td>
+                        <?php endforeach; ?>
+                        <td><?= $overall_total ?></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
     </div>
-</div>
