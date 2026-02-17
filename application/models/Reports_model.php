@@ -11,6 +11,7 @@ class Reports_model extends CI_Model {
         $sql = "
         SELECT 
             u.username as user,
+            u.full_name as full_name,
 
             -- Child Health
             COALESCE(ch_new.new_count,0) as ch_new,
