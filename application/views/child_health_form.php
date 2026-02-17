@@ -390,17 +390,17 @@ $details = isset($details) ? $details : array();
     </div>
 
     <!-- Marital Status -->
-    <label class="col-sm-2 col-form-label">12. Marital Status *</label>
+    <label class="col-sm-2 col-form-label">12. Marital Status</label>
     <div class="col-sm-4">
         <?php $marital = isset($rec->marital_status) ? $rec->marital_status : ''; ?>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="marital_status" value="Married"
-                <?= ($marital=='Married') ? 'checked' : '' ?> required>
+                <?= ($marital=='Married') ? 'checked' : '' ?>>
             <label class="form-check-label">Married</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="marital_status" value="Un-Married"
-                <?= ($marital=='Un-Married') ? 'checked' : '' ?> required>
+                <?= ($marital=='Un-Married') ? 'checked' : '' ?>>
             <label class="form-check-label">Un-Married</label>
         </div>
     </div>
@@ -411,33 +411,33 @@ $details = isset($details) ? $details : array();
 <div class="form-group row">
 
     <!-- Pregnancy -->
-    <label class="col-sm-2 col-form-label">13. Pregnancy Status *</label>
+    <label class="col-sm-2 col-form-label">13. Pregnancy Status</label>
     <div class="col-sm-4">
         <?php $preg = isset($rec->pregnancy_status) ? $rec->pregnancy_status : ''; ?>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="pregnancy_status" value="Pregnant"
-                <?= ($preg=='Pregnant') ? 'checked' : '' ?> required>
+                <?= ($preg=='Pregnant') ? 'checked' : '' ?>>
             <label class="form-check-label">Pregnant</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="pregnancy_status" value="Non-Pregnant"
-                <?= ($preg=='Non-Pregnant') ? 'checked' : '' ?> required>
+                <?= ($preg=='Non-Pregnant') ? 'checked' : '' ?>>
             <label class="form-check-label">Non-Pregnant</label>
         </div>
     </div>
 
     <!-- Disability -->
-    <label class="col-sm-2 col-form-label">14. Disability *</label>
+    <label class="col-sm-2 col-form-label">14. Disability</label>
     <div class="col-sm-4">
         <?php $dis = isset($rec->disability) ? $rec->disability : ''; ?>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="disability" value="Yes"
-                <?= ($dis=='Yes') ? 'checked' : '' ?> required>
+                <?= ($dis=='Yes') ? 'checked' : '' ?>>
             <label class="form-check-label">Yes</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="disability" value="No"
-                <?= ($dis=='No') ? 'checked' : '' ?> required>
+                <?= ($dis=='No') ? 'checked' : '' ?>>
             <label class="form-check-label">No</label>
         </div>
     </div>
@@ -448,33 +448,33 @@ $details = isset($details) ? $details : array();
 <div class="form-group row">
 
     <!-- Play & Learning Kit -->
-    <label class="col-sm-2 col-form-label">15. Play & Learning Kit *</label>
+    <label class="col-sm-2 col-form-label">15. Play & Learning Kit</label>
     <div class="col-sm-4">
         <?php $kit = isset($rec->play_learning_kit) ? $rec->play_learning_kit : ''; ?>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="play_learning_kit" value="Yes"
-                <?= ($kit=='Yes') ? 'checked' : '' ?> required>
+                <?= ($kit=='Yes') ? 'checked' : '' ?>>
             <label class="form-check-label">Yes</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="play_learning_kit" value="No"
-                <?= ($kit=='No') ? 'checked' : '' ?> required>
+                <?= ($kit=='No') ? 'checked' : '' ?>>
             <label class="form-check-label">No</label>
         </div>
     </div>
 
     <!-- Nutrition Package -->
-    <label class="col-sm-2 col-form-label">16. Nutrition Package *</label>
+    <label class="col-sm-2 col-form-label">16. Nutrition Package</label>
     <div class="col-sm-4">
         <?php $nut = isset($rec->nutrition_package) ? $rec->nutrition_package : ''; ?>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="nutrition_package" value="Yes"
-                <?= ($nut=='Yes') ? 'checked' : '' ?> required>
+                <?= ($nut=='Yes') ? 'checked' : '' ?>>
             <label class="form-check-label">Yes</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="nutrition_package" value="No"
-                <?= ($nut=='No') ? 'checked' : '' ?> required>
+                <?= ($nut=='No') ? 'checked' : '' ?>>
             <label class="form-check-label">No</label>
         </div>
     </div>
