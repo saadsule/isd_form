@@ -67,40 +67,6 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
 
 <div class="page-container">
 <div class="main-content">
-
-<div class="page-header mb-4 d-flex justify-content-between align-items-center">
-    <h2 class="header-title">OPD / MNCH Form
-        <span class="badge badge-<?php echo $badge_color; ?>" style="font-size:14px;">
-            <?php echo $status; ?>
-        </span>
-    </h2>
-    <!-- Print Button -->
-    <div>
-        <button class="btn btn-primary" onclick="printForm();">
-            <i class="anticon anticon-printer"></i> Print
-        </button>
-    </div>
-</div>
-    
-<?php if($this->session->userdata('role') == 2 && ($master->verification_status == 'Pending' || $master->verification_status == 'Reported')): ?>
-
-<div class="mb-3 text-right">
-
-    <!-- VERIFY BUTTON -->
-    <form method="post" action="<?= base_url('forms/verify_opd_mnch/'.$master->id) ?>" style="display:inline;">
-        <button type="submit" class="btn btn-success">
-            <i class="fa fa-check"></i> Verify
-        </button>
-    </form>
-
-    <!-- REPORT BUTTON -->
-    <button class="btn btn-danger" data-toggle="modal" data-target="#reportModal">
-        <i class="fa fa-flag"></i> Report
-    </button>
-
-</div>
-
-<?php endif; ?>
     
 <div id="printable-area">
 <div class="card">
@@ -131,14 +97,50 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
 <!-- ================= BASIC INFORMATION ================= -->
 <div class="card mb-4 form-section">
 <div class="card-body">
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+
+    <!-- Left: Section Title -->
     <h4 class="section-title mb-0">📋 Basic Information</h4>
 
-    <?php if(!empty($master->qr_code)): ?>
-        <img 
-        src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=<?= urlencode($master->qr_code) ?>" 
-        alt="QR Code">
-    <?php endif; ?>
+    <!-- Right: Buttons, Status, QR -->
+    <div class="d-flex align-items-center flex-wrap">
+
+        <!-- Verify & Report Buttons -->
+        <?php if($this->session->userdata('role') == 2 && ($master->verification_status == 'Pending' || $master->verification_status == 'Reported')): ?>
+            <form method="post" action="<?= base_url('forms/verify_opd_mnch/'.$master->id) ?>" style="display:inline;">
+                <button type="submit" class="btn btn-success mr-2 mb-1" style="padding: 0.375rem 0.75rem; height: 32px;">
+                    <i class="fa fa-check"></i> Verify
+                </button>
+            </form>
+
+            <button class="btn btn-danger mr-2 mb-1" data-toggle="modal" data-target="#reportModal" style="padding: 0.375rem 0.75rem; height: 32px;">
+                <i class="fa fa-flag"></i> Report
+            </button>
+        <?php endif; ?>
+
+        <!-- Status Badge -->
+        <?php if($this->session->userdata('role') == 2  || $status!='Pending'): ?> 
+            <span class="badge badge-<?php echo $badge_color; ?> mr-2 mb-1" style="font-size:14px;">
+                <?php echo $status; ?>
+            </span>
+        <?php endif; ?>
+        
+        <!-- Print Button -->
+        <button class="btn btn-primary mr-2 mb-1" onclick="printForm();" style="padding: 0.375rem 0.75rem; height: 32px;">
+            <i class="anticon anticon-printer"></i> Print
+        </button>
+
+        <!-- QR Code -->
+        <?php if(!empty($master->qr_code)): ?>
+            <img 
+                src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=<?= urlencode($master->qr_code) ?>" 
+                alt="QR Code"
+                class="mb-1"
+            >
+        <?php endif; ?>
+
+    </div>
+
 </div>
 <table class="table table-bordered">
 <tr>

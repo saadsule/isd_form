@@ -75,10 +75,10 @@
 <tr>
     <th>#</th>
     <th>Date</th>
-    <th>Visit / Client</th>
+    <th>OPD/MNCH<br/> New/Followup</th>
     <th>District / UC / Facility</th>
     <th>Patient / Guardian</th>
-    <th>QR Code</th>
+    <th>QR Code / Verification</th>
     <th>ANC</th>
     <th>Action</th>
 </tr>
@@ -93,28 +93,28 @@
         $visit_type = strtolower(trim($r->visit_type));
 
         $visit_classes = [
-            'mnch' => ['class' => 'badge-info', 'icon' => 'fa-female'],
-            'opd'  => ['class' => 'badge-primary', 'icon' => 'fa-stethoscope']
+            'mnch' => ['class' => 'badge-pill badge-warning', 'icon' => 'fa-female'],
+            'opd'  => ['class' => 'badge-pill badge-primary', 'icon' => 'fa-stethoscope']
         ];
 
         if (isset($visit_classes[$visit_type])) {
             $visit_style = $visit_classes[$visit_type];
         } else {
-            $visit_style = ['class' => 'badge-secondary', 'icon' => 'fa-hospital-o'];
+            $visit_style = ['class' => 'badge-pill badge-green', 'icon' => 'fa-hospital-o'];
         }
 
         // Client Type
         $client_type = strtolower(trim($r->client_type));
 
         $client_classes = [
-            'new'       => ['class' => 'badge-success', 'icon' => 'fa-user-plus'],
-            'followup'  => ['class' => 'badge-warning', 'icon' => 'fa-sync']
+            'new'       => ['class' => 'badge-pill badge-success', 'icon' => 'fa-user-plus'],
+            'followup'  => ['class' => 'badge-pill badge-secondary', 'icon' => 'fa-sync']
         ];
 
         if (isset($client_classes[$client_type])) {
             $client_style = $client_classes[$client_type];
         } else {
-            $client_style = ['class' => 'badge-secondary', 'icon' => 'fa-user'];
+            $client_style = ['class' => 'pill badge-green', 'icon' => 'fa-user'];
         }
     ?>
 
@@ -147,33 +147,35 @@
     </td>
 
     <!-- QR Code -->
-    <td><?= htmlspecialchars(!empty($r->qr_code) ? $r->qr_code : '-') ?></td>
+    <td>
+        <?= htmlspecialchars(!empty($r->qr_code) ? $r->qr_code : '-') ?>
+        <!-- STATUS ICON -->
+        <?php if($r->verification_status == 'Verified'): ?>
+            <span class="avatar avatar-icon avatar-cyan" title="Verified">
+                <i class="fa fa-check"></i>
+            </span>
+
+        <?php elseif($r->verification_status == 'Reported'): ?>
+            <span class="avatar avatar-icon avatar-magenta" title="Reported">
+                <i class="fa fa-flag"></i>
+            </span>
+        <?php endif; ?>
+    </td>
     
     <!-- ANC -->
     <td><?= htmlspecialchars($r->anc_card_no ?  $r->anc_card_no : '-') ?></td>
 
     <td>
-        <a href="<?= base_url('forms/view_opd_mnch/'.$r->id) ?>" class="badge badge-primary" title="View">
+        <a href="<?= base_url('forms/view_opd_mnch/'.$r->id) ?>" class="btn btn-tone btn-success" title="View">
             <i class="fa fa-eye"></i>
         </a>
 
         <?php if($this->session->userdata('user_id') == $r->created_by): ?>
-        <a href="<?= base_url('forms/opd_mnch/'.$r->id) ?>" class="badge badge-success" title="Edit">
+        <a href="<?= base_url('forms/opd_mnch/'.$r->id) ?>" class="btn btn-tone btn-primary" title="Edit">
             <i class="fa fa-edit"></i>
         </a>
         <?php endif; ?>
         
-        <!-- STATUS ICON -->
-        <?php if($r->verification_status == 'Verified'): ?>
-            <span class="badge badge-success" title="Verified">
-                <i class="fa fa-check"></i>
-            </span>
-
-        <?php elseif($r->verification_status == 'Reported'): ?>
-            <span class="badge badge-danger" title="Reported">
-                <i class="fa fa-flag"></i>
-            </span>
-        <?php endif; ?>
     </td>
 
 </tr>
