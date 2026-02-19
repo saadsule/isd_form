@@ -154,10 +154,10 @@ document.addEventListener("DOMContentLoaded", function () {
     var map = L.map('map', { minZoom: 8 }).setView([33.2, 70.2], 10);
 
     // Add OpenStreetMap tiles
-//    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//        attribution: '&copy; OpenStreetMap contributors',
-//        maxZoom: 18
-//    }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 18
+    }).addTo(map);
 
     // Load North Waziristan boundaries from GeoJSON
     fetch('<?= base_url("assets/geojson/north_waziristan.json") ?>')
