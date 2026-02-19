@@ -195,8 +195,9 @@ $details = isset($details) ? $details : array();
     <div class="col-sm-3">
         <label class="form-label font-weight-bold d-block">1. Date *</label>
         <input type="date" name="form_date" class="form-control"
-            value="<?= isset($rec->form_date) ? $rec->form_date : '' ?>" required
-            max="<?= date('Y-m-d', strtotime('-1 day')) ?>">
+            value="<?= isset($rec->form_date) ? $rec->form_date : '' ?>" 
+            required
+            id="form_date_2">
     </div>
 
     <div class="col-sm-3">
@@ -743,4 +744,27 @@ document.getElementById('dob').addEventListener('change', function () {
     }
 });
 
+    const dateInput2 = document.getElementById('form_date_2');
+
+    // Set minimum date (15 Dec 2025)
+    const minDate2 = new Date('2025-12-15');
+
+    // Set maximum date (yesterday)
+    const maxDate2 = new Date();
+    maxDate2.setDate(maxDate2.getDate() - 1);
+
+    // Apply min & max to date picker
+    dateInput2.min = minDate2.toISOString().split('T')[0];
+    dateInput2.max = maxDate2.toISOString().split('T')[0];
+
+    dateInput2.addEventListener('input', function () {
+        const inputDate = new Date(this.value);
+
+        if (inputDate < minDate2) {
+            this.value = dateInput2.min; // auto-correct to min
+        } 
+        else if (inputDate > maxDate2) {
+            this.value = dateInput2.max; // auto-correct to max
+        }
+    });
 </script>

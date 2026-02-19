@@ -77,7 +77,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             ch.created_at,
             ch.created_by,
             verification_status,
-            report_reason
+            report_reason,
+            users.full_name
         ");
         $this->db->from('child_health_master ch');
 
@@ -85,6 +86,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         $this->db->join('districts d', 'd.district_id = ch.district', 'left');
         $this->db->join('uc u', 'u.pk_id = ch.uc', 'left');
         $this->db->join('facilities f', 'f.id = ch.facility_id', 'left');
+         $this->db->join('users', 'users.user_id = ch.created_by', 'left');
 
         // 🔹 Filters
         if (!empty($filters['from_date'])) {

@@ -218,7 +218,7 @@ action="<?= isset($is_edit) && $is_edit
         <label class="form-label font-weight-bold d-block">Date *</label>
         <input type="date" name="form_date" class="form-control"
                value="<?= $rec ? $rec->form_date : '' ?>" required
-               max="<?= date('Y-m-d', strtotime('-1 day')) ?>">
+               id="form_date">
     </div>
 
     <!-- ANC Card -->
@@ -602,4 +602,26 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 });
+
+    const dateInput = document.getElementById('form_date');
+    
+    // Set min and max dates
+    const minDate = new Date('2025-12-15');
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() - 1); // yesterday
+
+    // Set min and max attributes for date picker
+    dateInput.min = minDate.toISOString().split('T')[0];
+    dateInput.max = maxDate.toISOString().split('T')[0];
+
+    dateInput.addEventListener('input', function() {
+        const inputDate = new Date(this.value);
+
+        if (inputDate < minDate) {
+            this.value = dateInput.min; // auto-correct to min
+        } 
+        else if (inputDate > maxDate) {
+            this.value = dateInput.max; // auto-correct to max
+        }
+    });
 </script> 

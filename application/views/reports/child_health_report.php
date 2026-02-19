@@ -197,7 +197,9 @@
             </a>
             <?php endif; ?>
             
-            
+            <div style="font-size: 9px; color: #555; margin-top: 2px;">
+                By: <?= htmlspecialchars($r->full_name) ?>
+            </div>
         </td>
     </tr>
     <?php endforeach; ?>
