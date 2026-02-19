@@ -1,4 +1,4 @@
-<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="<?= base_url('assets/highcharts/highcharts.js') ?>"></script>
 <div class="page-container">
     <div class="main-content">
 

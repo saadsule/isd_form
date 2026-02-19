@@ -22,6 +22,9 @@
 
     <!-- Core Vendors JS -->
     <script src="<?php echo base_url('assets/js/vendors.min.js') ?>"></script>
+    
+    <script src="<?php echo base_url('assets/vendors/select2/select2.min.js') ?>"></script>
+    <script src="<?php echo base_url('assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js') ?>"></script>
 
     <!-- Core JS -->
     <script src="<?php echo base_url('assets/js/app.min.js') ?>"></script>

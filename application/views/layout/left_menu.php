@@ -16,13 +16,31 @@
 
             <!-- Dashboard (exclude role 1) -->
             <?php if($role != 1): ?>
-            <li class="nav-item <?= ($this->router->fetch_class() == 'dashboard') ? 'active' : '' ?>">
-                <a href="<?= base_url('dashboard'); ?>">
+            <li class="nav-item dropdown 
+                <?= ($this->uri->segment(2) == 'map_view' || $this->uri->segment(2) == 'outreach') ? 'open' : '' ?>">                
+                <a class="dropdown-toggle" href="javascript:void(0);">
                     <span class="icon-holder">
                         <i class="anticon anticon-dashboard"></i>
                     </span>
                     <span class="title">Dashboard</span>
+                    <span class="arrow">
+                        <i class="arrow-icon"></i>
+                    </span>
                 </a>
+
+                <ul class="dropdown-menu">
+                    <li class="<?= ($this->uri->segment(2) == 'map_view') ? 'active' : '' ?>">
+                        <a href="<?= base_url('dashboard/map_view'); ?>">
+                            <span>Target Population</span>
+                        </a>
+                    </li>
+
+                    <li class="<?= ($this->uri->segment(2) == 'outreach') ? 'active' : '' ?>">
+                        <a href="<?= base_url('dashboard/outreach'); ?>">
+                            <span>Outreach</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
             <?php endif; ?>
 
