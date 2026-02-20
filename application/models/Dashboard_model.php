@@ -215,6 +215,7 @@ class Dashboard_model extends CI_Model {
             gender,
             age_group,
             client_type,
+            visit_type,
             COUNT(*) as total
         ");
         $this->db->from('child_health_master');
@@ -248,6 +249,9 @@ class Dashboard_model extends CI_Model {
             $this->db->where_in('client_type', $filters['client_type']);
         }
 
+        // Visit type filter (only Outreach)
+        $this->db->where('visit_type', 'Outreach');
+        
         // 🔥 DAILY GROUPING
         $this->db->group_by([
             "DATE(form_date)",

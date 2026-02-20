@@ -1,3 +1,15 @@
+<style>
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+}
+.icon-holder {
+    flex-shrink: 0;
+}
+</style>
 <div class="page-container">
     <div class="main-content">
         <div class="page-header mb-4">
@@ -78,7 +90,7 @@
                         <i class="anticon anticon-file-text"></i> <!-- Changed icon -->
                     </div>
                     <div class="text-center">
-                        <h6 class="text-uppercase fw-bold mb-2">Total Parcel Forms</h6>
+                        <h6 class="text-uppercase fw-bold mb-2">Total Hardcopies Received</h6>
                         <h2 class="fw-bold mb-1"><?= $total_parcel_forms ?></h2>
                     </div>
                 </div>
@@ -87,48 +99,62 @@
 
         <!-- Submission Progress -->
         <div class="col-md-6">
-        <?php 
-            $progress_percent = $total_parcel_forms > 0 ? round(($total_forms / $total_parcel_forms) * 100) : 0; 
-        ?>
-        <div class="card shadow-sm border-start border-4 border-success hover-shadow">
-            <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height:230px;">
-                <!-- Heading Centered -->
-                <h5 class="text-center mb-3">Submission Progress</h5>
+            <?php 
+                $progress_percent = $total_parcel_forms > 0 ? round(($total_forms / $total_parcel_forms) * 100) : 0; 
+            ?>
+            <div class="card shadow-sm border-start border-4 border-success hover-shadow">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height:230px;">
+                    <!-- Heading Centered -->
+                    <h5 class="text-center mb-3">Overall Progress</h5>
 
-                <!-- Chart and Number -->
-                <div class="position-relative" style="width:150px; height:150px;">
-                    <!-- Canvas -->
-                    <canvas class="chart m-h-auto" id="porgress-chart" width="150" height="150" style="display:block; width:150px; height:150px;"></canvas>
+                    <!-- Chart and Number -->
+                    <div class="position-relative" style="width:150px; height:150px;">
+                        <!-- Canvas -->
+                        <canvas class="chart m-h-auto" id="overall-progress-chart" width="150" height="150" style="display:block; width:150px; height:150px;"></canvas>
 
-                    <!-- Center Number -->
-                    <h2 class="text-center text-large m-0 text-success font-weight-normal" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
-                        <?= $total_forms.'/'.$total_parcel_forms ?>
-                    </h2>
-                </div>
+                        <!-- Center Number -->
+                        <h2 class="text-center text-large m-0 text-success font-weight-normal" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+                            <?= $total_forms.'/'.$total_parcel_forms ?>
+                        </h2>
+                    </div>
 
-                <!-- Progress % -->
-                <div class="d-flex justify-content-center align-items-center mt-3">
-                    <span class="badge badge-success badge-dot m-r-10"></span>
-                    <span><span class="font-weight-semibold"><?= $progress_percent ?>%</span> of Your Goal</span>
+                    <!-- Progress % -->
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                        <span class="badge badge-success badge-dot m-r-10"></span>
+                        <span><span class="font-weight-semibold"><?= $progress_percent ?>%</span> of Your Goal</span>
+                    </div>
                 </div>
             </div>
         </div>
+        
     </div>
-    </div>
-
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
-    <script src="<?= base_url('assets/vendors/chartjs/Chart.min.js') ?>"></script>
-    <script src="<?= base_url('assets/js/pages/dashboard-crm.js') ?>"></script>
-<style>
-.hover-shadow {
-    transition: all 0.3s ease;
-}
-.hover-shadow:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.15);
-}
-.icon-holder {
-    flex-shrink: 0;
-}
-</style>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+<script src="<?= base_url('assets/vendors/chartjs/Chart.min.js') ?>"></script>
+<script src="<?= base_url('assets/js/pages/dashboard-crm.js') ?>"></script>
+<script>
+    // Dynamic progress for Overall Progress
+    const ctx = document.getElementById('overall-progress-chart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [<?= $progress_percent ?>, <?= 100 - $progress_percent ?>],
+                backgroundColor: ['#05C9A7', '#e9ecef'], // primary color + light gray
+                hoverBackgroundColor: ['#05C9A7', '#e9ecef'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+                cutoutPercentage: 92,
+                responsive: false,
+                maintainAspectRatio: false,
+                tooltips: { enabled: false },
+                legend: { display: false },
+                scales: {
+                    xAxes: [{ display: false }],
+                    yAxes: [{ display: false }]
+                }
+            }
+    });
+</script>
