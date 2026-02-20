@@ -26,7 +26,7 @@
                             <i class="anticon anticon-file-text"></i>
                         </div>
                         <div class="flex-grow-1 ml-2">
-                            <h6 class="text-uppercase fw-bold mb-2">Total Forms</h6>
+                            <h6 class="text-uppercase fw-bold mb-2">Total Forms Digitized</h6>
                             <h2 class="fw-bold text-end mb-0"><?= $total_forms ?></h2>
                         </div>
                     </div>
