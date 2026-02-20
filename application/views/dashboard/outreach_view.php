@@ -438,7 +438,7 @@ foreach($temp as $option_id => $dateData){
     }
 
     $series[] = [
-        'name' => $labels[$option_id] ? $labels[$option_id] : 'Option '.$option_id,
+        'name' => isset($labels[$option_id]) ? $labels[$option_id] : 'Option '.$option_id,
         'data' => $dataPoints
     ];
 }
@@ -510,7 +510,7 @@ foreach($temp3 as $option_id => $dateData){
     }
 
     $series3[] = [
-        'name' => $antigen_labels[$option_id] ? $antigen_labels[$option_id] : 'Option '.$option_id,
+        'name' => isset($antigen_labels[$option_id]) ? $antigen_labels[$option_id] : 'Option '.$option_id,
         'data' => $dataPoints
     ];
 }
@@ -569,7 +569,7 @@ foreach($temp4 as $option_id => $dateData){
     }
 
     $series4[] = [
-        'name' => $labels4[$option_id] ? $labels4[$option_id] : 'Option '.$option_id,
+        'name' => isset($labels4[$option_id]) ? $labels4[$option_id] : 'Option '.$option_id,
         'data' => $dataPoints
     ];
 }
@@ -628,7 +628,7 @@ foreach($temp5 as $option_id => $dateData){
     }
 
     $series5[] = [
-        'name' => $labels5[$option_id] ? $labels5[$option_id] : 'Option '.$option_id,
+        'name' => isset($labels5[$option_id]) ? $labels5[$option_id] : 'Option '.$option_id,
         'data' => $dataPoints
     ];
 }
