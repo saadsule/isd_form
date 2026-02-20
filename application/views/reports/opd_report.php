@@ -60,9 +60,24 @@
            class="form-control">
     </div>
 
-    <div class="col-md-3 d-flex align-items-end">
+    <div class="col-md-6 d-flex align-items-end">
         <button type="submit" class="btn btn-primary mr-2">Filter</button>
         <a href="<?= base_url('forms/opd_report') ?>" class="btn btn-secondary">Clear</a>
+        
+        <?php if($this->session->userdata('role') == 1): ?>
+            <?php if(isset($filters['rejected']) && $filters['rejected'] == 1): ?>
+                <a href="<?= base_url('forms/opd_report') ?>" 
+                   class="btn btn-secondary mr-2 ml-2">
+                    <i class="fa fa-list"></i> Show All
+                </a>
+            <?php else: ?>
+                <a href="<?= base_url('forms/opd_report?rejected=1') ?>" 
+                   class="btn btn-danger mr-2 ml-2">
+                    <i class="fa fa-times-circle"></i> My Rejected Entries
+                </a>
+            <?php endif; ?>
+        <?php endif; ?>
+        
     </div>
 
     </div>
@@ -80,6 +95,9 @@
     <th>Patient / Guardian</th>
     <th>QR Code / Verification</th>
     <th>ANC</th>
+    <?php if(isset($filters['rejected']) && $filters['rejected'] == 1): ?>
+        <th>Reject Reason</th>
+    <?php endif; ?>
     <th>Action</th>
 </tr>
 </thead>
@@ -165,6 +183,16 @@
     <!-- ANC -->
     <td><?= htmlspecialchars($r->anc_card_no ?  $r->anc_card_no : '-') ?></td>
 
+    <?php if(isset($filters['rejected']) && $filters['rejected'] == 1): ?>
+        <td>
+            <span class="text-danger" 
+                  data-toggle="tooltip" 
+                  title="<?= htmlspecialchars($r->report_reason) ?>">
+                <i class="fa fa-exclamation-circle"></i> View
+            </span>
+        </td>
+    <?php endif; ?>
+    
     <td>
         <a href="<?= base_url('forms/view_opd_mnch/'.$r->id) ?>" class="btn btn-tone btn-success" title="View">
             <i class="fa fa-eye"></i>
@@ -195,4 +223,7 @@
 <script src="<?php echo base_url('assets/vendors/datatables/dataTables.bootstrap.min.js') ?>"></script>
 <script>
     $('#data-table').DataTable();
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
 </script>

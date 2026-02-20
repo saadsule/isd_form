@@ -840,9 +840,16 @@ class Forms extends CI_Controller {
             'to_date'     => $this->input->get('to_date'),
             'uc_id'       => $this->input->get('uc_id'),
             'facility_id' => $this->input->get('facility_id'),
-            'search'      => $this->input->get('search')
+            'search'      => $this->input->get('search'),
+            'rejected'    => $this->input->get('rejected')
         );
 
+        // If role 1 and rejected filter is clicked
+        if($this->session->userdata('role') == 1 && $filters['rejected'] == 1){
+            $filters['created_by'] = $this->session->userdata('user_id');
+            $filters['verification_status'] = 'Reported';
+        }
+        
         $data['filters'] = $filters;
 
         // get filtered records
@@ -908,8 +915,15 @@ class Forms extends CI_Controller {
             'to_date'    => $this->input->get('to_date'),
             'uc_id'      => $this->input->get('uc_id'),
             'facility_id'=> $this->input->get('facility_id'),
-            'search'     => $this->input->get('search')
+            'search'     => $this->input->get('search'),
+            'rejected'    => $this->input->get('rejected')
         );
+        
+        // If role 1 and rejected filter is clicked
+        if($this->session->userdata('role') == 1 && $filters['rejected'] == 1){
+            $filters['created_by'] = $this->session->userdata('user_id');
+            $filters['verification_status'] = 'Reported';
+        }
 
         $data['filters'] = $filters;
 

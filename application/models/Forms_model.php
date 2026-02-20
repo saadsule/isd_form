@@ -104,6 +104,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         if (!empty($filters['facility_id'])) {
             $this->db->where('ch.facility_id', $filters['facility_id']);
         }
+        
+        if(!empty($filters['created_by'])){
+            $this->db->where('created_by', $filters['created_by']);
+        }
+
+        if(!empty($filters['verification_status'])){
+            $this->db->where('verification_status', $filters['verification_status']);
+        }
 
         if (!empty($filters['search'])) {
             $this->db->group_start();
@@ -164,6 +172,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
         if (!empty($filters['facility_id'])) {
             $this->db->where('op.facility_id', $filters['facility_id']);
+        }
+        
+        if(!empty($filters['created_by'])){
+            $this->db->where('created_by', $filters['created_by']);
+        }
+
+        if(!empty($filters['verification_status'])){
+            $this->db->where('verification_status', $filters['verification_status']);
         }
 
         if (!empty($filters['search'])) {
