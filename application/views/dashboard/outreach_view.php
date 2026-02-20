@@ -56,7 +56,7 @@
 
                     <!-- Date Range Picker -->
                     <div class="col-md-4">
-                        <label>Range Datepicker</label>
+                        <label>Select Date Range</label>
                         <div class="d-flex align-items-center m-b-15">
                             <input type="text" class="form-control datepicker-input" name="start" placeholder="From" 
                                    autocomplete="off"
@@ -91,7 +91,104 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="col-md-3 mt-2">
+                        <label>Vaccination History (For Under Five Years Children) (Plot 2)</label>
+                        <div class="m-b-15">
+                            <select class="select2" name="vaccination_history[]" multiple="multiple" style="width:100%">
+                                <?php
+                                $vaccination_history_options = [
+                                    1  => "Ever received any vaccination earlier – Yes",
+                                    2  => "Ever received any vaccination earlier – No",
+                                    3  => "Child vaccinated during this session – Yes",
+                                    4  => "Child vaccinated during this session – No",
+                                    5  => "In case of 'No' to child vaccinated during this session – Fully immunized as per age",
+                                    6  => "In case of 'No' to child vaccinated during this session – Vaccine not due",
+                                    7  => "In case of 'No' to child vaccinated during this session – Child is unwell",
+                                    8  => "In case of 'No' to child vaccinated during this session – Refusal",
+                                    9  => "Refusal Type – Demand Refusal",
+                                    10 => "Refusal Type – Misconception Refusal",
+                                    11 => "Refusal Type – Religious Refusal"
+                                ];
 
+                                foreach($vaccination_history_options as $id => $text){
+                                    $selected = (isset($filters['vaccination_history']) && in_array($id, $filters['vaccination_history'])) ? 'selected' : '';
+                                    echo "<option value='{$id}' {$selected}>{$text}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mt-2">
+                        <label>Antigens Administered to Child &lt; 1 Year (Plot 3)</label>
+                        <div class="m-b-15">
+                            <select class="select2" name="antigens[]" multiple="multiple" style="width:100%">
+                                <?php
+                                // Fetch options from database
+                                $this->db->select('option_id, option_text');
+                                $this->db->from('question_options');
+                                $this->db->where('question_id', 5);
+                                $this->db->where('status', 1); // Only active options
+                                $this->db->order_by('option_order', 'ASC');
+                                $query = $this->db->get();
+                                $options = $query->result();
+
+                                foreach($options as $opt){
+                                    $selected = (isset($filters['antigens']) && in_array($opt->option_id, $filters['antigens'])) ? 'selected' : '';
+                                    echo "<option value='{$opt->option_id}' {$selected}>{$opt->option_text}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mt-2">
+                        <label>Antigens Administered to Child 1–2 Years (Plot 4)</label>
+                        <div class="m-b-15">
+                            <select class="select2" name="antigens_1_2_years[]" multiple="multiple" style="width:100%">
+                                <?php
+                                // Fetch options from database for question_id = 6
+                                $this->db->select('option_id, option_text');
+                                $this->db->from('question_options');
+                                $this->db->where('question_id', 6);
+                                $this->db->where('status', 1); // Only active options
+                                $this->db->order_by('option_order', 'ASC');
+                                $query = $this->db->get();
+                                $options = $query->result();
+
+                                foreach($options as $opt){
+                                    $selected = (isset($filters['antigens_1_2_years']) && in_array($opt->option_id, $filters['antigens_1_2_years'])) ? 'selected' : '';
+                                    echo "<option value='{$opt->option_id}' {$selected}>{$opt->option_text}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 mt-2">
+                        <label>Antigens Administered to Child 2–5 Years (Plot 5)</label>
+                        <div class="m-b-15">
+                            <select class="select2" name="antigens_2_5_years[]" multiple="multiple" style="width:100%">
+                                <?php
+                                // Fetch options from database for question_id = 7
+                                $this->db->select('option_id, option_text');
+                                $this->db->from('question_options');
+                                $this->db->where('question_id', 7);
+                                $this->db->where('status', 1); // Only active options
+                                $this->db->order_by('option_order', 'ASC');
+                                $query = $this->db->get();
+                                $options = $query->result();
+
+                                foreach($options as $opt){
+                                    $selected = (isset($filters['antigens_2_5_years']) && in_array($opt->option_id, $filters['antigens_2_5_years'])) ? 'selected' : '';
+                                    echo "<option value='{$opt->option_id}' {$selected}>{$opt->option_text}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div class="col-md-4 mt-2 m-b-15">
                         <button type="submit" class="btn btn-primary">Apply Filters</button>
                         <a href="<?= base_url('dashboard/outreach') ?>" class="btn btn-secondary">Clear Filters</a>
@@ -113,6 +210,78 @@
                             </div>
                         <?php else: ?>
                             <div id="outreachChart" style="height: 450px;"></div>
+                        <?php endif; ?>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+
+                        <?php if(!$isFilterApplied): ?>
+                            <div class="text-center p-5">
+                                <h5 class="text-muted">Please select filter(s) to view data</h5>
+                            </div>
+                        <?php else: ?>
+                            <div id="vaccinationChart" style="height: 450px;"></div>
+                        <?php endif; ?>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+
+                        <?php if(!$isFilterApplied): ?>
+                            <div class="text-center p-5">
+                                <h5 class="text-muted">Please select filter(s) to view data</h5>
+                            </div>
+                        <?php else: ?>
+                            <div id="antigenUnder1Chart" style="height: 450px;"></div>
+                        <?php endif; ?>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+
+                        <?php if(!$isFilterApplied): ?>
+                            <div class="text-center p-5">
+                                <h5 class="text-muted">Please select filter(s) to view data</h5>
+                            </div>
+                        <?php else: ?>
+                            <div id="antigen1to2Chart" style="height: 450px;"></div>
+                        <?php endif; ?>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+
+                        <?php if(!$isFilterApplied): ?>
+                            <div class="text-center p-5">
+                                <h5 class="text-muted">Please select filter(s) to view data</h5>
+                            </div>
+                        <?php else: ?>
+                            <div id="antigen2to5Chart" style="height: 450px;"></div>
                         <?php endif; ?>
 
                     </div>
@@ -233,6 +402,259 @@ document.addEventListener("DOMContentLoaded", function(){
         });
 
     <?php endif; ?>
+});
+
+<?php
+$days = [];
+$series = [];
+$temp = [];
+
+foreach($plot2_data as $row){
+    $days[$row->form_date] = $row->form_date;
+    $temp[$row->option_id][$row->form_date] = (int)$row->total;
+}
+
+$days = array_values($days);
+
+// Option labels
+$labels = [
+    1  => "Vaccination Earlier – Yes",
+    2  => "Vaccination Earlier – No",
+    3  => "Vaccinated This Session – Yes",
+    4  => "Vaccinated This Session – No",
+    5  => "Fully Immunized",
+    6  => "Vaccine Not Due",
+    7  => "Child Unwell",
+    8  => "Refusal",
+    9  => "Demand Refusal",
+    10 => "Misconception Refusal",
+    11 => "Religious Refusal"
+];
+
+foreach($temp as $option_id => $dateData){
+    $dataPoints = [];
+    foreach($days as $d){
+        $dataPoints[] = isset($dateData[$d]) ? $dateData[$d] : 0;
+    }
+
+    $series[] = [
+        'name' => $labels[$option_id] ? $labels[$option_id] : 'Option '.$option_id,
+        'data' => $dataPoints
+    ];
+}
+?>
+
+var plot2Days = <?= json_encode($days) ?>;
+var plot2Series = <?= json_encode($series) ?>;
+
+Highcharts.chart('vaccinationChart', {
+    chart: { type:'spline' },
+
+    title: { text:'Daily Vaccination History Trend' },
+
+    xAxis: {
+        categories: plot2Days,
+        title:{ text:'Date' }
+    },
+
+    yAxis:{
+        title:{ text:'Number of Cases' },
+        allowDecimals:false
+    },
+
+    tooltip:{ shared:true },
+
+    series: plot2Series,
+
+    responsive:{
+        rules:[{
+            condition:{ maxWidth:600 },
+            chartOptions:{
+                legend:{
+                    layout:'horizontal',
+                    align:'center',
+                    verticalAlign:'bottom'
+                }
+            }
+        }]
+    }
+});
+
+<?php
+$days3 = [];
+$temp3 = [];
+$series3 = [];
+
+// Get antigen labels dynamically
+$antigen_labels = [];
+$this->db->select('option_id, option_text');
+$this->db->from('question_options');
+$this->db->where('question_id', 5);
+$this->db->where('status', 1);
+$q = $this->db->get()->result();
+foreach($q as $row){
+    $antigen_labels[$row->option_id] = $row->option_text;
+}
+
+foreach($plot3_data as $row){
+    $days3[$row->form_date] = $row->form_date;
+    $temp3[$row->option_id][$row->form_date] = (int)$row->total;
+}
+
+$days3 = array_values($days3);
+
+foreach($temp3 as $option_id => $dateData){
+    $dataPoints = [];
+    foreach($days3 as $d){
+        $dataPoints[] = isset($dateData[$d]) ? $dateData[$d] : 0;
+    }
+
+    $series3[] = [
+        'name' => $antigen_labels[$option_id] ? $antigen_labels[$option_id] : 'Option '.$option_id,
+        'data' => $dataPoints
+    ];
+}
+?>
+
+var plot3Days = <?= json_encode($days3) ?>;
+var plot3Series = <?= json_encode($series3) ?>;
+
+Highcharts.chart('antigenUnder1Chart', {
+    chart: { type:'spline' },
+
+    title: { text:'Daily Antigens Administered (< 1 Year)' },
+
+    xAxis: {
+        categories: plot3Days,
+        title:{ text:'Date' }
+    },
+
+    yAxis:{
+        title:{ text:'Number of Cases' },
+        allowDecimals:false
+    },
+
+    tooltip:{ shared:true },
+
+    series: plot3Series
+});
+
+<?php
+$days4 = [];
+$temp4 = [];
+$series4 = [];
+
+// Fetch labels dynamically
+$labels4 = [];
+$this->db->select('option_id, option_text');
+$this->db->from('question_options');
+$this->db->where('question_id', 6);
+$this->db->where('status', 1);
+$q4 = $this->db->get()->result();
+foreach($q4 as $row){
+    $labels4[$row->option_id] = $row->option_text;
+}
+
+foreach($plot4_data as $row){
+    $days4[$row->form_date] = $row->form_date;
+    $temp4[$row->option_id][$row->form_date] = (int)$row->total;
+}
+
+$days4 = array_values($days4);
+
+foreach($temp4 as $option_id => $dateData){
+    $dataPoints = [];
+    foreach($days4 as $d){
+        $dataPoints[] = isset($dateData[$d]) ? $dateData[$d] : 0;
+    }
+
+    $series4[] = [
+        'name' => $labels4[$option_id] ? $labels4[$option_id] : 'Option '.$option_id,
+        'data' => $dataPoints
+    ];
+}
+?>
+
+var plot4Days = <?= json_encode($days4) ?>;
+var plot4Series = <?= json_encode($series4) ?>;
+
+Highcharts.chart('antigen1to2Chart', {
+    chart: { type:'spline' },
+
+    title: { text:'Daily Antigens Administered (1–2 Years)' },
+
+    xAxis: {
+        categories: plot4Days,
+        title:{ text:'Date' }
+    },
+
+    yAxis:{
+        title:{ text:'Number of Cases' },
+        allowDecimals:false
+    },
+
+    tooltip:{ shared:true },
+
+    series: plot4Series
+});
+
+<?php
+$days5 = [];
+$temp5 = [];
+$series5 = [];
+
+// Fetch labels dynamically
+$labels5 = [];
+$this->db->select('option_id, option_text');
+$this->db->from('question_options');
+$this->db->where('question_id', 7);
+$this->db->where('status', 1);
+$q5 = $this->db->get()->result();
+foreach($q5 as $row){
+    $labels5[$row->option_id] = $row->option_text;
+}
+
+foreach($plot5_data as $row){
+    $days5[$row->form_date] = $row->form_date;
+    $temp5[$row->option_id][$row->form_date] = (int)$row->total;
+}
+
+$days5 = array_values($days5);
+
+foreach($temp5 as $option_id => $dateData){
+    $dataPoints = [];
+    foreach($days5 as $d){
+        $dataPoints[] = isset($dateData[$d]) ? $dateData[$d] : 0;
+    }
+
+    $series5[] = [
+        'name' => $labels5[$option_id] ? $labels5[$option_id] : 'Option '.$option_id,
+        'data' => $dataPoints
+    ];
+}
+?>
+
+var plot5Days = <?= json_encode($days5) ?>;
+var plot5Series = <?= json_encode($series5) ?>;
+
+Highcharts.chart('antigen2to5Chart', {
+    chart: { type:'spline' },
+
+    title: { text:'Daily Antigens Administered (2–5 Years)' },
+
+    xAxis: {
+        categories: plot5Days,
+        title:{ text:'Date' }
+    },
+
+    yAxis:{
+        title:{ text:'Number of Cases' },
+        allowDecimals:false
+    },
+
+    tooltip:{ shared:true },
+
+    series: plot5Series
 });
 </script>
 

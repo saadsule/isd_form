@@ -207,6 +207,18 @@ class Dashboard_model extends CI_Model {
         return $query->result();
     }
 
+    public function get_facility_summary_by_district($district_name)
+    {
+        $this->db->select('
+            COUNT(id) as total_facilities,
+            SUM(catchment_population) as total_population
+        ');
+        $this->db->from('facilities');
+        $this->db->where('district_id', '94');
+
+        return $this->db->get()->row();
+    }
+    
     // Get outreach graph data
     public function get_outreach_graph($filters)
     {
@@ -266,16 +278,187 @@ class Dashboard_model extends CI_Model {
         return $query->result();
     }
     
-    public function get_facility_summary_by_district($district_name)
+    public function get_vaccination_history_graph($filters)
     {
-        $this->db->select('
-            COUNT(id) as total_facilities,
-            SUM(catchment_population) as total_population
-        ');
-        $this->db->from('facilities');
-        $this->db->where('district_id', '94');
+        $this->db->select("
+            DATE(m.form_date) as form_date,
+            d.option_id,
+            COUNT(*) as total
+        ");
 
-        return $this->db->get()->row();
+        $this->db->from('child_health_detail d');
+        $this->db->join('child_health_master m', 'm.master_id = d.master_id');
+
+        // Only vaccination question (if needed)
+        $this->db->where_in('d.question_id', [1,2,3,4]);
+
+        // Filter by selected vaccination options
+        if (!empty($filters['vaccination_history'])) {
+            $this->db->where_in('d.option_id', $filters['vaccination_history']);
+        }
+
+        // UC filter
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        // Date range filter
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        $this->db->where('m.visit_type', 'Outreach');
+
+        $this->db->group_by([
+            'DATE(m.form_date)',
+            'd.option_id'
+        ]);
+
+        $this->db->order_by('DATE(m.form_date)', 'ASC');
+
+        return $this->db->get()->result();
+    }
+    
+    public function get_antigen_under1_graph($filters)
+    {
+        $this->db->select("
+            DATE(m.form_date) as form_date,
+            d.option_id,
+            COUNT(*) as total
+        ");
+
+        $this->db->from('child_health_detail d');
+        $this->db->join('child_health_master m', 'm.master_id = d.master_id');
+
+        // ✅ Question ID 5 (Antigens < 1 Year)
+        $this->db->where('d.question_id', 5);
+
+        // Selected antigen filters
+        if (!empty($filters['antigens'])) {
+            $this->db->where_in('d.option_id', $filters['antigens']);
+        }
+
+        // UC filter
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        // Date filter
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        // Outreach only
+        $this->db->where('m.visit_type', 'Outreach');
+
+        $this->db->group_by([
+            'DATE(m.form_date)',
+            'd.option_id'
+        ]);
+
+        $this->db->order_by('DATE(m.form_date)', 'ASC');
+
+        return $this->db->get()->result();
+    }
+    
+    public function get_antigen_1_2_graph($filters)
+    {
+        $this->db->select("
+            DATE(m.form_date) as form_date,
+            d.option_id,
+            COUNT(*) as total
+        ");
+
+        $this->db->from('child_health_detail d');
+        $this->db->join('child_health_master m', 'm.master_id = d.master_id');
+
+        // ✅ Question ID 6 (1–2 Years)
+        $this->db->where('d.question_id', 6);
+
+        // Selected antigen filters
+        if (!empty($filters['antigens_1_2_years'])) {
+            $this->db->where_in('d.option_id', $filters['antigens_1_2_years']);
+        }
+
+        // UC filter
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        // Date filter
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        // Outreach only
+        $this->db->where('m.visit_type', 'Outreach');
+
+        $this->db->group_by([
+            'DATE(m.form_date)',
+            'd.option_id'
+        ]);
+
+        $this->db->order_by('DATE(m.form_date)', 'ASC');
+
+        return $this->db->get()->result();
+    }
+    
+    public function get_antigen_2_5_graph($filters)
+    {
+        $this->db->select("
+            DATE(m.form_date) as form_date,
+            d.option_id,
+            COUNT(*) as total
+        ");
+
+        $this->db->from('child_health_detail d');
+        $this->db->join('child_health_master m', 'm.master_id = d.master_id');
+
+        // ✅ Question ID 7 (2–5 Years)
+        $this->db->where('d.question_id', 7);
+
+        // Selected antigen filters
+        if (!empty($filters['antigens_2_5_years'])) {
+            $this->db->where_in('d.option_id', $filters['antigens_2_5_years']);
+        }
+
+        // UC filter
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        // Date filter
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        // Outreach only
+        $this->db->where('m.visit_type', 'Outreach');
+
+        $this->db->group_by([
+            'DATE(m.form_date)',
+            'd.option_id'
+        ]);
+
+        $this->db->order_by('DATE(m.form_date)', 'ASC');
+
+        return $this->db->get()->result();
     }
 
 }

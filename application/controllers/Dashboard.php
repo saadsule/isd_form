@@ -59,7 +59,11 @@ class Dashboard extends CI_Controller {
             'end'         => $this->input->get('end'),
             'age_group'   => $this->input->get('age_group'),
             'gender'      => $this->input->get('gender'),
-            'client_type' => $this->input->get('client_type')
+            'client_type' => $this->input->get('client_type'),
+            'vaccination_history' => $this->input->get('vaccination_history'),
+            'antigens' => $this->input->get('antigens'),
+            'antigens_1_2_years' => $this->input->get('antigens_1_2_years'),
+            'antigens_2_5_years' => $this->input->get('antigens_2_5_years'),
         ];
 
         $data['filters'] = $filters;
@@ -81,8 +85,16 @@ class Dashboard extends CI_Controller {
         // Only fetch data if filter applied
         if ($isFilterApplied) {
             $data['graph_data'] = $this->Dashboard_model->get_outreach_graph($filters);
+            $data['plot2_data']  = $this->Dashboard_model->get_vaccination_history_graph($filters);
+            $data['plot3_data']  = $this->Dashboard_model->get_antigen_under1_graph($filters);
+            $data['plot4_data']   = $this->Dashboard_model->get_antigen_1_2_graph($filters);
+            $data['plot5_data']   = $this->Dashboard_model->get_antigen_2_5_graph($filters);
         } else {
             $data['graph_data'] = [];
+            $data['plot2_data'] = [];
+            $data['plot3_data'] = [];
+            $data['plot4_data']   = [];
+            $data['plot5_data']   = [];
         }
 
         $data['main_content'] = $this->load->view('dashboard/outreach_view', $data, TRUE);
