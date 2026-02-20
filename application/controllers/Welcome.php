@@ -34,6 +34,9 @@ class Welcome extends CI_Controller {
 
         // Totals
         $data['total_forms'] = $this->Forms_model->get_total_forms();
+        
+        $data['total_parcel_forms'] = $this->Forms_model->get_total_parcel_forms();
+        
         $data['child_health_total'] = $this->Forms_model->get_child_health_total();
         $data['opd_total'] = $this->Forms_model->get_opd_total();
         $data['today_total'] = $this->Forms_model->get_today_total();

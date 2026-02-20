@@ -104,7 +104,9 @@
 
                 <div class="flex-grow-1 ms-2 ml-3">
                     <h6 class="card-title mb-1">Target Population</h6>
-                    <h4 class="fw-bold mb-0 text-end"><?= number_format(142359) ?></h4>
+                    <h4 class="fw-bold mb-0 text-end">
+                        <?= isset($summary->total_population) ? number_format($summary->total_population) : 0 ?>
+                    </h4>
                 </div>
 
             </div>
@@ -122,7 +124,7 @@
 
                 <div class="flex-grow-1 ms-2 ml-3">
                     <h6 class="card-title mb-1">Health Facilities</h6>
-                    <h4 class="fw-bold mb-0 text-end"><?= 78 ?></h4>
+                    <h4 class="fw-bold mb-0 text-end"><?= $summary->total_facilities ? $summary->total_facilities : 0 ?></h4>
                 </div>
 
             </div>

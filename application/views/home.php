@@ -54,25 +54,72 @@
         </div>
 
         <!-- Today's Progress -->
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card shadow-sm border-start border-4 border-info hover-shadow">
-                    <div class="card-body d-flex align-items-center justify-content-center gap-4">
-                        <div class="icon-holder bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width:70px; height:70px; font-size:30px;">
-                            <i class="anticon anticon-calendar"></i>
-                        </div>
-                        <div class="text-center">
-                            <h6 class="text-uppercase fw-bold mb-2">Today's Progress</h6>
-                            <h2 class="fw-bold mb-1"><?= $today_total ?></h2>
-                            <small class="text-muted">Forms entered today</small>
-                        </div>
+        <div class="row mt-2">
+            <!-- Today's Progress -->
+            <div class="col-md-6">
+            <!-- Today's Progress -->
+            <div class="card shadow-sm border-start border-4 border-info hover-shadow">
+                <div class="card-body d-flex align-items-center justify-content-center gap-4">
+                    <div class="icon-holder bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width:70px; height:70px; font-size:30px;">
+                        <i class="anticon anticon-calendar"></i>
+                    </div>
+                    <div class="text-center">
+                        <h6 class="text-uppercase fw-bold mb-2">Today's Progress</h6>
+                        <h2 class="fw-bold mb-1"><?= $today_total ?></h2>
+                        <small class="text-muted">Forms entered today</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Parcel Forms -->
+            <div class="card shadow-sm border-start border-4 border-success hover-shadow mt-3">
+                <div class="card-body d-flex align-items-center justify-content-center gap-4">
+                    <div class="icon-holder bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width:70px; height:70px; font-size:30px;">
+                        <i class="anticon anticon-file-text"></i> <!-- Changed icon -->
+                    </div>
+                    <div class="text-center">
+                        <h6 class="text-uppercase fw-bold mb-2">Total Parcel Forms</h6>
+                        <h2 class="fw-bold mb-1"><?= $total_parcel_forms ?></h2>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Submission Progress -->
+        <div class="col-md-6">
+        <?php 
+            $progress_percent = $total_parcel_forms > 0 ? round(($total_forms / $total_parcel_forms) * 100) : 0; 
+        ?>
+        <div class="card shadow-sm border-start border-4 border-success hover-shadow">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height:230px;">
+                <!-- Heading Centered -->
+                <h5 class="text-center mb-3">Submission Progress</h5>
+
+                <!-- Chart and Number -->
+                <div class="position-relative" style="width:150px; height:150px;">
+                    <!-- Canvas -->
+                    <canvas class="chart m-h-auto" id="porgress-chart" width="150" height="150" style="display:block; width:150px; height:150px;"></canvas>
+
+                    <!-- Center Number -->
+                    <h2 class="text-center text-large m-0 text-success font-weight-normal" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+                        <?= $total_forms.'/'.$total_parcel_forms ?>
+                    </h2>
+                </div>
+
+                <!-- Progress % -->
+                <div class="d-flex justify-content-center align-items-center mt-3">
+                    <span class="badge badge-success badge-dot m-r-10"></span>
+                    <span><span class="font-weight-semibold"><?= $progress_percent ?>%</span> of Your Goal</span>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+    <script src="<?= base_url('assets/vendors/chartjs/Chart.min.js') ?>"></script>
+    <script src="<?= base_url('assets/js/pages/dashboard-crm.js') ?>"></script>
 <style>
 .hover-shadow {
     transition: all 0.3s ease;

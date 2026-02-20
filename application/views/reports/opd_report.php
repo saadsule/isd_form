@@ -73,7 +73,7 @@
             <?php else: ?>
                 <a href="<?= base_url('forms/opd_report?rejected=1') ?>" 
                    class="btn btn-danger mr-2 ml-2">
-                    <i class="fa fa-times-circle"></i> My Rejected Entries
+                    <i class="fa fa-times-circle"></i> My Rejected Forms
                 </a>
             <?php endif; ?>
         <?php endif; ?>

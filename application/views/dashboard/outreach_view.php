@@ -106,18 +106,15 @@
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <div id="outreachChart" style="height: 450px;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BAR GRAPH -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div id="outreachBarChart" style="height: 450px;"></div>
+
+                        <?php if(!$isFilterApplied): ?>
+                            <div class="text-center p-5">
+                                <h5 class="text-muted">Please select filter(s) to view data</h5>
+                            </div>
+                        <?php else: ?>
+                            <div id="outreachChart" style="height: 450px;"></div>
+                        <?php endif; ?>
+
                     </div>
                 </div>
             </div>
@@ -141,137 +138,101 @@ document.addEventListener("DOMContentLoaded", function(){
         width:'100%'
     });
 
-    // Initialize datepicker without autocomplete
+    // Initialize datepicker
     $('.datepicker-input').datepicker({
         format:'yyyy-mm-dd',
         autoclose:true
     });
 
-    // Graph data from controller
-    var graphData = <?= json_encode($graph_data); ?>;
+    <?php if($isFilterApplied): ?>
 
-    // Get unique days for x-axis (daily)
-    var days = [];
-    graphData.forEach(function(row){
-        if(!days.includes(row.form_date)) days.push(row.form_date);
-    });
+        var graphData = <?= json_encode($graph_data); ?>;
 
-    // Prepare series: combine gender + age group + visit type
-    var seriesMap = {};
-    graphData.forEach(function(row){
-        var seriesName = row.gender + ' ' + row.age_group + ' (' + row.client_type + ')';
-        if(!seriesMap[seriesName]) seriesMap[seriesName] = Array(days.length).fill(0);
-        var dayIndex = days.indexOf(row.form_date);
-        seriesMap[seriesName][dayIndex] = parseInt(row.total);
-    });
-
-    var seriesData = [];
-    for(var key in seriesMap) seriesData.push({name:key, data:seriesMap[key]});
-
-    // Render Highcharts line chart (daily)
-    Highcharts.chart('outreachChart', {
-        chart: { type:'line' },
-        exporting: {
-            enabled: true,
-            buttons: {
-                contextButton: {
-                    menuItems: [
-                        'viewFullscreen',
-                        'printChart',
-                        'separator',
-                        'downloadPNG',
-                        'downloadJPEG',
-                        'downloadPDF',
-                        'downloadSVG',
-                        'separator',
-                        'downloadCSV',
-                        'downloadXLS',
-                        'viewData'
-                    ]
-                }
-            }
-        },
-        title: { text:'Daily Outreach Trend' },
-        xAxis: { categories: days, title:{ text:'Date' } },
-        yAxis: { title:{ text:'Number of Cases' }, allowDecimals:false },
-        tooltip:{ shared:true },
-        series: seriesData,
-        responsive:{
-            rules:[{
-                condition:{ maxWidth:600 },
-                chartOptions:{ legend:{ layout:'horizontal', align:'center', verticalAlign:'bottom' } }
-            }]
+        // If no data found
+        if (!graphData || graphData.length === 0) {
+            document.getElementById("outreachChart").innerHTML =
+                "<div class='text-center p-5 text-muted'>No data found for selected filters</div>";
+            return;
         }
-    });
-    
-    // Render Highcharts BAR chart (daily)
-    Highcharts.chart('outreachBarChart', {
 
-        chart: {
-            type: 'column'   // 👈 same style as your example
-        },
-
-        title: {
-            text: 'Daily Outreach Cases'
-        },
-
-        subtitle: {
-            text: 'Gender + Age Group + Visit Type Distribution'
-        },
-
-        exporting: {
-            enabled: true
-        },
-
-        xAxis: {
-            categories: days,   // 👈 Dates on X-axis
-            crosshair: true,
-            title: {
-                text: 'Date'
+        // Get unique dates
+        var days = [];
+        graphData.forEach(function(row){
+            if (!days.includes(row.form_date)) {
+                days.push(row.form_date);
             }
-        },
+        });
 
-        yAxis: {
-            min: 0,
-            title: {
-                text: 'Number of Cases'
-            },
-            allowDecimals: false
-        },
+        // Prepare series
+        var seriesMap = {};
+        graphData.forEach(function(row){
+            var seriesName = row.gender + ' ' + row.age_group + ' (' + row.client_type + ')';
 
-        tooltip: {
-            shared: true,
-            useHTML: true
-        },
-
-        plotOptions: {
-            column: {
-                borderRadius: 5,
-                dataLabels: {
-                    enabled: true
-                }
+            if (!seriesMap[seriesName]) {
+                seriesMap[seriesName] = Array(days.length).fill(0);
             }
-        },
 
-        series: seriesData,
+            var dayIndex = days.indexOf(row.form_date);
+            seriesMap[seriesName][dayIndex] = parseInt(row.total);
+        });
 
-        responsive: {
-            rules: [{
-                condition: {
-                    maxWidth: 600
-                },
-                chartOptions: {
-                    legend: {
-                        layout: 'horizontal',
-                        align: 'center',
-                        verticalAlign: 'bottom'
+        var seriesData = [];
+        for (var key in seriesMap) {
+            seriesData.push({
+                name: key,
+                data: seriesMap[key]
+            });
+        }
+
+        // Render Highcharts
+        Highcharts.chart('outreachChart', {
+            chart: { type:'spline' },
+            exporting: {
+                enabled: true,
+                buttons: {
+                    contextButton: {
+                        menuItems: [
+                            'viewFullscreen',
+                            'printChart',
+                            'separator',
+                            'downloadPNG',
+                            'downloadJPEG',
+                            'downloadPDF',
+                            'downloadSVG',
+                            'separator',
+                            'downloadCSV',
+                            'downloadXLS',
+                            'viewData'
+                        ]
                     }
                 }
-            }]
-        }
+            },
+            title: { text:'Daily Outreach Trend' },
+            xAxis: { 
+                categories: days,
+                title:{ text:'Date' }
+            },
+            yAxis: { 
+                title:{ text:'Number of Cases' },
+                allowDecimals:false
+            },
+            tooltip:{ shared:true },
+            series: seriesData,
+            responsive:{
+                rules:[{
+                    condition:{ maxWidth:600 },
+                    chartOptions:{
+                        legend:{
+                            layout:'horizontal',
+                            align:'center',
+                            verticalAlign:'bottom'
+                        }
+                    }
+                }]
+            }
+        });
 
-    });
-
+    <?php endif; ?>
 });
 </script>
 

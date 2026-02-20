@@ -343,5 +343,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
         return $ch_today + $opd_today;
     }
+    
+    public function get_total_parcel_forms()
+    {
+        $this->db->select_sum('total_forms_in_parcel');
+        $query = $this->db->get('parcel_forms'); // your table name
+        $row = $query->row();
+        return $row ? $row->total_forms_in_parcel : 0;
+    }
 
 }
