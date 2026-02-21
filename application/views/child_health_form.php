@@ -256,7 +256,7 @@ $details = isset($details) ? $details : array();
 </div>
 
 <div class="form-group row" id="facility-field">
-    <label class="col-sm-2 col-form-label">Facility *</label>
+    <label class="col-sm-2 col-form-label">Facility</label>
     <div class="col-sm-4">
         <select name="facility_id" id="facility" class="form-control">
             <option value="">Select Facility</option>
@@ -614,10 +614,8 @@ $(document).ready(function() {
         const visitType = $('input[name="visit_type"]:checked').val();
         if (visitType === 'Fixed Site') {
             $('#facility-field').show();
-            $('#facility').find('select').attr('required', true); // target the select
         } else {
             $('#facility-field').hide();
-            $('#facility').find('select').removeAttr('required'); // remove required
         }
     }
 
