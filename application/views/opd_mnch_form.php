@@ -196,13 +196,12 @@ action="<?= isset($is_edit) && $is_edit
 
     <!-- Right: QR Code -->
     <div class="col-md-4 ms-auto">
-        <label class="form-label font-weight-bold d-block">QR Code# *</label>
+        <label class="form-label font-weight-bold d-block">QR Code#</label>
         <input type="text" 
                id="qr_input"
                name="qr_code" 
                class="form-control"
-               value="<?= isset($rec->qr_code) ? $rec->qr_code : '' ?>" 
-               required>
+               value="<?= isset($rec->qr_code) ? $rec->qr_code : '' ?>" >
     </div>
     <div class="col-sm-4">
         <label class="form-label font-weight-bold d-block">&nbsp;</label>
@@ -275,9 +274,9 @@ action="<?= isset($is_edit) && $is_edit
 </div>
 
 <div class="form-group row" id="facility-field">
-    <label class="col-sm-2 col-form-label">Facility *</label>
+    <label class="col-sm-2 col-form-label">Facility</label>
     <div class="col-sm-4">
-        <select name="facility_id" id="facility" class="form-control" required>
+        <select name="facility_id" id="facility" class="form-control">
             <option value="">Select Facility</option>
             <?php if(isset($facilities) && $facilities): ?>
                 <?php foreach($facilities as $f): ?>
