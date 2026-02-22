@@ -142,9 +142,9 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
 </div>
 <table class="table table-bordered">
 <tr>
-    <th>Date</th>
+    <th>1. Date</th>
     <td><?= $form->form_date ?: '-' ?></td>
-    <th>QR Code#</th>
+    <th>2. QR Code#</th>
     <td><?= $form->qr_code ?: '-' ?></td>
 </tr>
 <tr>
@@ -154,21 +154,21 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
     <td><?= $form->visit_type ?: '-' ?></td>
 </tr>
 <tr>
-    <th>District</th>
+    <th>3. District</th>
     <td><?= $form->district_name ?: '-' ?></td>
-    <th>UC</th>
+    <th>4. UC</th>
     <td><?= $form->uc_name ?: '-' ?></td>
 </tr>
 <tr>
-    <th>HF/Village</th>
+    <th>5. HF/Village</th>
     <td><?= $form->village ?: '-' ?></td>
-    <th>Vaccinator name</th>
+    <th>6. Vaccinator name</th>
     <td><?= $form->vaccinator_name ?: '-' ?></td>
 </tr>
 <tr>
-    <th>Patient’s name</th>
+    <th>7. Patient’s name</th>
     <td><?= $form->patient_name ?: '-' ?></td>
-    <th>Father/ Husband’s name</th>
+    <th>8. Father/ Husband’s name</th>
     <td><?= $form->guardian_name ?: '-' ?></td>
 </tr>
 <?php if(isset($form->visit_type) && $form->visit_type == 'Fixed Site') { ?>
@@ -199,9 +199,9 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
         }
     ?>
     <tr>
-        <th>DOB</th>
+        <th>9. DOB</th>
         <td><?= !empty($form->dob) ? $form->dob : '-' ?></td>
-        <th>Age</th>
+        <th>10. Age</th>
         <td><?= $age_display ?></td>
     </tr>
 
@@ -209,28 +209,28 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
         <th>Age Group</th>
         <td><?= $form->age_group ?: '-' ?></td>
 
-        <th>Gender</th>
+        <th>11. Gender</th>
         <td><?= $form->gender ?: '-' ?></td>
     </tr>
 
     <tr>
-        <th>Marital Status</th>
+        <th>12. Marital Status</th>
         <td><?= $form->marital_status ?: '-' ?></td>
 
-        <th>Pregnancy Status</th>
+        <th>13. Pregnancy Status</th>
         <td><?= $form->pregnancy_status ?: '-' ?></td>
     </tr>
 
     <tr>
-        <th>Disability</th>
+        <th>14. Disability</th>
         <td><?= $form->disability ?: '-' ?></td>
 
-        <th>Play & Learning Kit</th>
+        <th>15. Play & Learning Kit</th>
         <td><?= $form->play_learning_kit ?: '-' ?></td>
     </tr>
 
     <tr>
-        <th>Nutrition Package</th>
+        <th>16. Nutrition Package</th>
         <td><?= $form->nutrition_package ?: '-' ?></td>
 
         <th></th>

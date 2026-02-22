@@ -281,28 +281,27 @@ class Dashboard_model extends CI_Model {
     public function get_vaccination_history_graph($filters)
     {
         $this->db->select("
+            d.question_id,
             DATE(m.form_date) as form_date,
             d.option_id,
-            COUNT(*) as total
+            d.answer,
+            COUNT(d.detail_id) as total
         ");
 
         $this->db->from('child_health_detail d');
+        $this->db->join('questions q', 'q.question_id = d.question_id');
         $this->db->join('child_health_master m', 'm.master_id = d.master_id');
 
-        // Only vaccination question (if needed)
         $this->db->where_in('d.question_id', [1,2,3,4]);
 
-        // Filter by selected vaccination options
         if (!empty($filters['vaccination_history'])) {
             $this->db->where_in('d.option_id', $filters['vaccination_history']);
         }
 
-        // UC filter
         if (!empty($filters['uc'])) {
             $this->db->where_in('m.uc', $filters['uc']);
         }
 
-        // Date range filter
         if (!empty($filters['start'])) {
             $this->db->where('DATE(m.form_date) >=', $filters['start']);
         }
@@ -314,10 +313,13 @@ class Dashboard_model extends CI_Model {
         $this->db->where('m.visit_type', 'Outreach');
 
         $this->db->group_by([
-            'DATE(m.form_date)',
-            'd.option_id'
+            'd.question_id',
+            'd.option_id',
+            'd.answer',
+            'DATE(m.form_date)'
         ]);
 
+        $this->db->order_by('d.option_id', 'ASC');
         $this->db->order_by('DATE(m.form_date)', 'ASC');
 
         return $this->db->get()->result();

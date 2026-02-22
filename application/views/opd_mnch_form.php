@@ -222,9 +222,9 @@ action="<?= isset($is_edit) && $is_edit
 
     <!-- ANC Card -->
     <div class="col-sm-4 mb-3">
-        <label class="form-label font-weight-bold d-block">ANC Card# (In case of MNCH) *</label>
+        <label class="form-label font-weight-bold d-block">ANC Card# (In case of MNCH)</label>
         <input type="text" name="anc_card_no" class="form-control"
-               value="<?= $rec ? htmlspecialchars($rec->anc_card_no):'' ?>" required>
+               value="<?= $rec ? htmlspecialchars($rec->anc_card_no):'' ?>">
     </div>
 
     <!-- Client Type -->

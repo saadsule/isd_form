@@ -78,7 +78,6 @@ class Questions_model extends CI_Model {
         // Get all active questions for the form type, ordered by section and order
         $this->db->where('form_type', $form_type);
         $this->db->where('status', 1);
-        $this->db->order_by('q_section', 'ASC'); // optional: alphabetical sections
         $this->db->order_by('q_order', 'ASC');   // question order
         $questions = $this->db->get('questions')->result();
 

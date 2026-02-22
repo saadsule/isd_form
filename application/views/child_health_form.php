@@ -503,12 +503,13 @@ foreach($questions as $q){
 <?php foreach($section_questions as $q): ?>
 
 <div class="form-group row">
-<label class="col-sm-5 col-form-label">
-    <span class="q-num"><?= $q->q_num; ?></span>
-    <?= htmlspecialchars($q->q_text) ?>
-</label>
-
-<div class="col-sm-7">
+<?php if(isset($q->q_text) && !empty($q->q_text)) { ?>
+    <label class="col-sm-5 col-form-label">
+        <span class="q-num"><?= $q->q_num; ?></span>
+        <?= htmlspecialchars($q->q_text) ?>
+    </label>
+<?php } ?>
+<div class="<?= (in_array($q->question_id, [5,6,7]) && $q->q_type=='checkbox') ? 'col-sm-12' : 'col-sm-7' ?>">
 
 <?php $options = isset($q->options) ? $q->options : array(); ?>
 
@@ -518,6 +519,39 @@ foreach($questions as $q){
 name="question[<?= $q->question_id ?>][0]"
 class="form-control"
 value="<?= isset($rec->question[$q->question_id][0]) ? $rec->question[$q->question_id][0] : '' ?>">
+
+<?php else: ?>
+
+<?php if(in_array($q->question_id, [5,6,7]) && $q->q_type=='checkbox'): ?>
+
+<div class="row">
+<?php $count = 0; ?>
+<?php foreach($options as $opt): ?>
+
+    <div class="col-md-2 mb-2">
+        <div class="form-check">
+            <input class="form-check-input"
+            type="checkbox"
+            name="question[<?= $q->question_id ?>][]"
+            value="<?= $opt->option_id; ?>"
+            <?= (isset($rec->question[$q->question_id]) && in_array($opt->option_id, (array)$rec->question[$q->question_id])) ? 'checked' : '' ?>>
+
+            <label class="form-check-label">
+                <?= htmlspecialchars($opt->option_text); ?>
+            </label>            
+        </div>
+    </div>
+
+<?php 
+$count++;
+if($count % 5 == 0 && $count < count($options)): 
+?>
+    </div>
+<div class="row">
+<?php endif; ?>
+
+<?php endforeach; ?>
+</div>
 
 <?php else: ?>
 
@@ -536,6 +570,8 @@ value="<?= $opt->option_id; ?>"
 </div>
 
 <?php endforeach; ?>
+
+<?php endif; ?>
 
 <?php endif; ?>
 

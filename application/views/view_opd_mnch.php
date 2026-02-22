@@ -144,9 +144,9 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
 </div>
 <table class="table table-bordered">
 <tr>
-    <th>Date</th>
+    <th>1. Date</th>
     <td><?= !empty($master->form_date) ? $master->form_date : '-' ?></td>
-    <th>ANC Card # (In case of MNCH)</th>
+    <th>2. ANC Card # (In case of MNCH)</th>
     <td><?= !empty($master->anc_card_no) ? $master->anc_card_no : '-' ?></td>
 </tr>
 <tr>
@@ -156,21 +156,21 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
     <td><?= !empty($master->client_type) ? $master->client_type : '-' ?></td>
 </tr>
 <tr>
-    <th>District</th>
+    <th>3. District</th>
     <td><?= !empty($master->district_name) ? $master->district_name : '-' ?></td>
-    <th>UC</th>
+    <th>4. UC</th>
     <td><?= !empty($master->uc_name) ? $master->uc_name : '-' ?></td>
 </tr>
 <tr>
-    <th>HF/Village</th>
+    <th>5. HF/Village</th>
     <td><?= !empty($master->village) ? $master->village : '-' ?></td>
-    <th>HT/ LHV Name</th>
+    <th>6. HT/ LHV Name</th>
     <td><?= !empty($master->lhv_name) ? $master->lhv_name : '-' ?></td>
 </tr>
 <tr>
-    <th>Patient’s name</th>
+    <th>7. Patient’s name</th>
     <td><?= !empty($master->patient_name) ? $master->patient_name : '-' ?></td>
-    <th>Father/ Husband’s name</th>
+    <th>8. Father/ Husband’s name</th>
     <td><?= !empty($master->guardian_name) ? $master->guardian_name : '-' ?></td>
 </tr>
 <tr>
