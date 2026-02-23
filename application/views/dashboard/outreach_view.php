@@ -415,6 +415,7 @@ foreach($plot2_data as $row){
 }
 
 $days = array_values($days);
+sort($days);
 
 // Option labels
 $labels = [
@@ -502,6 +503,7 @@ foreach($plot3_data as $row){
 }
 
 $days3 = array_values($days3);
+sort($days3);
 
 foreach($temp3 as $option_id => $dateData){
     $dataPoints = [];
@@ -561,6 +563,7 @@ foreach($plot4_data as $row){
 }
 
 $days4 = array_values($days4);
+sort($days4);
 
 foreach($temp4 as $option_id => $dateData){
     $dataPoints = [];
@@ -620,6 +623,7 @@ foreach($plot5_data as $row){
 }
 
 $days5 = array_values($days5);
+sort($days5);
 
 foreach($temp5 as $option_id => $dateData){
     $dataPoints = [];
