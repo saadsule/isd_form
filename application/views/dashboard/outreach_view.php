@@ -447,12 +447,15 @@ document.addEventListener("DOMContentLoaded", function(){
 
 <?php
 $days = [];
-$series = [];
+$seriesMap = [];
 $temp = [];
 
 foreach($plot2_data as $row){
     $days[$row->form_date] = $row->form_date;
-    $temp[$row->option_id][$row->form_date] = (int)$row->total;
+    
+    // Create unique series key per option + gender + age group
+    $key = $row->option_id . '|' . $row->gender . '|' . $row->age_group;
+    $temp[$key][$row->form_date] = (int)$row->total;
 }
 
 $days = array_values($days);
@@ -473,14 +476,19 @@ $labels = [
     11 => "Religious Refusal"
 ];
 
-foreach($temp as $option_id => $dateData){
+// Prepare series
+$series = [];
+foreach($temp as $key => $dateData){
+    list($option_id, $gender, $age_group) = explode('|', $key);
+
     $dataPoints = [];
     foreach($days as $d){
         $dataPoints[] = isset($dateData[$d]) ? $dateData[$d] : 0;
     }
 
     $series[] = [
-        'name' => isset($labels[$option_id]) ? $labels[$option_id] : 'Option '.$option_id,
+        'name' => (isset($labels[$option_id]) ? $labels[$option_id] : 'Option '.$option_id)
+                  . ' (' . $gender . ' / ' . $age_group . ')',
         'data' => $dataPoints
     ];
 }
@@ -538,22 +546,30 @@ foreach($q as $row){
     $antigen_labels[$row->option_id] = $row->option_text;
 }
 
+// Prepare temp array with unique key: option + gender + age group
 foreach($plot3_data as $row){
     $days3[$row->form_date] = $row->form_date;
-    $temp3[$row->option_id][$row->form_date] = (int)$row->total;
+
+    // Unique series key per option + gender + age group
+    $key = $row->option_id . '|' . $row->gender . '|' . $row->age_group;
+    $temp3[$key][$row->form_date] = (int)$row->total;
 }
 
 $days3 = array_values($days3);
 sort($days3);
 
-foreach($temp3 as $option_id => $dateData){
+// Prepare series array
+foreach($temp3 as $key => $dateData){
+    list($option_id, $gender, $age_group) = explode('|', $key);
+
     $dataPoints = [];
     foreach($days3 as $d){
         $dataPoints[] = isset($dateData[$d]) ? $dateData[$d] : 0;
     }
 
     $series3[] = [
-        'name' => isset($antigen_labels[$option_id]) ? $antigen_labels[$option_id] : 'Option '.$option_id,
+        'name' => (isset($antigen_labels[$option_id]) ? $antigen_labels[$option_id] : 'Option '.$option_id)
+                  . ' (' . $gender . ' / ' . $age_group . ')',
         'data' => $dataPoints
     ];
 }
@@ -598,22 +614,30 @@ foreach($q4 as $row){
     $labels4[$row->option_id] = $row->option_text;
 }
 
+// Prepare temp array with unique key: option + gender + age group
 foreach($plot4_data as $row){
     $days4[$row->form_date] = $row->form_date;
-    $temp4[$row->option_id][$row->form_date] = (int)$row->total;
+
+    // Unique series key per option + gender + age group
+    $key = $row->option_id . '|' . $row->gender . '|' . $row->age_group;
+    $temp4[$key][$row->form_date] = (int)$row->total;
 }
 
 $days4 = array_values($days4);
 sort($days4);
 
-foreach($temp4 as $option_id => $dateData){
+// Prepare series array
+foreach($temp4 as $key => $dateData){
+    list($option_id, $gender, $age_group) = explode('|', $key);
+
     $dataPoints = [];
     foreach($days4 as $d){
         $dataPoints[] = isset($dateData[$d]) ? $dateData[$d] : 0;
     }
 
     $series4[] = [
-        'name' => isset($labels4[$option_id]) ? $labels4[$option_id] : 'Option '.$option_id,
+        'name' => (isset($labels4[$option_id]) ? $labels4[$option_id] : 'Option '.$option_id)
+                  . ' (' . $gender . ' / ' . $age_group . ')',
         'data' => $dataPoints
     ];
 }
@@ -658,22 +682,30 @@ foreach($q5 as $row){
     $labels5[$row->option_id] = $row->option_text;
 }
 
+// Prepare temp array with unique key: option + gender + age group
 foreach($plot5_data as $row){
     $days5[$row->form_date] = $row->form_date;
-    $temp5[$row->option_id][$row->form_date] = (int)$row->total;
+
+    // Unique series key per option + gender + age group
+    $key = $row->option_id . '|' . $row->gender . '|' . $row->age_group;
+    $temp5[$key][$row->form_date] = (int)$row->total;
 }
 
 $days5 = array_values($days5);
 sort($days5);
 
-foreach($temp5 as $option_id => $dateData){
+// Prepare series array
+foreach($temp5 as $key => $dateData){
+    list($option_id, $gender, $age_group) = explode('|', $key);
+
     $dataPoints = [];
     foreach($days5 as $d){
         $dataPoints[] = isset($dateData[$d]) ? $dateData[$d] : 0;
     }
 
     $series5[] = [
-        'name' => isset($labels5[$option_id]) ? $labels5[$option_id] : 'Option '.$option_id,
+        'name' => (isset($labels5[$option_id]) ? $labels5[$option_id] : 'Option '.$option_id)
+                  . ' (' . $gender . ' / ' . $age_group . ')',
         'data' => $dataPoints
     ];
 }

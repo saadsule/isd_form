@@ -285,7 +285,9 @@ class Dashboard_model extends CI_Model {
             DATE(m.form_date) as form_date,
             d.option_id,
             d.answer,
-            COUNT(d.detail_id) as total
+            COUNT(d.detail_id) as total,
+            m.gender,
+            m.age_group
         ");
 
         $this->db->from('child_health_detail d');
@@ -326,7 +328,9 @@ class Dashboard_model extends CI_Model {
             'd.question_id',
             'd.option_id',
             'd.answer',
-            'DATE(m.form_date)'
+            'DATE(m.form_date)',
+            'm.gender',
+            'm.age_group'
         ]);
 
         $this->db->order_by('d.option_id', 'ASC');
@@ -344,7 +348,9 @@ class Dashboard_model extends CI_Model {
         $this->db->select("
             DATE(m.form_date) as form_date,
             d.option_id,
-            COUNT(*) as total
+            COUNT(*) as total,
+            m.gender,
+            m.age_group
         ");
 
         $this->db->from('child_health_detail d');
@@ -387,7 +393,9 @@ class Dashboard_model extends CI_Model {
 
         $this->db->group_by([
             'DATE(m.form_date)',
-            'd.option_id'
+            'd.option_id',
+            'm.gender',
+            'm.age_group'
         ]);
 
         $this->db->order_by('DATE(m.form_date)', 'ASC');
@@ -400,7 +408,9 @@ class Dashboard_model extends CI_Model {
         $this->db->select("
             DATE(m.form_date) as form_date,
             d.option_id,
-            COUNT(*) as total
+            COUNT(*) as total,
+            m.gender,
+            m.age_group
         ");
 
         $this->db->from('child_health_detail d');
@@ -443,7 +453,9 @@ class Dashboard_model extends CI_Model {
 
         $this->db->group_by([
             'DATE(m.form_date)',
-            'd.option_id'
+            'd.option_id',
+            'm.gender',
+            'm.age_group'
         ]);
 
         $this->db->order_by('DATE(m.form_date)', 'ASC');
@@ -456,7 +468,9 @@ class Dashboard_model extends CI_Model {
         $this->db->select("
             DATE(m.form_date) as form_date,
             d.option_id,
-            COUNT(*) as total
+            COUNT(*) as total,
+            m.gender,
+            m.age_group
         ");
 
         $this->db->from('child_health_detail d');
@@ -499,7 +513,9 @@ class Dashboard_model extends CI_Model {
 
         $this->db->group_by([
             'DATE(m.form_date)',
-            'd.option_id'
+            'd.option_id',
+            'm.gender',
+            'm.age_group'
         ]);
 
         $this->db->order_by('DATE(m.form_date)', 'ASC');
