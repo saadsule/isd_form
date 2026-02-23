@@ -321,7 +321,7 @@ class Dashboard_model extends CI_Model {
 
         $this->db->order_by('d.option_id', 'ASC');
         $this->db->order_by('DATE(m.form_date)', 'ASC');
-
+        
         return $this->db->get()->result();
     }
     
@@ -462,5 +462,107 @@ class Dashboard_model extends CI_Model {
 
         return $this->db->get()->result();
     }
+    
+    public function get_summary_cards($filters)
+    {
+        $this->db->select('
+            COUNT(DISTINCT uc_id) AS total_ucs,
+            SUM(catchment_population) AS catchment_population
+        ');
+        $this->db->from('facilities');
 
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('uc_id', $filters['uc']);
+        }
+
+        $result = $this->db->get()->row();
+
+        return [
+            'catchment_population' => isset($result->catchment_population) ? $result->catchment_population : 0,
+            'total_ucs'            => isset($result->total_ucs) ? $result->total_ucs : 0,
+            'date_range'           => (!empty($filters['start']) ? $filters['start'] : '-') 
+                                    . ' to ' 
+                                    . (!empty($filters['end']) ? $filters['end'] : '-')
+        ];
+    }
+
+    public function get_visit_type_counts($filters)
+    {
+        $this->db->select('visit_type, COUNT(master_id) as total');
+        $this->db->from('child_health_master');
+
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(form_date) <=', $filters['end']);
+        }
+        
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('visit_type', $filters['visit_type']);
+        }
+
+        $this->db->group_by('visit_type');
+
+        $result = $this->db->get()->result();
+
+        $outreach = 0;
+        $fixed    = 0;
+
+        foreach($result as $row){
+            if($row->visit_type == 'Outreach') $outreach = $row->total;
+            if($row->visit_type == 'Fixed Site') $fixed = $row->total;
+        }
+
+        return [
+            'Outreach' => $outreach,
+            'Fixed'    => $fixed
+        ];
+    }
+    
+    public function get_client_type_counts($filters)
+    {
+        $this->db->select('client_type, COUNT(master_id) as total');
+        $this->db->from('child_health_master');
+
+        // Apply filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('visit_type', $filters['visit_type']);
+        }
+
+        $this->db->group_by('client_type');
+        $result = $this->db->get()->result();
+
+        // Initialize counts
+        $newClient = 0;
+        $followUp = 0;
+
+        foreach ($result as $row) {
+            if (strtolower($row->client_type) == 'new') $newClient = $row->total;
+            if (strtolower($row->client_type) == 'followup') $followUp = $row->total;
+        }
+
+        return [
+            'New'      => $newClient,
+            'Followup' => $followUp
+        ];
+    }
+    
 }

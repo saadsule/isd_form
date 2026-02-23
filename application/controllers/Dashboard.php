@@ -100,5 +100,50 @@ class Dashboard extends CI_Controller {
         $data['main_content'] = $this->load->view('dashboard/outreach_view', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function child_health()
+    {
+        $data['page_title'] = "Child Health Dashboard";
+
+        // Get filters from GET
+        $filters = [
+            'uc'        => $this->input->get('uc'),
+            'start'     => $this->input->get('start'),
+            'end'       => $this->input->get('end'),
+            'visit_type'=> $this->input->get('visit_type'),
+        ];
+        $data['filters'] = $filters;
+
+        // Load UCs for filter dropdown
+        $data['ucs'] = $this->Dashboard_model->get_ucs();
+
+        // Load the main content view
+        $data['main_content'] = $this->load->view('dashboard/child_health', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
+    public function get_child_health_ajax()
+    {
+        $filters = $this->input->post();
+
+        // cards
+        $summary = $this->Dashboard_model->get_summary_cards($filters);
+
+        // Pie chart: Visit Type
+        $visit_counts = $this->Dashboard_model->get_visit_type_counts($filters);
+
+        // Pie chart: Client Type
+        $client_counts = $this->Dashboard_model->get_client_type_counts($filters);
+
+        echo json_encode([
+            'catchment_population' => $summary['catchment_population'],
+            'total_ucs'            => $summary['total_ucs'],
+            'date_range'           => $summary['date_range'],
+            'outreach'             => $visit_counts['Outreach'],
+            'fixed'                => $visit_counts['Fixed'],
+            'new_client'           => $client_counts['New'],
+            'followup_client'      => $client_counts['Followup']
+        ]);
+    }
 
 }

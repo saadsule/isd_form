@@ -524,31 +524,51 @@ value="<?= isset($rec->question[$q->question_id][0]) ? $rec->question[$q->questi
 
 <?php if(in_array($q->question_id, [5,6,7]) && $q->q_type=='checkbox'): ?>
 
+<?php
+// Sort options by option_order
+usort($options, function($a, $b) {
+    return $a->option_order - $b->option_order;
+});
+
+$columnDistribution = [
+    5 => [3,4,4,4,3],
+    6 => [4,4,3,3,1],
+    7 => [3,2,3,3,1],
+];
+
+$distribution = $columnDistribution[$q->question_id];
+$optionIndex = 0;
+?>
+
 <div class="row">
-<?php $count = 0; ?>
-<?php foreach($options as $opt): ?>
+
+<?php foreach($distribution as $colCount): ?>
 
     <div class="col-md-2 mb-2">
-        <div class="form-check">
-            <input class="form-check-input"
-            type="checkbox"
-            name="question[<?= $q->question_id ?>][]"
-            value="<?= $opt->option_id; ?>"
-            <?= (isset($rec->question[$q->question_id]) && in_array($opt->option_id, (array)$rec->question[$q->question_id])) ? 'checked' : '' ?>>
+        <?php for($i = 0; $i < $colCount; $i++): ?>
+            
+            <?php if(isset($options[$optionIndex])): 
+                $opt = $options[$optionIndex];
+            ?>
+            
+            <div class="form-check">
+                <input class="form-check-input"
+                    type="checkbox"
+                    name="question[<?= $q->question_id ?>][]"
+                    value="<?= $opt->option_id; ?>"
+                    <?= (isset($rec->question[$q->question_id]) && in_array($opt->option_id, (array)$rec->question[$q->question_id])) ? 'checked' : '' ?>>
 
-            <label class="form-check-label">
-                <?= htmlspecialchars($opt->option_text); ?>
-            </label>            
-        </div>
-    </div>
+                <label class="form-check-label">
+                    <?= htmlspecialchars($opt->option_text); ?>
+                </label>            
+            </div>
 
-<?php 
-$count++;
-if($count % 5 == 0 && $count < count($options)): 
-?>
+            <?php 
+                $optionIndex++; 
+            endif; ?>
+
+        <?php endfor; ?>
     </div>
-<div class="row">
-<?php endif; ?>
 
 <?php endforeach; ?>
 </div>
