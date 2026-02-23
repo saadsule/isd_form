@@ -8,11 +8,11 @@
         <!-- FILTERS -->
         <div class="row mb-3">
             <div class="col-12">
-                <form method="get" class="row g-2 align-items-end">
+                <form method="get" id="filterForm" class="row g-2 align-items-end">
 
                     <!-- UC Multiple Select -->
                     <div class="col-md-3">
-                        <label>Select UC(s)</label>
+                        <label>Select UC(s) *</label>
                         <div class="m-b-15">
                             <select class="select2" name="uc[]" multiple="multiple" style="width:100%">
                                 <?php foreach($ucs as $u): ?>
@@ -21,12 +21,13 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            <small class="text-danger error-message" data-for="uc[]"></small>
                         </div>
                     </div>
 
                     <!-- Gender -->
                     <div class="col-md-2">
-                        <label>Select Gender</label>
+                        <label>Select Gender *</label>
                         <div class="m-b-15">
                             <select class="select2" name="gender[]" multiple="multiple" style="width:100%">
                                 <?php
@@ -36,12 +37,13 @@
                                 }
                                 ?>
                             </select>
+                            <small class="text-danger error-message" data-for="gender[]"></small>
                         </div>
                     </div>
 
                     <!-- Age Group -->
                     <div class="col-md-3">
-                        <label>Select Age Group</label>
+                        <label>Select Age Group *</label>
                         <div class="m-b-15">
                             <select class="select2" name="age_group[]" multiple="multiple" style="width:100%">
                                 <?php
@@ -51,20 +53,21 @@
                                 }
                                 ?>
                             </select>
+                            <small class="text-danger error-message" data-for="age_group[]"></small>
                         </div>
                     </div>
 
                     <!-- Date Range Picker -->
                     <div class="col-md-4">
-                        <label>Select Date Range</label>
+                        <label>Select Date Range *</label>
                         <div class="d-flex align-items-center m-b-15">
                             <input type="text" class="form-control datepicker-input" name="start" placeholder="From" 
                                    autocomplete="off"
-                                   value="<?= isset($filters['start']) ? $filters['start'] : '' ?>">
+                                   value="<?= isset($filters['start']) ? $filters['start'] : '' ?>" required="">
                             <span class="p-h-10">to</span>
                             <input type="text" class="form-control datepicker-input" name="end" placeholder="To" 
                                    autocomplete="off"
-                                   value="<?= isset($filters['end']) ? $filters['end'] : '' ?>">
+                                   value="<?= isset($filters['end']) ? $filters['end'] : '' ?>" required="">
                         </div>
                     </div>
                     
@@ -204,7 +207,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
 
-                        <?php if(!$isFilterApplied): ?>
+                        <?php if(!$showPlot1): ?>
                             <div class="text-center p-5">
                                 <h5 class="text-muted">Please select filter(s) to view data</h5>
                             </div>
@@ -222,7 +225,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
 
-                        <?php if(!$isFilterApplied): ?>
+                        <?php if(!$showPlot2): ?>
                             <div class="text-center p-5">
                                 <h5 class="text-muted">Please select filter(s) to view data</h5>
                             </div>
@@ -240,7 +243,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
 
-                        <?php if(!$isFilterApplied): ?>
+                        <?php if(!$showPlot3): ?>
                             <div class="text-center p-5">
                                 <h5 class="text-muted">Please select filter(s) to view data</h5>
                             </div>
@@ -258,7 +261,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
 
-                        <?php if(!$isFilterApplied): ?>
+                        <?php if(!$showPlot4): ?>
                             <div class="text-center p-5">
                                 <h5 class="text-muted">Please select filter(s) to view data</h5>
                             </div>
@@ -276,7 +279,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
 
-                        <?php if(!$isFilterApplied): ?>
+                        <?php if(!$showPlot5): ?>
                             <div class="text-center p-5">
                                 <h5 class="text-muted">Please select filter(s) to view data</h5>
                             </div>
@@ -298,6 +301,44 @@
 <script src="<?= base_url('assets/highcharts/modules/accessibility.js') ?>"></script>
 
 <script>
+document.getElementById("filterForm").onsubmit = function(e) {
+
+    let requiredFields = ["uc[]", "gender[]", "age_group[]"];
+    let valid = true;
+
+    // Clear old errors
+    document.querySelectorAll(".error-message").forEach(el => el.innerHTML = "");
+    document.querySelectorAll(".select2-container").forEach(el => el.style.border = "");
+
+    requiredFields.forEach(function(name) {
+
+        let select = document.getElementsByName(name)[0];
+        let errorBox = document.querySelector('[data-for="'+name+'"]');
+
+        if (!select || select.selectedOptions.length === 0) {
+
+            valid = false;
+
+            // Add red border
+            let select2Box = select.nextElementSibling;
+            if (select2Box) {
+                select2Box.style.borderRadius = "4px";
+            }
+
+            // Show message
+            if (errorBox) {
+                errorBox.innerHTML = "This field is required.";
+            }
+        }
+
+    });
+
+    if (!valid) {
+        e.preventDefault();
+        return false;
+    }
+
+};
 document.addEventListener("DOMContentLoaded", function(){
 
     // Initialize Select2

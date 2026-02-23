@@ -218,59 +218,87 @@ window.onload = function() {
                         ]
                     }]
                 });
-
-                // 4️⃣ Pie – Gender
+                
+                var genderData = response.gender || { Male:0, Female:0, Other:0 };
                 Highcharts.chart('genderPieChart', {
                     chart: { type: 'pie' },
                     title: { text: 'Gender Distribution' },
                     series: [{
+                        name: 'Children',
                         colorByPoint: true,
                         data: [
-                            { name: 'Male', y: 120 },
-                            { name: 'Female', y: 95 }
+                            { name: 'Male', y: Number(genderData.Male) || 0 },
+                            { name: 'Female', y: Number(genderData.Female) || 0 },
+                            { name: 'Other', y: Number(genderData.Other) || 0 }
                         ]
                     }]
                 });
 
-                // 5️⃣ Column – Age Group
+                // Age Group Column Chart
+                var ageGroupData = response.age_group || {
+                    '<1 Year':0,
+                    '1-2 Year':0,
+                    '2-5 Year':0,
+                    '5-15 Year':0,
+                    '15-49 Year':0
+                };
+
                 Highcharts.chart('ageGroupColumnChart', {
                     chart: { type: 'column' },
                     title: { text: 'Age Group Distribution' },
-                    xAxis: { categories: ['0-11 Months', '1-2 Years', '3-5 Years', '6-10 Years'] },
-                    yAxis: { min: 0, title: { text: 'Total Children' } },
+                    xAxis: { 
+                        categories: Object.keys(ageGroupData),
+                        title: { text: 'Age Group' }
+                    },
+                    yAxis: { 
+                        min: 0, 
+                        title: { text: 'Total Children' } 
+                    },
                     series: [{
                         name: 'Children',
-                        data: [40, 60, 35, 25]
+                        data: Object.values(ageGroupData).map(Number)
                     }]
                 });
 
-                // 6️⃣ Doughnut – 17.1
+                // Q17.1 Doughnut Chart
+                var q171Data = response.q171 || { Yes:0, No:0, None:0 };
+
                 Highcharts.chart('q171DoughnutChart', {
                     chart: { type: 'pie' },
                     title: { text: 'Q 17.1 Response' },
-                    plotOptions: { pie: { innerSize: '60%' } },
+                    plotOptions: {
+                        pie: { innerSize: '60%', dataLabels: { enabled: true } }
+                    },
                     series: [{
+                        name: 'Responses',
+                        colorByPoint: true,
                         data: [
-                            ['Yes', 70],
-                            ['No', 40],
-                            ['None', 20]
+                            { name: 'Yes', y: Number(q171Data.Yes) || 0 },
+                            { name: 'No',  y: Number(q171Data.No)  || 0 },
+                            { name: 'None',y: Number(q171Data.None)|| 0 }
                         ]
                     }]
                 });
+                
+                
+                console.log(response.sunburst); // check data
 
-                // 7️⃣ Sunburst
                 Highcharts.chart('sunburstChart', {
                     chart: { height: 400 },
                     title: { text: 'Q 17.2, 17.3 & 17.4' },
                     series: [{
                         type: 'sunburst',
-                        data: [
-                            { id: '0.0', parent: '', name: 'Total' },
-                            { id: '1.1', parent: '0.0', name: 'Option A', value: 50 },
-                            { id: '1.2', parent: '0.0', name: 'Option B', value: 30 },
-                            { id: '1.3', parent: '0.0', name: 'Option C', value: 20 }
-                        ]
-                    }]
+                        data: response.sunburst,
+                        allowDrillToNode: true,
+                        cursor: 'pointer',
+                        dataLabels: { 
+                            format: '{point.name}' // show all labels
+                        }
+                    }],
+                    tooltip: {
+                        headerFormat: '',
+                        pointFormat: '<b>{point.name}</b>: {point.value}'
+                    }
                 });
 
                 // 8️⃣ Heatmap

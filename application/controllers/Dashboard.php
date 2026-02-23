@@ -81,20 +81,42 @@ class Dashboard extends CI_Controller {
         }
 
         $data['isFilterApplied'] = $isFilterApplied;
+        
+        // Check individual plot selections
+        $data['showPlot1'] = !empty($filters['client_type']);
+        $data['showPlot2'] = !empty($filters['vaccination_history']);
+        $data['showPlot3'] = !empty($filters['antigens']);
+        $data['showPlot4'] = !empty($filters['antigens_1_2_years']);
+        $data['showPlot5'] = !empty($filters['antigens_2_5_years']);
 
-        // Only fetch data if filter applied
-        if ($isFilterApplied) {
+        if ($data['showPlot1']) {
             $data['graph_data'] = $this->Dashboard_model->get_outreach_graph($filters);
-            $data['plot2_data']  = $this->Dashboard_model->get_vaccination_history_graph($filters);
-            $data['plot3_data']  = $this->Dashboard_model->get_antigen_under1_graph($filters);
-            $data['plot4_data']   = $this->Dashboard_model->get_antigen_1_2_graph($filters);
-            $data['plot5_data']   = $this->Dashboard_model->get_antigen_2_5_graph($filters);
         } else {
             $data['graph_data'] = [];
+        }
+
+        if ($data['showPlot2']) {
+            $data['plot2_data'] = $this->Dashboard_model->get_vaccination_history_graph($filters);
+        } else {
             $data['plot2_data'] = [];
+        }
+
+        if ($data['showPlot3']) {
+            $data['plot3_data'] = $this->Dashboard_model->get_antigen_under1_graph($filters);
+        } else {
             $data['plot3_data'] = [];
-            $data['plot4_data']   = [];
-            $data['plot5_data']   = [];
+        }
+
+        if ($data['showPlot4']) {
+            $data['plot4_data'] = $this->Dashboard_model->get_antigen_1_2_graph($filters);
+        } else {
+            $data['plot4_data'] = [];
+        }
+
+        if ($data['showPlot5']) {
+            $data['plot5_data'] = $this->Dashboard_model->get_antigen_2_5_graph($filters);
+        } else {
+            $data['plot5_data'] = [];
         }
 
         $data['main_content'] = $this->load->view('dashboard/outreach_view', $data, TRUE);
@@ -134,6 +156,14 @@ class Dashboard extends CI_Controller {
 
         // Pie chart: Client Type
         $client_counts = $this->Dashboard_model->get_client_type_counts($filters);
+        
+        $gender_counts  = $this->Dashboard_model->get_gender_counts($filters);
+        
+        $age_group_counts = $this->Dashboard_model->get_age_group_counts($filters);
+        
+        $q171_counts = $this->Dashboard_model->get_q171_counts($filters);
+        
+        $sunburstData = $this->Dashboard_model->get_sunburst_q17($filters);
 
         echo json_encode([
             'catchment_population' => $summary['catchment_population'],
@@ -142,7 +172,11 @@ class Dashboard extends CI_Controller {
             'outreach'             => $visit_counts['Outreach'],
             'fixed'                => $visit_counts['Fixed'],
             'new_client'           => $client_counts['New'],
-            'followup_client'      => $client_counts['Followup']
+            'followup_client'      => $client_counts['Followup'],
+            'gender'               => $gender_counts,
+            'age_group'            => $age_group_counts,
+            'q171'                 => $q171_counts,
+            'sunburst'             => $sunburstData
         ]);
     }
 
