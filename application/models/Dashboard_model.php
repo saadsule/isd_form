@@ -744,110 +744,674 @@ class Dashboard_model extends CI_Model {
     
     public function get_sunburst_q17($filters)
     {
-        // Query counts from child_health_master + child_health_detail
         $this->db->from('child_health_master m');
-        $this->db->join('child_health_detail d', 'm.master_id = d.master_id AND d.question_id IN (2,3,4)', 'left');
+        $this->db->join(
+            'child_health_detail d',
+            'm.master_id = d.master_id AND d.question_id IN (2,3,4)',
+            'left'
+        );
 
-        // Apply filters dynamically
         if (!empty($filters['uc'])) $this->db->where_in('m.uc', $filters['uc']);
         if (!empty($filters['start'])) $this->db->where('DATE(m.form_date) >=', $filters['start']);
         if (!empty($filters['end'])) $this->db->where('DATE(m.form_date) <=', $filters['end']);
         if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
 
         $this->db->select("
-            SUM(CASE WHEN d.question_id=2 AND d.answer='Yes' THEN 1 ELSE 0 END) AS q172_Yes,
-            SUM(CASE WHEN d.question_id=2 AND d.answer='No' THEN 1 ELSE 0 END) AS q172_No,
-            SUM(CASE WHEN d.question_id=2 AND (d.answer IS NULL OR d.answer NOT IN ('Yes','No')) THEN 1 ELSE 0 END) AS q172_None,
+            SUM(CASE WHEN d.question_id=2 AND d.answer='Yes' THEN 1 ELSE 0 END) AS yes_count,
+            SUM(CASE WHEN d.question_id=2 AND d.answer='No' THEN 1 ELSE 0 END) AS no_count,
 
-            SUM(CASE WHEN d.question_id=3 AND d.answer='17.2.1. Fully immunized as per Age' THEN 1 ELSE 0 END) AS q173_FullyImmunized,
-            SUM(CASE WHEN d.question_id=3 AND d.answer='17.2.2. Vaccine not due' THEN 1 ELSE 0 END) AS q173_VaccineNotDue,
-            SUM(CASE WHEN d.question_id=3 AND d.answer='17.2.3. Child is unwell' THEN 1 ELSE 0 END) AS q173_ChildUnwell,
-            SUM(CASE WHEN d.question_id=3 AND d.answer='17.2.4. Refusal' THEN 1 ELSE 0 END) AS q173_Refusal,
+            SUM(CASE WHEN d.question_id=3 AND d.answer='17.2.1.  Fully immunized as per Age' THEN 1 ELSE 0 END) AS fully_immunized,
+            SUM(CASE WHEN d.question_id=3 AND d.answer='17.2.2.  Vaccine not due' THEN 1 ELSE 0 END) AS vaccine_not_due,
+            SUM(CASE WHEN d.question_id=3 AND d.answer='17.2.3.  Child is unwell' THEN 1 ELSE 0 END) AS child_unwell,
+            SUM(CASE WHEN d.question_id=3 AND d.answer='17.2.4.  Refusal' THEN 1 ELSE 0 END) AS refusal_reason,
 
-            SUM(CASE WHEN d.question_id=4 AND d.answer='Demand Refusal' THEN 1 ELSE 0 END) AS q174_DemandRefusal,
-            SUM(CASE WHEN d.question_id=4 AND d.answer='Misconception Refusal' THEN 1 ELSE 0 END) AS q174_MisconceptionRefusal,
-            SUM(CASE WHEN d.question_id=4 AND d.answer='Religious Refusal' THEN 1 ELSE 0 END) AS q174_ReligiousRefusal
+            SUM(CASE WHEN d.question_id=4 AND d.answer='Demand Refusal' THEN 1 ELSE 0 END) AS demand_refusal,
+            SUM(CASE WHEN d.question_id=4 AND d.answer='Misconception Refusal' THEN 1 ELSE 0 END) AS misconception_refusal,
+            SUM(CASE WHEN d.question_id=4 AND d.answer='Religious Refusal' THEN 1 ELSE 0 END) AS religious_refusal
+        ", false);
+
+        $r = $this->db->get()->row_array();
+
+        $safe = function($v) { return (int)$v; };
+
+        $total = $safe($r['yes_count']) + $safe($r['no_count']);
+
+        $sunburst = [];
+
+        // ROOT
+        $sunburst[] = [
+            'id' => 'root',
+            'parent' => '',
+            'name' => 'Child Vaccination Status',
+            'value' => $total
+        ];
+
+        // Q17.2 - Yes / No
+        $sunburst[] = ['id'=>'yes','parent'=>'root','name'=>'Yes (Vaccinated)','value'=>$safe($r['yes_count'])];
+        $sunburst[] = ['id'=>'no','parent'=>'root','name'=>'No (Not Vaccinated)','value'=>$safe($r['no_count'])];
+
+        // Q17.3 – Under No
+        $sunburst[] = ['parent'=>'no','name'=>'Fully Immunized','value'=>$safe($r['fully_immunized'])];
+        $sunburst[] = ['parent'=>'no','name'=>'Vaccine Not Due','value'=>$safe($r['vaccine_not_due'])];
+        $sunburst[] = ['parent'=>'no','name'=>'Child Unwell','value'=>$safe($r['child_unwell'])];
+        $sunburst[] = ['parent'=>'no','name'=>'Refusal','value'=>$safe($r['refusal_reason'])];
+
+        // Q17.4 – Under Yes → Refusal Type (Always Show)
+        $sunburst[] = ['id'=>'refusal_type','parent'=>'yes','name'=>'Type of Refusal','value'=> $safe($r['demand_refusal']) + $safe($r['misconception_refusal']) + $safe($r['religious_refusal'])];
+        $sunburst[] = ['parent'=>'refusal_type','name'=>'Demand Refusal','value'=>$safe($r['demand_refusal'])];
+        $sunburst[] = ['parent'=>'refusal_type','name'=>'Misconception Refusal','value'=>$safe($r['misconception_refusal'])];
+        $sunburst[] = ['parent'=>'refusal_type','name'=>'Religious Refusal','value'=>$safe($r['religious_refusal'])];
+
+        return $sunburst;
+    }
+    
+    public function get_antigen_heatmap($filters)
+    {
+        $this->db->from('child_health_master m');
+        $this->db->join(
+            'child_health_detail d',
+            'm.master_id = d.master_id AND d.question_id IN (5,6,7)',
+            'left'
+        );
+
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $this->db->select("
+            d.question_id,
+            d.answer AS antigen,
+            COUNT(*) AS total
+        ", false);
+
+        $this->db->group_by(['d.question_id', 'd.answer']);
+
+        $result = $this->db->get()->result_array();
+
+        // Question labels
+        $questions = [
+            5 => 'Antigens < 1 Year',
+            6 => 'Antigens 1–2 Year',
+            7 => 'Antigens 2–5 Year'
+        ];
+
+        $questionList = array_values($questions);
+        $antigenList = [];
+        $dataMap = [];
+
+        foreach ($result as $row) {
+
+            if (!$row['antigen']) continue;
+
+            $qLabel = $questions[$row['question_id']];
+            $antigen = $row['antigen'];
+
+            $antigenList[$antigen] = true;
+            $dataMap[$qLabel][$antigen] = (int)$row['total'];
+        }
+
+        $antigenList = array_values(array_keys($antigenList));
+
+        $data = [];
+
+        foreach ($questionList as $y => $q) {
+            foreach ($antigenList as $x => $antigen) {
+
+                $value = isset($dataMap[$q][$antigen])
+                    ? $dataMap[$q][$antigen]
+                    : 0;
+
+                $data[] = [$x, $y, $value];
+            }
+        }
+
+        return [
+            'categoriesX' => $antigenList,
+            'categoriesY' => $questionList,
+            'data' => $data
+        ];
+    }
+    
+    public function get_q21_counts($filters)
+    {
+        $this->db->from('child_health_master m');
+        $this->db->join(
+            'child_health_detail d',
+            'm.master_id = d.master_id AND d.question_id = 8',
+            'left'
+        );
+
+        // ✅ Filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $this->db->select("
+            d.answer,
+            COUNT(d.answer) as total
+        ", false);
+
+        $this->db->group_by('d.answer');
+
+        $result = $this->db->get()->result_array();
+
+        $data = [];
+        $totalRecords = 0;
+
+        foreach ($result as $row) {
+
+            if ($row['answer'] == NULL || $row['answer'] == '') {
+                continue;
+            }
+
+            $data[] = [
+                'name' => $row['answer'],
+                'y'    => (int)$row['total']
+            ];
+
+            $totalRecords += (int)$row['total'];
+        }
+
+        // 🔹 Calculate None (if no answer selected)
+        $this->db->reset_query();
+        $this->db->from('child_health_master m');
+
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $totalForms = $this->db->count_all_results();
+
+        $noneCount = $totalForms - $totalRecords;
+
+        if ($noneCount > 0) {
+            $data[] = [
+                'name' => 'None',
+                'y'    => $noneCount
+            ];
+        }
+
+        return $data;
+    }
+    
+    public function get_q22_counts($filters)
+    {
+        $this->db->from('child_health_master m');
+        $this->db->join(
+            'child_health_detail d',
+            'm.master_id = d.master_id AND d.question_id = 9',
+            'left'
+        );
+
+        // ✅ Filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $this->db->select("
+            d.answer,
+            COUNT(d.answer) as total
+        ", false);
+
+        $this->db->group_by('d.answer');
+
+        $result = $this->db->get()->result_array();
+
+        $data = [];
+        $totalRecords = 0;
+
+        foreach ($result as $row) {
+
+            if ($row['answer'] == NULL || $row['answer'] == '') {
+                continue;
+            }
+
+            $data[] = [
+                'name' => $row['answer'],
+                'y'    => (int)$row['total']
+            ];
+
+            $totalRecords += (int)$row['total'];
+        }
+
+        // 🔹 Calculate None (if no answer selected)
+        $this->db->reset_query();
+        $this->db->from('child_health_master m');
+
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $totalForms = $this->db->count_all_results();
+
+        $noneCount = $totalForms - $totalRecords;
+
+        if ($noneCount > 0) {
+            $data[] = [
+                'name' => 'None',
+                'y'    => $noneCount
+            ];
+        }
+
+        return $data;
+    }
+    
+    public function get_q23_counts($filters)
+    {
+        $this->db->from('child_health_master m');
+        $this->db->join(
+            'child_health_detail d',
+            'm.master_id = d.master_id AND d.question_id = 10',
+            'left'
+        );
+
+        // ✅ Filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $this->db->select("
+            d.answer,
+            COUNT(d.answer) as total
+        ", false);
+
+        $this->db->group_by('d.answer');
+
+        $result = $this->db->get()->result_array();
+
+        $data = [];
+        $totalRecords = 0;
+
+        foreach ($result as $row) {
+
+            if ($row['answer'] == NULL || $row['answer'] == '') {
+                continue;
+            }
+
+            $data[] = [
+                'name' => $row['answer'],
+                'y'    => (int)$row['total']
+            ];
+
+            $totalRecords += (int)$row['total'];
+        }
+
+        // 🔹 Calculate None (if no answer selected)
+        $this->db->reset_query();
+        $this->db->from('child_health_master m');
+
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $totalForms = $this->db->count_all_results();
+
+        $noneCount = $totalForms - $totalRecords;
+
+        if ($noneCount > 0) {
+            $data[] = [
+                'name' => 'None',
+                'y'    => $noneCount
+            ];
+        }
+
+        return $data;
+    }
+    
+    public function get_q24_counts($filters)
+    {
+        $this->db->from('child_health_master m');
+        $this->db->join(
+            'child_health_detail d',
+            'm.master_id = d.master_id AND d.question_id = 11',
+            'left'
+        );
+
+        // ✅ Filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $this->db->select("
+            d.answer,
+            COUNT(d.answer) as total
+        ", false);
+
+        $this->db->group_by('d.answer');
+
+        $result = $this->db->get()->result_array();
+
+        $data = [];
+        $totalRecords = 0;
+
+        foreach ($result as $row) {
+
+            if ($row['answer'] == NULL || $row['answer'] == '') {
+                continue;
+            }
+
+            $data[] = [
+                'name' => $row['answer'],
+                'y'    => (int)$row['total']
+            ];
+
+            $totalRecords += (int)$row['total'];
+        }
+
+        // 🔹 Calculate None (if no answer selected)
+        $this->db->reset_query();
+        $this->db->from('child_health_master m');
+
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $totalForms = $this->db->count_all_results();
+
+        $noneCount = $totalForms - $totalRecords;
+
+        if ($noneCount > 0) {
+            $data[] = [
+                'name' => 'None',
+                'y'    => $noneCount
+            ];
+        }
+
+        return $data;
+    }
+    
+    public function get_gender_age_data($filters = [])
+    {
+        $age_groups = ['<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year'];
+
+        // Initialize data with 0 for all combinations
+        $gender_age_data = [
+            'Male'   => array_fill(0, count($age_groups), 0),
+            'Female' => array_fill(0, count($age_groups), 0)
+        ];
+
+        // Get raw counts from DB
+        $this->db->select("
+            CASE
+                WHEN age_year < 1 THEN '<1 Year'
+                WHEN age_year >= 1 AND age_year < 2 THEN '1-2 Year'
+                WHEN age_year >= 2 AND age_year < 5 THEN '2-5 Year'
+                WHEN age_year >= 5 AND age_year < 15 THEN '5-15 Year'
+                WHEN age_year >= 15 AND age_year <= 49 THEN '15-49 Year'
+                ELSE 'Other'
+            END AS age_group,
+            gender,
+            COUNT(*) AS total
+        ");
+        $this->db->from('child_health_master m');
+
+        // Apply filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        $this->db->group_by(['age_group', 'gender']);
+        $this->db->order_by("FIELD(age_group, '<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year')");
+        $query = $this->db->get();
+        $result = $query->result_array();
+
+        // Fill data into 0-initialized array
+        foreach ($result as $row) {
+            if (in_array($row['age_group'], $age_groups)) {
+                $index = array_search($row['age_group'], $age_groups);
+                $gender_age_data[$row['gender']][$index] = (int)$row['total'];
+            }
+        }
+
+        // Return both age_groups and series ready for Highcharts
+        return [
+            'age_groups' => $age_groups,
+            'series'     => $gender_age_data
+        ];
+    }
+    
+    public function get_flame_q25($filters)
+    {
+        /*
+        ==========================================
+        1️⃣ Get Total Forms Count (IMPORTANT)
+        ==========================================
+        */
+
+        $this->db->from('child_health_master m');
+
+        if (!empty($filters['uc'])) $this->db->where_in('m.uc', $filters['uc']);
+        if (!empty($filters['start'])) $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        if (!empty($filters['end'])) $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+
+        $totalForms = $this->db->count_all_results();
+
+
+        /*
+        ==========================================
+        2️⃣ Get Answer Counts
+        ==========================================
+        */
+
+        $this->db->from('child_health_master m');
+        $this->db->join(
+            'child_health_detail d',
+            'm.master_id = d.master_id AND d.question_id IN (12,13,15,16,17)',
+            'left'
+        );
+
+        if (!empty($filters['uc'])) $this->db->where_in('m.uc', $filters['uc']);
+        if (!empty($filters['start'])) $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        if (!empty($filters['end'])) $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+
+        $this->db->select("
+            SUM(CASE WHEN d.question_id = 12 AND d.answer = 'Yes' THEN 1 ELSE 0 END) AS q121_Yes,
+            SUM(CASE WHEN d.question_id = 12 AND d.answer = 'No' THEN 1 ELSE 0 END) AS q121_No,
+
+            SUM(CASE WHEN d.question_id = 13 AND d.answer = '1st' THEN 1 ELSE 0 END) AS q131_1st,
+            SUM(CASE WHEN d.question_id = 13 AND d.answer = '2nd' THEN 1 ELSE 0 END) AS q131_2nd,
+            SUM(CASE WHEN d.question_id = 13 AND d.answer = '3rd' THEN 1 ELSE 0 END) AS q131_3rd,
+            SUM(CASE WHEN d.question_id = 13 AND d.answer = '4th' THEN 1 ELSE 0 END) AS q131_4th,
+            SUM(CASE WHEN d.question_id = 13 AND d.answer = '5th' THEN 1 ELSE 0 END) AS q131_5th,
+
+            SUM(CASE WHEN d.question_id = 15 AND d.answer = 'Yes' THEN 1 ELSE 0 END) AS q151_Yes,
+            SUM(CASE WHEN d.question_id = 15 AND d.answer = 'No' THEN 1 ELSE 0 END) AS q151_No,
+
+            SUM(CASE WHEN d.question_id = 16 AND d.answer = 'Yes' THEN 1 ELSE 0 END) AS q161_Yes,
+            SUM(CASE WHEN d.question_id = 16 AND d.answer = 'No' THEN 1 ELSE 0 END) AS q161_No,
+
+            SUM(CASE WHEN d.question_id = 17 AND d.answer = 'Yes' THEN 1 ELSE 0 END) AS q171_Yes,
+            SUM(CASE WHEN d.question_id = 17 AND d.answer = 'No' THEN 1 ELSE 0 END) AS q171_No
         ", false);
 
         $result = $this->db->get()->row_array();
 
-        // Helper function for Highcharts values
-        $safe = function($v) {
-            return ($v > 0) ? (int)$v : 0.1;
-        };
 
-        // Build Sunburst data
-        $sunburst = [];
-        $sunburst[] = ['id'=>'0.0','parent'=>'','name'=>'Total'];
+        /*
+        ==========================================
+        3️⃣ Map Questions
+        ==========================================
+        */
 
-        $counter = 1;
-
-        // --- Q17.2 ---
-        $q172_id = '1.'.$counter;
-        $q172_children = [
-            $safe($result['q172_Yes']),
-            $safe($result['q172_No']),
-            $safe($result['q172_None'])
+        $questions = [
+            'q121' => 'Tetanus Vaccine Administered',
+            'q131' => 'Dose Given',
+            'q151' => 'Refused TT',
+            'q161' => 'Complete TT Schedule',
+            'q171' => 'Dose Not Due'
         ];
-        $q172_value = array_sum($q172_children); // parent value = sum of children
-        $sunburst[] = ['id'=>$q172_id,'parent'=>'0.0','name'=>'Q17.2','value'=>$q172_value];
-        $counter++;
 
-        foreach(['Yes','No','None'] as $i => $a){
-            $sunburst[] = [
-                'id'=>'2.'.($counter+$i),
-                'parent'=>$q172_id,
-                'name'=>$a,
-                'value'=>$q172_children[$i]
-            ];
-        }
-        $counter += count($q172_children);
-
-        // --- Q17.3 ---
-        $q173_id = '1.'.$counter;
-        $q173_children_values = [
-            $safe($result['q173_FullyImmunized']),
-            $safe($result['q173_VaccineNotDue']),
-            $safe($result['q173_ChildUnwell']),
-            $safe($result['q173_Refusal'])
+        $options = [
+            'q121' => ['Yes','No'],
+            'q131' => ['1st','2nd','3rd','4th','5th'],
+            'q151' => ['Yes','No'],
+            'q161' => ['Yes','No'],
+            'q171' => ['Yes','No']
         ];
-        $q173_value = array_sum($q173_children_values);
-        $sunburst[] = ['id'=>$q173_id,'parent'=>'0.0','name'=>'Q17.3','value'=>$q173_value];
-        $counter++;
 
-        $q173_labels = ['Fully Immunized','Vaccine Not Due','Child Unwell','Refusal'];
-        foreach($q173_labels as $i => $label){
-            $sunburst[] = [
-                'id'=>'2.'.($counter+$i),
-                'parent'=>$q173_id,
-                'name'=>$label,
-                'value'=>$q173_children_values[$i]
-            ];
-        }
-        $counter += count($q173_labels);
+        $colors = ["#7cb5ec", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#f49c42"];
 
-        // --- Q17.4 ---
-        $q174_id = '1.'.$counter;
-        $q174_children_values = [
-            $safe($result['q174_DemandRefusal']),
-            $safe($result['q174_MisconceptionRefusal']),
-            $safe($result['q174_ReligiousRefusal'])
-        ];
-        $q174_value = array_sum($q174_children_values);
-        $sunburst[] = ['id'=>$q174_id,'parent'=>'0.0','name'=>'Q17.4','value'=>$q174_value];
-        $counter++;
+        $data = [];
 
-        $q174_labels = ['Demand Refusal','Misconception Refusal','Religious Refusal'];
-        foreach($q174_labels as $i => $label){
-            $sunburst[] = [
-                'id'=>'2.'.($counter+$i),
-                'parent'=>$q174_id,
-                'name'=>$label,
-                'value'=>$q174_children_values[$i]
-            ];
+        /*
+        ==========================================
+        4️⃣ Build Clean Output With REAL None
+        ==========================================
+        */
+
+        foreach ($questions as $qkey => $qname) {
+
+            $totalAnswered = 0;
+
+            // Add selected options
+            foreach ($options[$qkey] as $idx => $opt) {
+
+                $key = $qkey . '_' . $opt;
+                $value = isset($result[$key]) ? (int)$result[$key] : 0;
+
+                $totalAnswered += $value;
+
+                $data[] = [
+                    'question' => $qname,
+                    'name' => $opt,
+                    'value' => $value,
+                    'color' => $colors[$idx % count($colors)]
+                ];
+            }
+
+            // Calculate NONE properly
+            $noneCount = $totalForms - $totalAnswered;
+
+            if ($noneCount > 0) {
+                $data[] = [
+                    'question' => $qname,
+                    'name' => 'None',
+                    'value' => $noneCount,
+                    'color' => '#d3d3d3'
+                ];
+            }
         }
 
-        return $sunburst;
+        return $data;
     }
     
 }

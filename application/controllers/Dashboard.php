@@ -164,6 +164,20 @@ class Dashboard extends CI_Controller {
         $q171_counts = $this->Dashboard_model->get_q171_counts($filters);
         
         $sunburstData = $this->Dashboard_model->get_sunburst_q17($filters);
+        
+        $heatmap = $this->Dashboard_model->get_antigen_heatmap($filters);
+        
+        $q21_counts = $this->Dashboard_model->get_q21_counts($filters);
+        
+        $q22_counts = $this->Dashboard_model->get_q22_counts($filters);
+        
+        $q23_counts = $this->Dashboard_model->get_q23_counts($filters);
+        
+        $q24_counts = $this->Dashboard_model->get_q24_counts($filters);
+        
+        $gender_age = $this->Dashboard_model->get_gender_age_data($filters);
+        
+        $flameData = $this->Dashboard_model->get_flame_q25($filters);
 
         echo json_encode([
             'catchment_population' => $summary['catchment_population'],
@@ -176,7 +190,14 @@ class Dashboard extends CI_Controller {
             'gender'               => $gender_counts,
             'age_group'            => $age_group_counts,
             'q171'                 => $q171_counts,
-            'sunburst'             => $sunburstData
+            'sunburst'             => $sunburstData,
+            'heatmap'              => $heatmap,
+            'q21'                  => $q21_counts,
+            'q22'                  => $q22_counts,
+            'q23'                  => $q23_counts,
+            'q24'                  => $q24_counts,
+            'gender_age'           => $gender_age,
+            'flame_q25'            => $flameData,
         ]);
     }
 
