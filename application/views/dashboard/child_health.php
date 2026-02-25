@@ -166,7 +166,23 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <div id="sunburstChart" style="height:400px;"></div>
+                        <!-- Cards -->
+                        <div class="d-flex justify-content-between mb-2">
+                            <!-- Vaccinated -->
+                            <div class="d-flex align-items-center px-2 py-1 bg-success text-white rounded shadow-sm" style="font-size: 14px;">
+                                <span class="me-2">Vaccinated:</span>
+                                <span id="vaccinatedCount" class="fw-bold ml-2">0</span>
+                            </div>
+
+                            <!-- Not Vaccinated -->
+                            <div class="d-flex align-items-center px-2 py-1 bg-danger text-white rounded shadow-sm" style="font-size: 14px;">
+                                <span class="me-2">Not Vaccinated:</span>
+                                <span id="notVaccinatedCount" class="fw-bold ml-2">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Sunburst Chart -->
+                        <div id="sunburstChart" style="height: 350px;"></div>
                     </div>
                 </div>
             </div>
@@ -219,7 +235,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <div id="container" style="height:400px;"></div>
+                        <div id="q25sunburst" style="height:400px;"></div>
                     </div>
                 </div>
             </div>
@@ -349,7 +365,14 @@ window.onload = function() {
                         ]
                     }]
                 });
+                
+                // Extract the values for Yes and No
+                const yesData = response.sunburst.find(item => item.id === "yes")?.value || 0;
+                const noData = response.sunburst.find(item => item.id === "no")?.value || 0;
 
+                // Set values in cards
+                document.getElementById("vaccinatedCount").innerText = yesData;
+                document.getElementById("notVaccinatedCount").innerText = noData;
                 Highcharts.chart('sunburstChart', {
                     chart: { },
 
@@ -919,74 +942,162 @@ window.onload = function() {
 
                     const raw = response.flame_q25;
 
-                    const questions = [];
-                    const optionMap = {};
+                    // ==============================
+                    // 1️⃣ ROOT NODE
+                    // ==============================
 
-                    // Collect questions & options
+                    const sunburstData = [
+                        {
+                            id: '0.0',
+                            parent: '',
+                            name: 'Tetanus Vaccine Administered',
+                            color: '#000'
+                        }
+                    ];
+
+                    // ==============================
+                    // 2️⃣ GROUP DATA BY QUESTION
+                    // ==============================
+
+                    const grouped = {};
                     raw.forEach(item => {
-
-                        if (!questions.includes(item.question)) {
-                            questions.push(item.question);
+                        if (!grouped[item.question]) {
+                            grouped[item.question] = [];
                         }
-
-                        if (!optionMap[item.name]) {
-                            optionMap[item.name] = {
-                                name: item.name,
-                                data: [],
-                                color: item.color
-                            };
-                        }
-                    });
-                    
-                   const flameData = response.flame_q25;
-
-                    let sunburstData = [];
-                    sunburstData.push({ id: '0.0', parent: '', name: 'All Responses', color: '#000' });
-
-                    const questionIds = {};
-                    let qIndex = 1;
-
-                    // Add question nodes
-                    flameData.forEach(item => {
-                        if (!questionIds[item.question]) {
-                            const qId = `1.${qIndex}`;
-                            questionIds[item.question] = qId;
-                            sunburstData.push({ id: qId, parent: '0.0', name: item.question, color: '#333' });
-                            qIndex++;
-                        }
+                        grouped[item.question].push(item);
                     });
 
-                    // Add answer nodes (skip zero values)
-                    flameData.forEach(item => {
-                        const parentId = questionIds[item.question];
-                        if (!parentId) return;
+                    // ==============================
+                    // 3️⃣ FIRST LEVEL (Yes, No, None)
+                    // ==============================
 
-                        if (item.value === 0) return; // ✅ skip zero-value nodes
+                    const firstLevelIds = {};
+                    let index = 1;
 
-                        sunburstData.push({
-                            id: `${parentId}-${item.name}`,
-                            parent: parentId,
-                            name: item.name,
-                            value: item.value,
-                            color: item.color
+                    const mainQuestion = 'Tetanus Vaccine Administered';
+
+                    if (grouped[mainQuestion]) {
+
+                        grouped[mainQuestion].forEach(item => {
+
+                            if (item.value > 0) {
+
+                                const id = `1.${index}`;
+                                firstLevelIds[item.name] = id;
+
+                                sunburstData.push({
+                                    id: id,
+                                    parent: '0.0',
+                                    name: item.name,
+                                    value: item.value,
+                                    color:
+                                        item.name === 'Yes' ? '#7cb5ec' :
+                                        item.name === 'No' ? '#90ed7d' :
+                                        '#d3d3d3'
+                                });
+
+                                index++;
+                            }
                         });
-                    });
+                    }
 
-                    Highcharts.chart('container', {
-                        chart: { },
-                        title: { text: 'TT Vaccination Summary (Q25)' },
+                    // ==============================
+                    // 4️⃣ YES → Dose Given (1st–5th)
+                    // ==============================
+
+                    if (firstLevelIds['Yes'] && grouped['Dose Given']) {
+
+                        grouped['Dose Given'].forEach(item => {
+
+                            if (item.value > 0) {
+
+                                sunburstData.push({
+                                    id: `${firstLevelIds['Yes']}-${item.name}`,
+                                    parent: firstLevelIds['Yes'],
+                                    name: item.name,
+                                    value: item.value,
+                                    color: '#f7a35c'
+                                });
+                            }
+                        });
+                    }
+
+                    // ==============================
+                    // 5️⃣ NO → Refused / Complete / Not Due
+                    // ==============================
+
+                    if (firstLevelIds['No']) {
+
+                        const noQuestions = [
+                            'Refused TT',
+                            'Complete TT Schedule',
+                            'Dose Not Due'
+                        ];
+
+                        noQuestions.forEach(questionName => {
+
+                            if (grouped[questionName]) {
+
+                                // Take only YES value from these questions
+                                const yesOption = grouped[questionName]
+                                    .find(i => i.name === 'Yes');
+
+                                if (yesOption && yesOption.value > 0) {
+
+                                    sunburstData.push({
+                                        id: `${firstLevelIds['No']}-${questionName}`,
+                                        parent: firstLevelIds['No'],
+                                        name: questionName,
+                                        value: yesOption.value,
+                                        color: '#8085e9'
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+                    // ==============================
+                    // 6️⃣ HIGHCHARTS RENDER
+                    // ==============================
+
+                    Highcharts.chart('q25sunburst', {
+                        chart: {},
+                        title: {
+                            text: 'TT Vaccination Summary (Q25)'
+                        },
                         series: [{
                             type: 'sunburst',
                             data: sunburstData,
                             allowDrillToNode: true,
                             cursor: 'pointer',
-                            dataLabels: { format: '{point.name}', color: '#fff' },
+                            dataLabels: {
+                                format: '{point.name}',
+                                color: '#fff'
+                            },
                             levels: [
-                                { level: 1, colorByPoint: true, dataLabels: { rotationMode: 'parallel', style: { fontSize: '12px' } } },
-                                { level: 2, colorByPoint: false, dataLabels: { rotationMode: 'parallel', style: { fontSize: '11px' } } }
+                                {
+                                    level: 1,
+                                    colorByPoint: true,
+                                    dataLabels: {
+                                        rotationMode: 'parallel',
+                                        style: { fontSize: '13px' }
+                                    }
+                                },
+                                {
+                                    level: 2,
+                                    colorByPoint: false,
+                                    dataLabels: {
+                                        rotationMode: 'parallel',
+                                        style: { fontSize: '11px' }
+                                    }
+                                }
                             ]
                         }],
-                        tooltip: { headerFormat: '', pointFormat: '<b>{point.name}</b><br/>Value: {point.value}' }
+                        tooltip: {
+                            headerFormat: '',
+                            pointFormat:
+                                '<b>{point.name}</b><br/>Value: {point.value}'
+                        }
                     });
 
                 })();

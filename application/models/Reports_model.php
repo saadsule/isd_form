@@ -231,5 +231,49 @@ class Reports_model extends CI_Model {
             'progress' => $progress
         ];
     }
+    
+    // Get all UC names
+    public function get_ucs()
+    {
+        $this->db->select('uc as uc_name, pk_id'); // Adjust column name if different
+        $this->db->from('uc');
+        $this->db->order_by('uc_name', 'ASC');
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    public function get_child_health_data($filters)
+    {
+        $this->db->select("chm.*, chd.question_id as detail_question_id, chd.option_id as detail_option_id, chd.answer as detail_answer, chd.created_at as detail_created_at");
+        $this->db->from('child_health_master chm');
+        $this->db->join('child_health_detail chd','chd.master_id = chm.master_id','left');
 
+        if(!empty($filters['uc'])) {
+            $this->db->where_in('chm.uc',$filters['uc']);
+        }
+        if(!empty($filters['start']) && !empty($filters['end'])) {
+            $this->db->where('chm.form_date >=', $filters['start']);
+            $this->db->where('chm.form_date <=', $filters['end']);
+        }
+
+        return $this->db->get()->result_array();
+    }
+
+    public function get_opd_mnch_data($filters)
+    {
+        $this->db->select("omm.*, omd.question_id as detail_question_id, omd.option_id as detail_option_id, omd.answer as detail_answer, omd.created_at as detail_created_at");
+        $this->db->from('opd_mnch_master omm');
+        $this->db->join('opd_mnch_detail omd','omd.master_id = omm.id','left');
+
+        if(!empty($filters['uc'])) {
+            $this->db->where_in('omm.uc',$filters['uc']);
+        }
+        if(!empty($filters['start']) && !empty($filters['end'])) {
+            $this->db->where('omm.form_date >=', $filters['start']);
+            $this->db->where('omm.form_date <=', $filters['end']);
+        }
+
+        return $this->db->get()->result_array();
+    }
+    
 }
