@@ -123,7 +123,7 @@
 
         <!-- CHARTS -->
         <div class="row" id="chartsSection" style="display:none;">
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
                         <div id="visitTypeChart" style="height:400px;"></div>
@@ -131,15 +131,23 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <div id="clientTypeChart" style="height:400px;"></div>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-6">
+             
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="genderAgeChart" style="height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+			
+            <div class="col-md-5">
                 <div class="card">
                     <div class="card-body">
                         <div id="genderPieChart" style="height:400px;"></div>
@@ -147,7 +155,7 @@
                 </div>
             </div>
             
-            <div class="col-md-6">
+            <div class="col-md-7">
                 <div class="card">
                     <div class="card-body">
                         <div id="ageGroupColumnChart" style="height:400px;"></div>
@@ -155,7 +163,7 @@
                 </div>
             </div>
             
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="card">
                     <div class="card-body">
                         <div id="q171DoughnutChart" style="height:400px;"></div>
@@ -163,19 +171,19 @@
                 </div>
             </div>
             
-            <div class="col-md-6">
+            <div class="col-md-7">
                 <div class="card">
                     <div class="card-body">
                         <!-- Cards -->
                         <div class="d-flex justify-content-between mb-2">
                             <!-- Vaccinated -->
-                            <div class="d-flex align-items-center px-2 py-1 bg-success text-white rounded shadow-sm" style="font-size: 14px;">
+                            <div class="d-flex align-items-center px-2 py-1 bg-success text-white rounded shadow-sm" style="font-size: 22px;">
                                 <span class="me-2">Vaccinated:</span>
                                 <span id="vaccinatedCount" class="fw-bold ml-2">0</span>
                             </div>
 
                             <!-- Not Vaccinated -->
-                            <div class="d-flex align-items-center px-2 py-1 bg-danger text-white rounded shadow-sm" style="font-size: 14px;">
+                            <div class="d-flex align-items-center px-2 py-1 bg-danger text-white rounded shadow-sm" style="font-size: 22px;">
                                 <span class="me-2">Not Vaccinated:</span>
                                 <span id="notVaccinatedCount" class="fw-bold ml-2">0</span>
                             </div>
@@ -195,44 +203,37 @@
                 </div>
             </div>
             
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <div id="q21Chart" style="height:400px;"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <div id="q22Chart" style="height:400px;"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <div id="q23Chart" style="height:400px;"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="card">
                     <div class="card-body">
                         <div id="q24Chart" style="height:400px;"></div>
                     </div>
                 </div>
             </div>
+           
             
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <div id="genderAgeChart" style="height:400px;"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
+            <div class="col-md-7">
                 <div class="card">
                     <div class="card-body">
                         <div id="q25sunburst" style="height:400px;"></div>
@@ -281,7 +282,7 @@ window.onload = function() {
 
                 Highcharts.chart('visitTypeChart', {
                     chart:{ type:'pie' },
-                    title: { text: 'Visit Type Distribution' },
+                    title: { text: 'Fixed Site / Outreach' },
                     series:[{
                         name:'Total',
                         colorByPoint:true,
@@ -294,7 +295,7 @@ window.onload = function() {
 
                 Highcharts.chart('clientTypeChart', {
                     chart:{ type:'pie' },
-                    title: { text: 'Client Type Distribution' },
+                    title: { text: 'New Cases / Follow-up' },
                     series:[{
                         name:'Total',
                         colorByPoint:true,
@@ -308,7 +309,7 @@ window.onload = function() {
                 var genderData = response.gender || { Male:0, Female:0, Other:0 };
                 Highcharts.chart('genderPieChart', {
                     chart: { type: 'pie' },
-                    title: { text: 'Gender Distribution' },
+                    title: { text: 'Gender Summary' },
                     series: [{
                         name: 'Children',
                         colorByPoint: true,
@@ -331,7 +332,7 @@ window.onload = function() {
 
                 Highcharts.chart('ageGroupColumnChart', {
                     chart: { type: 'column' },
-                    title: { text: 'Age Group Distribution' },
+                    title: { text: 'Age Group Wise Summary' },
                     xAxis: { 
                         categories: Object.keys(ageGroupData),
                         title: { text: 'Age Group' }
@@ -351,7 +352,7 @@ window.onload = function() {
 
                 Highcharts.chart('q171DoughnutChart', {
                     chart: { type: 'pie' },
-                    title: { text: 'Q 17.1 Previous Vaccination History' },
+                    title: { text: 'Received any Vaccination earlier?' },
                     plotOptions: {
                         pie: { innerSize: '60%', dataLabels: { enabled: true } }
                     },
@@ -376,7 +377,7 @@ window.onload = function() {
                 Highcharts.chart('sunburstChart', {
                     chart: { },
 
-                    title: { text: 'Child Vaccination Status (Q17.2 → Q17.4)' },
+                    title: { text: 'Children Vaccinated During This Session' },
 
                     series: [{
                         type: 'sunburst',
@@ -415,7 +416,7 @@ window.onload = function() {
                     },
 
                     title: {
-                        text: 'Antigen Administration by Age Group'
+                        text: 'Antigens Administered w.r.t. Age Group'
                     },
 
                     xAxis: {
@@ -425,14 +426,14 @@ window.onload = function() {
                             style: { fontSize: '11px' }
                         },
                         title: {
-                            text: 'Antigen Options'
+                            text: 'Antigens'
                         }
                     },
 
                     yAxis: {
                         categories: response.heatmap.categoriesY,
                         title: {
-                            text: 'Age Group (Question)'
+                            text: 'Age Group'
                         }
                     },
 
@@ -480,7 +481,7 @@ window.onload = function() {
                 Highcharts.chart('q21Chart', {
                     chart: { type: 'pie' },
 
-                    title: { text: 'Q 21' },
+                    title: { text: 'Supplementary Vaccination' },
 
                     plotOptions: {
                         pie: {
@@ -506,7 +507,7 @@ window.onload = function() {
                 Highcharts.chart('q22Chart', {
                     chart: { type: 'pie' },
 
-                    title: { text: 'Q 22' },
+                    title: { text: 'Vaccination Card Issued to the client' },
 
                     plotOptions: {
                         pie: {
@@ -532,7 +533,7 @@ window.onload = function() {
                 Highcharts.chart('q23Chart', {
                     chart: { type: 'pie' },
 
-                    title: { text: 'Q 23' },
+                    title: { text: 'Any Adverse Event Following Immunization (AEFI)' },
 
                     plotOptions: {
                         pie: {
@@ -558,7 +559,7 @@ window.onload = function() {
                 Highcharts.chart('q24Chart', {
                     chart: { type: 'pie' },
 
-                    title: { text: 'Q 24' },
+                    title: { text: 'Referred' },
 
                     plotOptions: {
                         pie: {
@@ -614,7 +615,7 @@ window.onload = function() {
                     },
 
                     title: {
-                        text: 'Gender + Age Group Distribution'
+                        text: 'Gender & Age Group Breakdown'
                     },
 
                     xAxis: {
@@ -1063,7 +1064,7 @@ window.onload = function() {
                     Highcharts.chart('q25sunburst', {
                         chart: {},
                         title: {
-                            text: 'TT Vaccination Summary (Q25)'
+                            text: 'Tetanus Vaccine Administered (Doses & Refusal Reasons)'
                         },
                         series: [{
                             type: 'sunburst',
