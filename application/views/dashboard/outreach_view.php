@@ -497,7 +497,8 @@ foreach($temp as $key => $dateData){
 var plot2Days = <?= json_encode($days) ?>;
 var plot2Series = <?= json_encode($series) ?>;
 
-Highcharts.chart('vaccinationChart', {
+if (plot2Series.length > 0) {
+    Highcharts.chart('vaccinationChart', {
     chart: { type:'spline' },
 
     title: { text:'Daily Vaccination History Trend' },
@@ -529,7 +530,7 @@ Highcharts.chart('vaccinationChart', {
         }]
     }
 });
-
+}
 <?php
 $days3 = [];
 $temp3 = [];
@@ -578,7 +579,8 @@ foreach($temp3 as $key => $dateData){
 var plot3Days = <?= json_encode($days3) ?>;
 var plot3Series = <?= json_encode($series3) ?>;
 
-Highcharts.chart('antigenUnder1Chart', {
+if (plot3Series.length > 0) {
+    Highcharts.chart('antigenUnder1Chart', {
     chart: { type:'spline' },
 
     title: { text:'Daily Antigens Administered (< 1 Year)' },
@@ -597,7 +599,7 @@ Highcharts.chart('antigenUnder1Chart', {
 
     series: plot3Series
 });
-
+}
 <?php
 $days4 = [];
 $temp4 = [];
@@ -646,7 +648,8 @@ foreach($temp4 as $key => $dateData){
 var plot4Days = <?= json_encode($days4) ?>;
 var plot4Series = <?= json_encode($series4) ?>;
 
-Highcharts.chart('antigen1to2Chart', {
+if (plot4Series.length > 0) {
+    Highcharts.chart('antigen1to2Chart', {
     chart: { type:'spline' },
 
     title: { text:'Daily Antigens Administered (1–2 Years)' },
@@ -665,7 +668,7 @@ Highcharts.chart('antigen1to2Chart', {
 
     series: plot4Series
 });
-
+}
 <?php
 $days5 = [];
 $temp5 = [];
@@ -714,7 +717,8 @@ foreach($temp5 as $key => $dateData){
 var plot5Days = <?= json_encode($days5) ?>;
 var plot5Series = <?= json_encode($series5) ?>;
 
-Highcharts.chart('antigen2to5Chart', {
+if (plot5Series.length > 0) {
+    Highcharts.chart('antigen2to5Chart', {
     chart: { type:'spline' },
 
     title: { text:'Daily Antigens Administered (2–5 Years)' },
@@ -733,5 +737,6 @@ Highcharts.chart('antigen2to5Chart', {
 
     series: plot5Series
 });
+}
 </script>
 

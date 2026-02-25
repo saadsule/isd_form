@@ -794,13 +794,19 @@ class Dashboard_model extends CI_Model {
         $sunburst[] = ['parent'=>'no','name'=>'Fully Immunized','value'=>$safe($r['fully_immunized'])];
         $sunburst[] = ['parent'=>'no','name'=>'Vaccine Not Due','value'=>$safe($r['vaccine_not_due'])];
         $sunburst[] = ['parent'=>'no','name'=>'Child Unwell','value'=>$safe($r['child_unwell'])];
-        $sunburst[] = ['parent'=>'no','name'=>'Refusal','value'=>$safe($r['refusal_reason'])];
 
-        // Q17.4 – Under Yes → Refusal Type (Always Show)
-        $sunburst[] = ['id'=>'refusal_type','parent'=>'yes','name'=>'Type of Refusal','value'=> $safe($r['demand_refusal']) + $safe($r['misconception_refusal']) + $safe($r['religious_refusal'])];
-        $sunburst[] = ['parent'=>'refusal_type','name'=>'Demand Refusal','value'=>$safe($r['demand_refusal'])];
-        $sunburst[] = ['parent'=>'refusal_type','name'=>'Misconception Refusal','value'=>$safe($r['misconception_refusal'])];
-        $sunburst[] = ['parent'=>'refusal_type','name'=>'Religious Refusal','value'=>$safe($r['religious_refusal'])];
+        // Add Refusal node with ID so subtypes can attach
+        $sunburst[] = ['id'=>'no_refusal','parent'=>'no','name'=>'Refusal','value'=>$safe($r['refusal_reason'])];
+
+        // Only if there are refusals, attach Q17.4 subtypes under No → Refusal
+        if ($safe($r['refusal_reason']) > 0) {
+            $sunburst[] = ['id'=>'refusal_type','parent'=>'no_refusal','name'=>'Type of Refusal','value'=> 
+                $safe($r['demand_refusal']) + $safe($r['misconception_refusal']) + $safe($r['religious_refusal'])
+            ];
+            $sunburst[] = ['parent'=>'refusal_type','name'=>'Demand Refusal','value'=>$safe($r['demand_refusal'])];
+            $sunburst[] = ['parent'=>'refusal_type','name'=>'Misconception Refusal','value'=>$safe($r['misconception_refusal'])];
+            $sunburst[] = ['parent'=>'refusal_type','name'=>'Religious Refusal','value'=>$safe($r['religious_refusal'])];
+        }
 
         return $sunburst;
     }
