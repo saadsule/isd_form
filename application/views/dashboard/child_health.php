@@ -255,6 +255,7 @@
 <script src="<?= base_url('assets/highcharts/modules/pictorial.js') ?>"></script>
 <script src="<?= base_url('assets/highcharts/modules/accessibility.js') ?>"></script>
 <script src="<?= base_url('assets/highcharts/modules/drilldown.js') ?>"></script>
+<script src="<?= base_url('assets/highcharts/modules/variable-pie.js') ?>"></script>
 <!--<script src="<?= base_url('assets/highcharts/themes/adaptive.js') ?>"></script>-->
 
 <script>
@@ -294,30 +295,59 @@ window.onload = function() {
                 });
 
                 Highcharts.chart('clientTypeChart', {
-                    chart:{ type:'pie' },
+                    chart:{ type:'variablepie' },
                     title: { text: 'New Cases / Follow-up' },
-                    series:[{
+                    
+					 tooltip: {
+						headerFormat: '',
+						pointFormat: '<span style="color:{point.color}">\u25CF</span> <b> ' +
+							'{point.name} : {point.y}</b><br/>' 
+					},
+					series:[{
+						 minPointSize: 10,
+						innerSize: '20%',
+						zMin: 0,
+						borderRadius: 5,
                         name:'Total',
                         colorByPoint:true,
                         data:[
-                            { name:'New', y:parseInt(response.new_client)||0 },
-                            { name:'Follow-up', y:parseInt(response.followup_client)||0 }
-                        ]
+                            { name:'New',z:80, y:parseInt(response.new_client)||0 },
+                            { name:'Follow-up',z:120, y:parseInt(response.followup_client)||0 }
+                        ],
+						colors: [
+							'#4caefe',
+							'#23e274'
+						]
                     }]
                 });
                 
                 var genderData = response.gender || { Male:0, Female:0, Other:0 };
                 Highcharts.chart('genderPieChart', {
-                    chart: { type: 'pie' },
+                    chart: { type: 'variablepie' },
                     title: { text: 'Gender Summary' },
-                    series: [{
+                    
+					 tooltip: {
+						headerFormat: '',
+						pointFormat: '<span style="color:{point.color}">\u25CF</span> <b> ' +
+							'{point.name} : {point.y}</b><br/>' 
+					},
+					series: [{
+						 minPointSize: 10,
+						innerSize: '20%',
+						zMin: 0,
+						borderRadius: 5,
                         name: 'Children',
                         colorByPoint: true,
                         data: [
-                            { name: 'Male', y: Number(genderData.Male) || 0 },
-                            { name: 'Female', y: Number(genderData.Female) || 0 },
-                            { name: 'Other', y: Number(genderData.Other) || 0 }
-                        ]
+                            { name: 'Male',z:120, y: Number(genderData.Male) || 0 },
+                            { name: 'Female',z:90, y: Number(genderData.Female) || 0 },
+                            { name: 'Other',z:60, y: Number(genderData.Other) || 0 }
+                        ],
+						colors: [
+							'#2986cc',
+							'#c90076',
+							'#cccccc'
+						]
                     }]
                 });
 
@@ -348,21 +378,30 @@ window.onload = function() {
                 });
 
                 // Q17.1 Doughnut Chart
-                var q171Data = response.q171 || { Yes:0, No:0, None:0 };
+                var q171Data = response.q171 || { Yes:0, No:0, NA:0 };
 
                 Highcharts.chart('q171DoughnutChart', {
-                    chart: { type: 'pie' },
+                    chart: { type: 'variablepie' },
                     title: { text: 'Received any Vaccination earlier?' },
                     plotOptions: {
                         pie: { innerSize: '60%', dataLabels: { enabled: true } }
                     },
+					 tooltip: {
+						headerFormat: '',
+						pointFormat: '<span style="color:{point.color}">\u25CF</span> <b> ' +
+							'{point.name}</b> :  <b>{point.y}</b><br/>' 
+					},
                     series: [{
+						 minPointSize: 10,
+						innerSize: '20%',
+						zMin: 0,
+						borderRadius: 5,
                         name: 'Responses',
                         colorByPoint: true,
                         data: [
-                            { name: 'Yes', y: Number(q171Data.Yes) || 0 },
-                            { name: 'No',  y: Number(q171Data.No)  || 0 },
-                            { name: 'None',y: Number(q171Data.None)|| 0 }
+                            { name: 'Yes',z:110, y: Number(q171Data.Yes) || 0 },
+                            { name: 'No',z:90,  y: Number(q171Data.No)  || 0 },
+                            { name: 'N/A',z:60, y: Number(q171Data.None)|| 0 }
                         ]
                     }]
                 });
@@ -507,7 +546,7 @@ window.onload = function() {
                 Highcharts.chart('q22Chart', {
                     chart: { type: 'pie' },
 
-                    title: { text: 'Vaccination Card Issued to the client' },
+                    title: { text: 'Vaccination Card Issued to the client ?' },
 
                     plotOptions: {
                         pie: {
@@ -525,7 +564,12 @@ window.onload = function() {
 
                     series: [{
                         name: 'Responses',
-                        data: response.q22
+                        data: response.q22,
+						colors: [
+							'#00c698',
+							'#DE4436',
+							'#cccccc'
+						]
                     }]
                 });
 
@@ -551,7 +595,12 @@ window.onload = function() {
 
                     series: [{
                         name: 'Responses',
-                        data: response.q23
+                        data: response.q23,
+						colors: [
+							'#00c698',
+							'#DE4436',
+							'#cccccc'
+						]
                     }]
                 });
 
