@@ -30,7 +30,7 @@
                     <div class="col-md-3">
                         <label>Select Form Type *</label>
                         <div class="m-b-15">
-                            <select class="select2" name="form_type[]" multiple="multiple" style="width:100%">
+                            <select name="form_type" class="form-control">
                                 <?php
                                 $form_type = ['chf','opd'];
                                 foreach($form_type as $g){

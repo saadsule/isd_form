@@ -56,51 +56,134 @@ class Reports extends CI_Controller {
             'form_type' => $this->input->get('form_type'),
         ];
 
-        $form_types = isset($filters['form_type']) ? $filters['form_type'] : array();
-        if(empty($form_types)){
-            show_error("Please select form type(s)");
+        // Single select form type
+        $form_type = !empty($filters['form_type']) ? $filters['form_type'] : null;
+
+        if(empty($form_type)){
+            show_error("Please select form type");
             return;
         }
 
         $objPHPExcel = new PHPExcel();
         $sheet = $objPHPExcel->setActiveSheetIndex(0);
+        $sheet->setRightToLeft(false); // Ensure LTR
         $rowIndex = 1;
 
-        foreach($form_types as $form_type){
-            if($form_type == 'chf'){
-                $data = $this->Reports_model->get_child_health_data($filters);
-                $headers = ['master_id','form_date','qr_code','client_type','district','uc','facility_id','village'];
-            } elseif($form_type == 'opd'){
-                $data = $this->Reports_model->get_opd_mnch_data($filters);
-                $headers = ['id','form_date','anc_card_no','client_type','district','uc','village','lhv_name'];
-            }
+        // =========================
+        // DATA & HEADERS
+        // =========================
+        $startDate = !empty($filters['start']) ? $filters['start'] : 'N/A';
+        $endDate   = !empty($filters['end']) ? $filters['end'] : 'N/A';
+        $dateRange = "From: $startDate To: $endDate";
 
-            // Headers
-            $col = 'A';
-            foreach($headers as $h){
-                $sheet->setCellValue($col.$rowIndex, $h);
-                $col++;
-            }
-            $rowIndex++;
-
-            // Rows
-            foreach($data as $row){
-                $col = 'A';
-                foreach($headers as $h){
-                    $sheet->setCellValue($col.$rowIndex, isset($row[$h]) ? $row[$h] : '');
-                    $col++;
-                }
-                $rowIndex++;
-            }
+        if($form_type == 'chf'){
+            $reportTitle = "Child Health Report - North Waziristan ($dateRange)";
+            $data = $this->Reports_model->get_child_health_data($filters);
+            // All fields from child_health_master
+            $headers = [
+                'master_id','form_date','qr_code','client_type','district','uc','facility_name','village',
+                'vaccinator_name','patient_name','guardian_name','dob','age_year','age_month','age_day',
+                'gender','marital_status','pregnancy_status','disability','play_learning_kit','nutrition_package',
+                'created_at','visit_type','created_by','age_group',
+                'details'
+            ];
+        } elseif($form_type == 'opd'){
+            $reportTitle = "OPD/MNCH Report - North Waziristan ($dateRange)";
+            $data = $this->Reports_model->get_opd_mnch_data($filters);
+            // All fields from opd_mnch_master
+            $headers = [
+                'id','form_date','anc_card_no','client_type','district','uc','facility_name','village','lhv_name',
+                'patient_name','guardian_name','disability','age_group','marital_status','pregnancy_status',
+                'notes','created_at','visit_type','created_by','qr_code',
+                'details'
+            ];
+        } else {
+            show_error("Invalid form type selected");
+            return;
         }
 
-        // Export Excel
-        $filename = 'health_data_'.date('Y-m-d_H-i-s').'.xlsx';
+        // Last column
+        $lastColumnIndex = count($headers) - 1;
+        $lastColumn = PHPExcel_Cell::stringFromColumnIndex($lastColumnIndex);
+
+        // =========================
+        // MERGED HEADING
+        // =========================
+        $sheet->mergeCells("A{$rowIndex}:{$lastColumn}{$rowIndex}");
+        $sheet->setCellValue("A{$rowIndex}", $reportTitle);
+
+        $sheet->getStyle("A{$rowIndex}")->applyFromArray([
+            'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => 'FFFFFF']],
+            'alignment' => [
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+                'vertical'   => PHPExcel_Style_Alignment::VERTICAL_CENTER
+            ],
+            'fill' => [
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => ['rgb' => '1F4E78'] // Dark Blue
+            ]
+        ]);
+
+        $sheet->getRowDimension($rowIndex)->setRowHeight(30);
+        $rowIndex += 2;
+
+        // =========================
+        // TABLE HEADER
+        // =========================
+        $colIndex = 0;
+        foreach($headers as $h){
+            $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, strtoupper(str_replace('_',' ',$h)));
+            $colIndex++;
+        }
+
+        $headerRange = "A{$rowIndex}:{$lastColumn}{$rowIndex}";
+        $sheet->getStyle($headerRange)->applyFromArray([
+            'font' => ['bold' => true],
+            'alignment' => ['horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER],
+            'fill' => ['type' => PHPExcel_Style_Fill::FILL_SOLID, 'startcolor' => ['rgb' => 'D9E1F2']],
+            'borders' => ['allborders' => ['style' => PHPExcel_Style_Border::BORDER_THIN]]
+        ]);
+
+        $rowIndex++;
+
+        // =========================
+        // DATA ROWS
+        // =========================
+        foreach($data as $row){
+            $colIndex = 0;
+            foreach($headers as $h){
+                $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, isset($row[$h]) ? $row[$h] : '');
+                $colIndex++;
+            }
+            $rowIndex++;
+        }
+
+        $rowIndex += 3; // spacing before next report
+
+        // =========================
+        // AUTO SIZE COLUMNS
+        // =========================
+        foreach(range('A', $lastColumn) as $columnID){
+            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        }
+
+        // =========================
+        // SAFE EXPORT
+        // =========================
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // =========================
+        // DYNAMIC FILENAME MATCHING HEADING
+        // =========================
+        $filename = strtoupper($form_type).'_North_Waziristan_Report_'.$startDate.'_to_'.$endDate.'.xlsx';
+
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="'.$filename.'"');
         header('Cache-Control: max-age=0');
 
-        $writer = new PHPExcel_Writer_Excel2007($objPHPExcel);
+        $writer = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $writer->save('php://output');
         exit;
     }

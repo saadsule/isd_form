@@ -244,34 +244,101 @@ class Reports_model extends CI_Model {
     
     public function get_child_health_data($filters)
     {
-        $this->db->select("chm.*, chd.question_id as detail_question_id, chd.option_id as detail_option_id, chd.answer as detail_answer, chd.created_at as detail_created_at");
+        $this->db->select("
+            chm.master_id,
+            chm.form_date,
+            chm.qr_code,
+            chm.client_type,
+            'North Waziristan' as district,
+            u.uc as uc,
+            f.facility_name,
+            chm.village,
+            chm.vaccinator_name,
+            chm.patient_name,
+            chm.guardian_name,
+            chm.dob,
+            chm.age_year,
+            chm.age_month,
+            chm.age_day,
+            chm.gender,
+            chm.marital_status,
+            chm.pregnancy_status,
+            chm.disability,
+            chm.play_learning_kit,
+            chm.nutrition_package,
+            chm.created_at,
+            chm.visit_type,
+            chm.created_by,
+            chm.age_group,
+
+            GROUP_CONCAT(
+                CONCAT('Q', chd.question_id, ': ', chd.answer)
+                SEPARATOR ' | '
+            ) as details
+        ");
+
         $this->db->from('child_health_master chm');
-        $this->db->join('child_health_detail chd','chd.master_id = chm.master_id','left');
+        $this->db->join('child_health_detail chd', 'chd.master_id = chm.master_id', 'left');
+        $this->db->join('uc u', 'u.pk_id = chm.uc', 'left');
+        $this->db->join('facilities f','f.id = chm.facility_id','left');
 
         if(!empty($filters['uc'])) {
-            $this->db->where_in('chm.uc',$filters['uc']);
+            $this->db->where_in('chm.uc', $filters['uc']);
         }
         if(!empty($filters['start']) && !empty($filters['end'])) {
             $this->db->where('chm.form_date >=', $filters['start']);
             $this->db->where('chm.form_date <=', $filters['end']);
         }
 
+        $this->db->group_by('chm.master_id');
+
         return $this->db->get()->result_array();
     }
 
     public function get_opd_mnch_data($filters)
     {
-        $this->db->select("omm.*, omd.question_id as detail_question_id, omd.option_id as detail_option_id, omd.answer as detail_answer, omd.created_at as detail_created_at");
+        $this->db->select("
+            omm.id,
+            omm.form_date,
+            omm.anc_card_no,
+            omm.client_type,
+            'North Waziristan' as district,
+            u.uc as uc,
+            omm.village,
+            omm.lhv_name,
+            omm.patient_name,
+            omm.guardian_name,
+            omm.disability,
+            omm.age_group,
+            omm.marital_status,
+            omm.pregnancy_status,
+            omm.notes,
+            omm.created_at,
+            omm.visit_type,
+            omm.created_by,
+            f.facility_name,
+            omm.qr_code,
+
+            GROUP_CONCAT(
+                CONCAT('Q', omd.question_id, ': ', omd.answer)
+                SEPARATOR ' | '
+            ) as details
+        ");
+
         $this->db->from('opd_mnch_master omm');
         $this->db->join('opd_mnch_detail omd','omd.master_id = omm.id','left');
+        $this->db->join('uc u','u.pk_id = omm.uc','left');
+        $this->db->join('facilities f','f.id = omm.facility_id','left');
 
         if(!empty($filters['uc'])) {
-            $this->db->where_in('omm.uc',$filters['uc']);
+            $this->db->where_in('omm.uc', $filters['uc']);
         }
         if(!empty($filters['start']) && !empty($filters['end'])) {
             $this->db->where('omm.form_date >=', $filters['start']);
             $this->db->where('omm.form_date <=', $filters['end']);
         }
+
+        $this->db->group_by('omm.id');
 
         return $this->db->get()->result_array();
     }
