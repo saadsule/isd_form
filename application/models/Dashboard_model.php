@@ -998,7 +998,7 @@ class Dashboard_model extends CI_Model {
 
         if ($noneCount > 0) {
             $data[] = [
-                'name' => 'None',
+                'name' => 'N/A',
                 'y'    => $noneCount
             ];
         }
@@ -1084,7 +1084,7 @@ class Dashboard_model extends CI_Model {
 
         if ($noneCount > 0) {
             $data[] = [
-                'name' => 'None',
+                'name' => 'N/A',
                 'y'    => $noneCount
             ];
         }
@@ -1170,7 +1170,7 @@ class Dashboard_model extends CI_Model {
 
         if ($noneCount > 0) {
             $data[] = [
-                'name' => 'None',
+                'name' => 'N/A',
                 'y'    => $noneCount
             ];
         }
@@ -1256,7 +1256,7 @@ class Dashboard_model extends CI_Model {
 
         if ($noneCount > 0) {
             $data[] = [
-                'name' => 'None',
+                'name' => 'N/A',
                 'y'    => $noneCount
             ];
         }
@@ -1440,7 +1440,7 @@ class Dashboard_model extends CI_Model {
             if ($noneCount > 0) {
                 $data[] = [
                     'question' => $qname,
-                    'name' => 'None',
+                    'name' => 'N/A',
                     'value' => $noneCount,
                     'color' => '#d3d3d3'
                 ];
