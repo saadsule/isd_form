@@ -17,12 +17,12 @@
             <!-- Dashboard (exclude role 1) -->
             <?php if($role != 1): ?>
             <li class="nav-item dropdown 
-                <?= ($this->uri->segment(2) == 'map_view' || $this->uri->segment(2) == 'outreach') ? 'open' : '' ?>">                
+                <?= ($this->uri->segment(2) == 'map_view' || $this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health') ? 'open' : '' ?>">                
                 <a class="dropdown-toggle" href="javascript:void(0);">
                     <span class="icon-holder">
                         <i class="anticon anticon-dashboard"></i>
                     </span>
-                    <span class="title">Dashboard</span>
+                    <span class="title">Analytics</span>
                     <span class="arrow">
                         <i class="arrow-icon"></i>
                     </span>
@@ -38,6 +38,24 @@
                     <li class="<?= ($this->uri->segment(2) == 'outreach') ? 'active' : '' ?>">
                         <a href="<?= base_url('dashboard/outreach'); ?>">
                             <span>Outreach</span>
+                        </a>
+                    </li>
+                    
+                    <li class="<?= ($this->uri->segment(2) == 'fixedsite') ? 'active' : '' ?>">
+                        <a href="<?= base_url('dashboard/fixedsite'); ?>">
+                            <span>Fixed Site</span>
+                        </a>
+                    </li>
+                    
+                    <li class="<?= ($this->uri->segment(2) == 'child_health') ? 'active' : '' ?>">
+                        <a href="<?= base_url('dashboard/child_health'); ?>">
+                            <span>Child Health</span>
+                        </a>
+                    </li>
+                    
+                    <li class="<?= ($this->uri->segment(2) == 'export_health_data') ? 'active' : '' ?>">
+                        <a href="<?= base_url('reports/export_health_data'); ?>">
+                            <span>Export Health Data</span>
                         </a>
                     </li>
                 </ul>
@@ -116,7 +134,7 @@
                         <span class="icon-holder">
                             <i class="anticon anticon-file-text"></i>
                         </span>
-                        <span class="title">Reports</span>
+                        <span class="title">Reporting Stats</span>
                         <span class="arrow">
                             <i class="arrow-icon"></i>
                         </span>

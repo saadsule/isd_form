@@ -33,7 +33,14 @@ class Users extends CI_Controller {
 
         if($this->input->server('REQUEST_METHOD') === 'POST'){
             $post = $this->input->post();
+            $username = trim($post['username']);
 
+            //  Check username
+            if($this->Users_model->username_exists($username)){
+                $this->session->set_flashdata('error','Username already exists. Please choose another.');
+                redirect('users/add');
+            }
+            
             $data = [
                 'full_name'   => trim($post['full_name']),
                 'username'    => trim($post['username']),
@@ -78,6 +85,13 @@ class Users extends CI_Controller {
 
         if($this->input->server('REQUEST_METHOD') === 'POST'){
             $post = $this->input->post();
+            $username = trim($post['username']);
+
+            // Check username (exclude current user id)
+            if($this->Users_model->username_exists($username, $id)){
+                $this->session->set_flashdata('error','Username already exists. Please choose another.');
+                redirect('users/edit/'.$id);
+            }
 
             $data = [
                 'full_name'   => trim($post['full_name']),

@@ -123,6 +123,80 @@ class Dashboard extends CI_Controller {
         $this->load->view('layout/main', $data);
     }
     
+    public function fixedsite()
+    {
+        $data['page_title'] = "Fixed Site Dashboard";
+
+        $filters = [
+            'uc'          => $this->input->get('uc'),
+            'start'       => $this->input->get('start'),
+            'end'         => $this->input->get('end'),
+            'age_group'   => $this->input->get('age_group'),
+            'gender'      => $this->input->get('gender'),
+            'client_type' => $this->input->get('client_type'),
+            'vaccination_history' => $this->input->get('vaccination_history'),
+            'antigens' => $this->input->get('antigens'),
+            'antigens_1_2_years' => $this->input->get('antigens_1_2_years'),
+            'antigens_2_5_years' => $this->input->get('antigens_2_5_years'),
+        ];
+
+        $data['filters'] = $filters;
+
+        $data['ucs'] = $this->Dashboard_model->get_ucs();
+
+        // ✅ Check if ANY filter is selected
+        $isFilterApplied = false;
+
+        foreach ($filters as $value) {
+            if (!empty($value)) {
+                $isFilterApplied = true;
+                break;
+            }
+        }
+
+        $data['isFilterApplied'] = $isFilterApplied;
+        
+        // Check individual plot selections
+        $data['showPlot1'] = !empty($filters['client_type']);
+        $data['showPlot2'] = !empty($filters['vaccination_history']);
+        $data['showPlot3'] = !empty($filters['antigens']);
+        $data['showPlot4'] = !empty($filters['antigens_1_2_years']);
+        $data['showPlot5'] = !empty($filters['antigens_2_5_years']);
+
+        if ($data['showPlot1']) {
+            $data['graph_data'] = $this->Dashboard_model->get_fixedsite_graph($filters);
+        } else {
+            $data['graph_data'] = [];
+        }
+
+        if ($data['showPlot2']) {
+            $data['plot2_data'] = $this->Dashboard_model->get_vaccination_history_graph_fixedsite($filters);
+        } else {
+            $data['plot2_data'] = [];
+        }
+
+        if ($data['showPlot3']) {
+            $data['plot3_data'] = $this->Dashboard_model->get_antigen_under1_graph_fixedsite($filters);
+        } else {
+            $data['plot3_data'] = [];
+        }
+
+        if ($data['showPlot4']) {
+            $data['plot4_data'] = $this->Dashboard_model->get_antigen_1_2_graph_fixedsite($filters);
+        } else {
+            $data['plot4_data'] = [];
+        }
+
+        if ($data['showPlot5']) {
+            $data['plot5_data'] = $this->Dashboard_model->get_antigen_2_5_graph_fixedsite($filters);
+        } else {
+            $data['plot5_data'] = [];
+        }
+
+        $data['main_content'] = $this->load->view('dashboard/fixedsite_view', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
     public function child_health()
     {
         $data['page_title'] = "Child Health Dashboard";
@@ -190,7 +264,11 @@ class Dashboard extends CI_Controller {
             'gender'               => $gender_counts,
             'age_group'            => $age_group_counts,
             'q171'                 => $q171_counts,
-            'sunburst'             => $sunburstData,
+            //  sunburst data
+            'sunburst'             => $sunburstData['sunburst'],
+            'yes_count'            => $sunburstData['yes_count'],
+            'no_count'             => $sunburstData['no_count'],
+            
             'heatmap'              => $heatmap,
             'q21'                  => $q21_counts,
             'q22'                  => $q22_counts,

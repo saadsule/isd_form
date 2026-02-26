@@ -22,5 +22,16 @@ class Users_model extends CI_Model {
     public function delete_user($id){
         return $this->db->where('user_id', $id)->delete('users');
     }
+    
+    public function username_exists($username, $exclude_id = null)
+    {
+        $this->db->where('username', $username);
+
+        if($exclude_id){
+            $this->db->where('user_id !=', $exclude_id); // For edit case
+        }
+
+        return $this->db->get('users')->num_rows() > 0;
+    }
 
 }

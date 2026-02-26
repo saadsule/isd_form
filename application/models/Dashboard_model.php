@@ -774,41 +774,71 @@ class Dashboard_model extends CI_Model {
 
         $safe = function($v) { return (int)$v; };
 
-        $total = $safe($r['yes_count']) + $safe($r['no_count']);
+        $yesCount = $safe($r['yes_count']);
+        $noCount  = $safe($r['no_count']);
 
         $sunburst = [];
 
-        // ROOT
         $sunburst[] = [
-            'id' => 'root',
+            'id'     => 'no',
             'parent' => '',
-            'name' => 'Child Vaccination Status',
-            'value' => $total
+            'name'   => 'Not Vaccinated',
+            'value'  => $noCount
         ];
 
-        // Q17.2 - Yes / No
-        $sunburst[] = ['id'=>'yes','parent'=>'root','name'=>'Yes (Vaccinated)','value'=>$safe($r['yes_count'])];
-        $sunburst[] = ['id'=>'no','parent'=>'root','name'=>'No (Not Vaccinated)','value'=>$safe($r['no_count'])];
+        $sunburst[] = [
+            'parent' => 'no',
+            'name'   => 'Fully Immunized',
+            'value'  => $safe($r['fully_immunized'])
+        ];
 
-        // Q17.3 – Under No
-        $sunburst[] = ['parent'=>'no','name'=>'Fully Immunized','value'=>$safe($r['fully_immunized'])];
-        $sunburst[] = ['parent'=>'no','name'=>'Vaccine Not Due','value'=>$safe($r['vaccine_not_due'])];
-        $sunburst[] = ['parent'=>'no','name'=>'Child Unwell','value'=>$safe($r['child_unwell'])];
+        $sunburst[] = [
+            'parent' => 'no',
+            'name'   => 'Vaccine Not Due',
+            'value'  => $safe($r['vaccine_not_due'])
+        ];
 
-        // Add Refusal node with ID so subtypes can attach
-        $sunburst[] = ['id'=>'no_refusal','parent'=>'no','name'=>'Refusal','value'=>$safe($r['refusal_reason'])];
+        $sunburst[] = [
+            'parent' => 'no',
+            'name'   => 'Child Unwell',
+            'value'  => $safe($r['child_unwell'])
+        ];
+        
+        $refusalTotal = $safe($r['refusal_reason']);
 
-        // Only if there are refusals, attach Q17.4 subtypes under No → Refusal
-        if ($safe($r['refusal_reason']) > 0) {
-            $sunburst[] = ['id'=>'refusal_type','parent'=>'no_refusal','name'=>'Type of Refusal','value'=> 
-                $safe($r['demand_refusal']) + $safe($r['misconception_refusal']) + $safe($r['religious_refusal'])
+        if ($refusalTotal > 0) {
+
+            $sunburst[] = [
+                'id'     => 'refusal',
+                'parent' => 'no',
+                'name'   => 'Refusal',
+                'value'  => $refusalTotal
             ];
-            $sunburst[] = ['parent'=>'refusal_type','name'=>'Demand Refusal','value'=>$safe($r['demand_refusal'])];
-            $sunburst[] = ['parent'=>'refusal_type','name'=>'Misconception Refusal','value'=>$safe($r['misconception_refusal'])];
-            $sunburst[] = ['parent'=>'refusal_type','name'=>'Religious Refusal','value'=>$safe($r['religious_refusal'])];
+
+            $sunburst[] = [
+                'parent' => 'refusal',
+                'name'   => 'Demand Refusal',
+                'value'  => $safe($r['demand_refusal'])
+            ];
+
+            $sunburst[] = [
+                'parent' => 'refusal',
+                'name'   => 'Misconception Refusal',
+                'value'  => $safe($r['misconception_refusal'])
+            ];
+
+            $sunburst[] = [
+                'parent' => 'refusal',
+                'name'   => 'Religious Refusal',
+                'value'  => $safe($r['religious_refusal'])
+            ];
         }
 
-        return $sunburst;
+        return [
+            'sunburst'  => $sunburst,
+            'yes_count' => $yesCount,
+            'no_count'  => $noCount
+        ];
     }
     
     public function get_antigen_heatmap($filters)
@@ -1418,6 +1448,311 @@ class Dashboard_model extends CI_Model {
         }
 
         return $data;
+    }
+    
+//    For Fixed Site Dashboard
+    // Get Fixed Site graph data
+    public function get_fixedsite_graph($filters)
+    {
+        $this->db->select("
+            DATE(form_date) as form_date,
+            gender,
+            age_group,
+            client_type,
+            visit_type,
+            COUNT(*) as total
+        ");
+        $this->db->from('child_health_master');
+
+        // UC filter
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('uc', $filters['uc']);
+        }
+
+        // Date range filter
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(form_date) <=', $filters['end']);
+        }
+
+        // Gender filter
+        if (!empty($filters['gender'])) {
+            $this->db->where_in('gender', $filters['gender']);
+        }
+
+        // Age group filter
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('age_group', $filters['age_group']);
+        }
+
+        // Client type filter
+        if (!empty($filters['client_type'])) {
+            $this->db->where_in('client_type', $filters['client_type']);
+        }
+
+        // Visit type filter (only Fixed Site)
+        $this->db->where('visit_type', 'Fixed Site');
+        
+        // 🔥 DAILY GROUPING
+        $this->db->group_by([
+            "DATE(form_date)",
+            "gender",
+            "age_group",
+            "client_type"
+        ]);
+
+        $this->db->order_by('DATE(form_date)', 'ASC');
+
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    public function get_vaccination_history_graph_fixedsite($filters)
+    {
+        $this->db->select("
+            d.question_id,
+            DATE(m.form_date) as form_date,
+            d.option_id,
+            d.answer,
+            COUNT(d.detail_id) as total,
+            m.gender,
+            m.age_group
+        ");
+
+        $this->db->from('child_health_detail d');
+        $this->db->join('questions q', 'q.question_id = d.question_id');
+        $this->db->join('child_health_master m', 'm.master_id = d.master_id');
+
+        $this->db->where_in('d.question_id', [1,2,3,4]);
+
+        if (!empty($filters['vaccination_history'])) {
+            $this->db->where_in('d.option_id', $filters['vaccination_history']);
+        }
+
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+        
+        // Gender filter
+        if (!empty($filters['gender'])) {
+            $this->db->where_in('gender', $filters['gender']);
+        }
+
+        // Age group filter
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('age_group', $filters['age_group']);
+        }
+
+        $this->db->where('m.visit_type', 'Fixed Site');
+
+        $this->db->group_by([
+            'd.question_id',
+            'd.option_id',
+            'd.answer',
+            'DATE(m.form_date)',
+            'm.gender',
+            'm.age_group'
+        ]);
+
+        $this->db->order_by('d.option_id', 'ASC');
+        $this->db->order_by('DATE(m.form_date)', 'ASC');
+        
+        // Get the SQL query string without executing
+//    $query_string = $this->db->get_compiled_select();
+//    echo $query_string;
+        
+        return $this->db->get()->result();
+    }
+    
+    public function get_antigen_under1_graph_fixedsite($filters)
+    {
+        $this->db->select("
+            DATE(m.form_date) as form_date,
+            d.option_id,
+            COUNT(*) as total,
+            m.gender,
+            m.age_group
+        ");
+
+        $this->db->from('child_health_detail d');
+        $this->db->join('child_health_master m', 'm.master_id = d.master_id');
+
+        // ✅ Question ID 5 (Antigens < 1 Year)
+        $this->db->where('d.question_id', 5);
+
+        // Selected antigen filters
+        if (!empty($filters['antigens'])) {
+            $this->db->where_in('d.option_id', $filters['antigens']);
+        }
+
+        // UC filter
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        // Date filter
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+        
+        // Gender filter
+        if (!empty($filters['gender'])) {
+            $this->db->where_in('gender', $filters['gender']);
+        }
+
+        // Age group filter
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('age_group', $filters['age_group']);
+        }
+
+        // Fixed Site only
+        $this->db->where('m.visit_type', 'Fixed Site');
+
+        $this->db->group_by([
+            'DATE(m.form_date)',
+            'd.option_id',
+            'm.gender',
+            'm.age_group'
+        ]);
+
+        $this->db->order_by('DATE(m.form_date)', 'ASC');
+
+        return $this->db->get()->result();
+    }
+    
+    public function get_antigen_1_2_graph_fixedsite($filters)
+    {
+        $this->db->select("
+            DATE(m.form_date) as form_date,
+            d.option_id,
+            COUNT(*) as total,
+            m.gender,
+            m.age_group
+        ");
+
+        $this->db->from('child_health_detail d');
+        $this->db->join('child_health_master m', 'm.master_id = d.master_id');
+
+        // ✅ Question ID 6 (1–2 Years)
+        $this->db->where('d.question_id', 6);
+
+        // Selected antigen filters
+        if (!empty($filters['antigens_1_2_years'])) {
+            $this->db->where_in('d.option_id', $filters['antigens_1_2_years']);
+        }
+
+        // UC filter
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        // Date filter
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+        
+        // Gender filter
+        if (!empty($filters['gender'])) {
+            $this->db->where_in('gender', $filters['gender']);
+        }
+
+        // Age group filter
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('age_group', $filters['age_group']);
+        }
+
+        // Fixed Site only
+        $this->db->where('m.visit_type', 'Fixed Site');
+
+        $this->db->group_by([
+            'DATE(m.form_date)',
+            'd.option_id',
+            'm.gender',
+            'm.age_group'
+        ]);
+
+        $this->db->order_by('DATE(m.form_date)', 'ASC');
+
+        return $this->db->get()->result();
+    }
+    
+    public function get_antigen_2_5_graph_fixedsite($filters)
+    {
+        $this->db->select("
+            DATE(m.form_date) as form_date,
+            d.option_id,
+            COUNT(*) as total,
+            m.gender,
+            m.age_group
+        ");
+
+        $this->db->from('child_health_detail d');
+        $this->db->join('child_health_master m', 'm.master_id = d.master_id');
+
+        // ✅ Question ID 7 (2–5 Years)
+        $this->db->where('d.question_id', 7);
+
+        // Selected antigen filters
+        if (!empty($filters['antigens_2_5_years'])) {
+            $this->db->where_in('d.option_id', $filters['antigens_2_5_years']);
+        }
+
+        // UC filter
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+
+        // Date filter
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+        
+        // Gender filter
+        if (!empty($filters['gender'])) {
+            $this->db->where_in('gender', $filters['gender']);
+        }
+
+        // Age group filter
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('age_group', $filters['age_group']);
+        }
+
+        // Fixed Site only
+        $this->db->where('m.visit_type', 'Fixed Site');
+
+        $this->db->group_by([
+            'DATE(m.form_date)',
+            'd.option_id',
+            'm.gender',
+            'm.age_group'
+        ]);
+
+        $this->db->order_by('DATE(m.form_date)', 'ASC');
+
+        return $this->db->get()->result();
     }
     
 }

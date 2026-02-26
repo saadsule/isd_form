@@ -32,9 +32,15 @@
                         <div class="m-b-15">
                             <select name="form_type" class="form-control">
                                 <?php
-                                $form_type = ['chf','opd'];
-                                foreach($form_type as $g){
-                                    echo "<option value='{$g}' ".(isset($filters['form_type']) && in_array($g,$filters['form_type']) ? 'selected' : '').">{$g}</option>";
+                                $form_type = [
+                                    'chf' => 'Child Health Form',
+                                    'opd' => 'OPD/MNCH Form'
+                                ];
+
+                                foreach($form_type as $value => $label){
+                                    echo "<option value='{$value}' "
+                                        .(isset($filters['form_type']) && in_array($value,$filters['form_type']) ? 'selected' : '')
+                                        .">{$label}</option>";
                                 }
                                 ?>
                             </select>

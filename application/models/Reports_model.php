@@ -257,7 +257,7 @@ class Reports_model extends CI_Model {
 
         foreach ($questions as $q) {
             $qid = $q['question_id'];
-            $label = $q['q_order'] . '. ' . strtoupper($q['q_section']) . ' - ' . strtoupper($q['q_text']);
+            $label = $q['q_order'] . '. ' . strtoupper($q['q_text']);
             $question_labels[$qid] = $label;
 
             // Conditional aggregation: group answers for this question
@@ -311,6 +311,9 @@ class Reports_model extends CI_Model {
 
         $this->db->group_by('chm.master_id');
 
+        $this->db->order_by('u.pk_id', 'ASC');
+        $this->db->order_by('chm.form_date', 'ASC');
+        
         $result = $this->db->get()->result_array();
 
         return [
@@ -334,7 +337,7 @@ class Reports_model extends CI_Model {
 
         foreach ($questions as $q) {
             $qid = $q['question_id'];
-            $label = $q['q_order'] . '. ' . strtoupper($q['q_section']) . ' - ' . strtoupper($q['q_text']);
+            $label = $q['q_order'] . '. ' . strtoupper($q['q_text']);
             $question_labels[$qid] = $label;
 
             $select_questions[] = "GROUP_CONCAT(
@@ -383,6 +386,9 @@ class Reports_model extends CI_Model {
 
         $this->db->group_by('omm.id');
 
+        $this->db->order_by('u.pk_id', 'ASC');
+        $this->db->order_by('chm.form_date', 'ASC');
+        
         $result = $this->db->get()->result_array();
 
         return [

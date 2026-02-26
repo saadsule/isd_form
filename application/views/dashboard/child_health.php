@@ -405,14 +405,10 @@ window.onload = function() {
                         ]
                     }]
                 });
-                
-                // Extract the values for Yes and No
-                const yesData = response.sunburst.find(item => item.id === "yes")?.value || 0;
-                const noData = response.sunburst.find(item => item.id === "no")?.value || 0;
 
                 // Set values in cards
-                document.getElementById("vaccinatedCount").innerText = yesData;
-                document.getElementById("notVaccinatedCount").innerText = noData;
+                document.getElementById("vaccinatedCount").innerText = response.yes_count;
+                document.getElementById("notVaccinatedCount").innerText = response.no_count;
                 Highcharts.chart('sunburstChart', {
                     chart: { },
 
