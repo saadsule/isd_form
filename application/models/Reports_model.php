@@ -243,104 +243,152 @@ class Reports_model extends CI_Model {
     }
     
     public function get_child_health_data($filters)
-    {
-        $this->db->select("
-            chm.master_id,
-            chm.form_date,
-            chm.qr_code,
-            chm.client_type,
-            'North Waziristan' as district,
-            u.uc as uc,
-            f.facility_name,
-            chm.village,
-            chm.vaccinator_name,
-            chm.patient_name,
-            chm.guardian_name,
-            chm.dob,
-            chm.age_year,
-            chm.age_month,
-            chm.age_day,
-            chm.gender,
-            chm.marital_status,
-            chm.pregnancy_status,
-            chm.disability,
-            chm.play_learning_kit,
-            chm.nutrition_package,
-            chm.created_at,
-            chm.visit_type,
-            chm.created_by,
-            chm.age_group,
+{
+    // Step 1: Get all active questions for 'chf' in order
+    $questions = $this->db
+        ->where('status', 1)
+        ->where('form_type', 'chf')
+        ->order_by('q_order', 'ASC')
+        ->get('questions')
+        ->result_array();
 
-            GROUP_CONCAT(
-                CONCAT('Q', chd.question_id, ': ', chd.answer)
-                SEPARATOR ' | '
-            ) as details
-        ");
+    $select_questions = [];
+    $question_labels = [];
 
-        $this->db->from('child_health_master chm');
-        $this->db->join('child_health_detail chd', 'chd.master_id = chm.master_id', 'left');
-        $this->db->join('uc u', 'u.pk_id = chm.uc', 'left');
-        $this->db->join('facilities f','f.id = chm.facility_id','left');
+    foreach ($questions as $q) {
+        $qid = $q['question_id'];
+        $label = $q['q_order'] . '. ' . strtoupper($q['q_section']) . ' - ' . strtoupper($q['q_text']);
+        $question_labels[$qid] = $label;
 
-        if(!empty($filters['uc'])) {
-            $this->db->where_in('chm.uc', $filters['uc']);
-        }
-        if(!empty($filters['start']) && !empty($filters['end'])) {
-            $this->db->where('chm.form_date >=', $filters['start']);
-            $this->db->where('chm.form_date <=', $filters['end']);
-        }
-
-        $this->db->group_by('chm.master_id');
-
-        return $this->db->get()->result_array();
+        // Conditional aggregation: group answers for this question
+        $select_questions[] = "GROUP_CONCAT(
+            CASE WHEN chd.question_id = {$qid} THEN chd.answer END
+            SEPARATOR ', '
+        ) AS `Q{$qid}`";
     }
+
+    // Step 2: Main query
+    $this->db->select("
+        chm.master_id,
+        chm.form_date,
+        chm.qr_code,
+        chm.client_type,
+        'North Waziristan' AS district,
+        u.uc AS uc,
+        f.facility_name,
+        chm.village,
+        chm.vaccinator_name,
+        chm.patient_name,
+        chm.guardian_name,
+        chm.dob,
+        chm.age_year,
+        chm.age_month,
+        chm.age_day,
+        chm.gender,
+        chm.marital_status,
+        chm.pregnancy_status,
+        chm.disability,
+        chm.play_learning_kit,
+        chm.nutrition_package,
+        chm.created_at,
+        chm.visit_type,
+        chm.created_by,
+        chm.age_group,
+        ".implode(',', $select_questions)."
+    ");
+    $this->db->from('child_health_master chm');
+    $this->db->join('child_health_detail chd', 'chd.master_id = chm.master_id', 'left');
+    $this->db->join('uc u', 'u.pk_id = chm.uc', 'left');
+    $this->db->join('facilities f','f.id = chm.facility_id','left');
+
+    if(!empty($filters['uc'])) {
+        $this->db->where_in('chm.uc', $filters['uc']);
+    }
+    if(!empty($filters['start']) && !empty($filters['end'])) {
+        $this->db->where('chm.form_date >=', $filters['start']);
+        $this->db->where('chm.form_date <=', $filters['end']);
+    }
+
+    $this->db->group_by('chm.master_id');
+
+    $result = $this->db->get()->result_array();
+
+    return [
+        'data' => $result,
+        'questions' => $question_labels
+    ];
+}
 
     public function get_opd_mnch_data($filters)
-    {
-        $this->db->select("
-            omm.id,
-            omm.form_date,
-            omm.anc_card_no,
-            omm.client_type,
-            'North Waziristan' as district,
-            u.uc as uc,
-            omm.village,
-            omm.lhv_name,
-            omm.patient_name,
-            omm.guardian_name,
-            omm.disability,
-            omm.age_group,
-            omm.marital_status,
-            omm.pregnancy_status,
-            omm.notes,
-            omm.created_at,
-            omm.visit_type,
-            omm.created_by,
-            f.facility_name,
-            omm.qr_code,
+{
+    // Step 1: Get all active questions for 'opd' in order
+    $questions = $this->db
+        ->where('status', 1)
+        ->where('form_type', 'opd')
+        ->order_by('q_order', 'ASC')
+        ->get('questions')
+        ->result_array();
 
-            GROUP_CONCAT(
-                CONCAT('Q', omd.question_id, ': ', omd.answer)
-                SEPARATOR ' | '
-            ) as details
-        ");
+    $select_questions = [];
+    $question_labels = [];
 
-        $this->db->from('opd_mnch_master omm');
-        $this->db->join('opd_mnch_detail omd','omd.master_id = omm.id','left');
-        $this->db->join('uc u','u.pk_id = omm.uc','left');
-        $this->db->join('facilities f','f.id = omm.facility_id','left');
+    foreach ($questions as $q) {
+        $qid = $q['question_id'];
+        $label = $q['q_order'] . '. ' . strtoupper($q['q_section']) . ' - ' . strtoupper($q['q_text']);
+        $question_labels[$qid] = $label;
 
-        if(!empty($filters['uc'])) {
-            $this->db->where_in('omm.uc', $filters['uc']);
-        }
-        if(!empty($filters['start']) && !empty($filters['end'])) {
-            $this->db->where('omm.form_date >=', $filters['start']);
-            $this->db->where('omm.form_date <=', $filters['end']);
-        }
-
-        $this->db->group_by('omm.id');
-
-        return $this->db->get()->result_array();
+        $select_questions[] = "GROUP_CONCAT(
+            CASE WHEN omd.question_id = {$qid} THEN omd.answer END
+            SEPARATOR ', '
+        ) AS `Q{$qid}`";
     }
+
+    // Step 2: Main query
+    $this->db->select("
+        omm.id,
+        omm.form_date,
+        omm.anc_card_no,
+        omm.client_type,
+        'North Waziristan' AS district,
+        u.uc AS uc,
+        omm.village,
+        omm.lhv_name,
+        omm.patient_name,
+        omm.guardian_name,
+        omm.disability,
+        omm.age_group,
+        omm.marital_status,
+        omm.pregnancy_status,
+        omm.notes,
+        omm.created_at,
+        omm.visit_type,
+        omm.created_by,
+        f.facility_name,
+        omm.qr_code,
+        ".implode(',', $select_questions)."
+    ");
+
+    $this->db->from('opd_mnch_master omm');
+    $this->db->join('opd_mnch_detail omd', 'omd.master_id = omm.id', 'left');
+    $this->db->join('uc u', 'u.pk_id = omm.uc', 'left');
+    $this->db->join('facilities f', 'f.id = omm.facility_id', 'left');
+
+    if (!empty($filters['uc'])) {
+        $this->db->where_in('omm.uc', $filters['uc']);
+    }
+    if (!empty($filters['start']) && !empty($filters['end'])) {
+        $this->db->where('omm.form_date >=', $filters['start']);
+        $this->db->where('omm.form_date <=', $filters['end']);
+    }
+
+    $this->db->group_by('omm.id');
+
+    $result = $this->db->get()->result_array();
+
+    return [
+        'data' => $result,
+        'questions' => $question_labels
+    ];
+}
     
 }

@@ -23,6 +23,15 @@
                         <label>Password <small>(Leave blank to keep current)</small></label>
                         <input type="password" name="password" class="form-control">
                     </div>
+                    
+                    <div class="col-md-6">
+                        <label>Role *</label>
+                        <select name="role" class="form-control" required>
+                            <?php foreach($roles as $key => $value): ?>
+                                <option value="<?= $key ?>" <?= ($key == $user->role) ? 'selected' : '' ?>><?= $value ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
                     <div class="col-md-6">
                         <label>Status *</label>

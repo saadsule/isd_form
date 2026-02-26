@@ -23,6 +23,23 @@
                         <label>Password *</label>
                         <input type="password" name="password" class="form-control" required>
                     </div>
+                    
+                    <div class="col-md-6">
+                        <label>Status *</label>
+                        <select name="status" class="form-control" required>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label>Role *</label>
+                        <select name="role" class="form-control" required>
+                            <?php foreach($roles as $key => $value): ?>
+                                <option value="<?= $key ?>"><?= $value ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
                     <div class="col-md-12 mt-2 d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary">Add User</button>

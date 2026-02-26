@@ -26,7 +26,7 @@ class Users extends CI_Controller {
     public function add(){
         $current_role = $this->session->userdata('role');
 
-        if(!in_array($current_role, [3,4])){
+        if($current_role != 3){
             $this->session->set_flashdata('error','You are not allowed to add users.');
             redirect('users');
         }
@@ -40,8 +40,8 @@ class Users extends CI_Controller {
                 'password'    => md5(trim($post['password'])), // Encrypt password
                 'province_id' => 3,
                 'district_id' => 94,
-                'role'        => 1, // default role
-                'status'      => 1,
+                'role'        => $post['role'], // select from dropdown (1 or 4)
+                'status'      => $post['status'],
                 'created_at'  => date('Y-m-d H:i:s')
             ];
 
@@ -51,15 +51,17 @@ class Users extends CI_Controller {
             redirect('users');
         }
 
-        // Load provinces/districts for select dropdown
-        $data['provinces'] = $this->db->get('provinces')->result();
-        $data['districts'] = $this->db->get('districts')->result();
+        // Role options
+        $data['roles'] = [
+            1 => 'Data Entry',
+            4 => 'Monitor Data'
+        ];
 
         $data['main_content'] = $this->load->view('users/add', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
 
-    // Edit user
+        // Edit user
     public function edit($id){
         $user = $this->Users_model->get_user_by_id($id);
 
@@ -68,8 +70,8 @@ class Users extends CI_Controller {
             redirect('users');
         }
 
-        // Access control: only allow editing role 1 users
-        if($user->role != 1){
+        // Only allow editing role 1 or 4 users
+        if(!in_array($user->role, [1,4])){
             $this->session->set_flashdata('error','You are not allowed to edit this user.');
             redirect('users');
         }
@@ -82,7 +84,8 @@ class Users extends CI_Controller {
                 'username'    => trim($post['username']),
                 'province_id' => 3,
                 'district_id' => 94,
-                'status'      => $post['status']
+                'status'      => $post['status'],
+                'role'        => $post['role'] // updated role from dropdown
             ];
 
             if(!empty($post['password'])){
@@ -96,8 +99,10 @@ class Users extends CI_Controller {
         }
 
         $data['user'] = $user;
-        $data['provinces'] = $this->db->get('provinces')->result();
-        $data['districts'] = $this->db->get('districts')->result();
+        $data['roles'] = [
+            1 => 'Data Entry',
+            4 => 'Monitor Data'
+        ];
 
         $data['main_content'] = $this->load->view('users/edit', $data, TRUE);
         $this->load->view('layout/main', $data);
@@ -106,13 +111,17 @@ class Users extends CI_Controller {
     // Delete user
     public function delete($id){
         $current_role = $this->session->userdata('role');
-        if(!in_array($current_role, [3,4])){
+
+        // Only role 3 can delete users
+        if($current_role != 3){
             $this->session->set_flashdata('error','You are not allowed to delete users.');
             redirect('users');
         }
 
         $user = $this->Users_model->get_user_by_id($id);
-        if(!$user || $user->role != 1){
+
+        // Only allow deleting users with role 1 or 4
+        if(!$user || !in_array($user->role, [1,4])){
             $this->session->set_flashdata('error','You are not allowed to delete this user.');
             redirect('users');
         }

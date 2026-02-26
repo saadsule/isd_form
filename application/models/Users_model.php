@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Users_model extends CI_Model {
 
     public function get_all_users(){
-        return $this->db->where('role', 1)->get('users')->result();
+        return $this->db->where_in('role', [1, 4])->get('users')->result();
     }
 
     public function get_user_by_id($id){

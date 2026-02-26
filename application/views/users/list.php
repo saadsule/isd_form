@@ -13,6 +13,7 @@
                     <th>#</th>
                     <th>Full Name</th>
                     <th>Username</th>
+                    <th>Role</th>
                     <th>Status</th>
                     <th>Created At</th>
                     <th>Actions</th>
@@ -24,6 +25,15 @@
                         <td><?= $i+1 ?></td>
                         <td><?= $u->full_name ?></td>
                         <td><?= $u->username ?></td>
+                        <td>
+                            <?php 
+                                $roles = [
+                                    1 => 'Data Entry',
+                                    4 => 'Monitor Data'
+                                ];
+                                echo isset($roles[$u->role]) ? $roles[$u->role] : 'Unknown';
+                            ?>
+                        </td>
                         <td><?= $u->status ? 'Active' : 'Inactive' ?></td>
                         <td><?= $u->created_at ?></td>
                         <td>
