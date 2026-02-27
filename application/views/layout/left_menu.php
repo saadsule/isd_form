@@ -62,25 +62,25 @@
                 <ul class="dropdown-menu">
                     <li class="<?= ($this->uri->segment(2) == 'map_view') ? 'active' : '' ?>">
                         <a href="<?= base_url('dashboard/map_view'); ?>">
-                            <span>Target Population</span>
+                            <span>Map</span>
                         </a>
                     </li>
 
                     <li class="<?= ($this->uri->segment(2) == 'outreach') ? 'active' : '' ?>">
                         <a href="<?= base_url('dashboard/outreach'); ?>">
-                            <span>Outreach</span>
+                            <span>Outreach Analytics</span>
                         </a>
                     </li>
                     
                     <li class="<?= ($this->uri->segment(2) == 'fixedsite') ? 'active' : '' ?>">
                         <a href="<?= base_url('dashboard/fixedsite'); ?>">
-                            <span>Fixed Site</span>
+                            <span>Fixed Site Analytics</span>
                         </a>
                     </li>
                     
                     <li class="<?= ($this->uri->segment(2) == 'child_health') ? 'active' : '' ?>">
                         <a href="<?= base_url('dashboard/child_health'); ?>">
-                            <span>Child Health</span>
+                            <span>Main Dashboard</span>
                         </a>
                     </li>
                     
