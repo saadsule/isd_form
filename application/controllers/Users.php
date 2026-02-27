@@ -16,7 +16,7 @@ class Users extends CI_Controller {
     }
 
     // List all users
-    public function index(){
+    public function user_list(){
         $data['users'] = $this->Users_model->get_all_users();
         $data['main_content'] = $this->load->view('users/list', $data, TRUE);
         $this->load->view('layout/main', $data);

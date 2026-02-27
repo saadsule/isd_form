@@ -401,7 +401,7 @@ window.onload = function() {
                         data: [
                             { name: 'Yes',z:110, y: Number(q171Data.Yes) || 0 },
                             { name: 'No',z:90,  y: Number(q171Data.No)  || 0 },
-                            { name: 'N/A',z:60, y: Number(q171Data.None)|| 0 }
+                            { name: 'N/A',z:60, y: Number(q171Data.None)|| 0 ,color: '#cccccc'}
                         ]
                     }]
                 });
@@ -412,7 +412,7 @@ window.onload = function() {
                 Highcharts.chart('sunburstChart', {
                     chart: { },
 
-                    title: { text: 'Children Vaccinated During This Session' },
+                    title: { text: 'Children Not Vaccinated During This Session' },
 
                     series: [{
                         type: 'sunburst',
@@ -513,6 +513,13 @@ window.onload = function() {
 
                 });
 
+                let pieDataq21 = response.q21.map(point => {
+                    if (point.name === 'N/A') {
+                        point.color = '#cccccc'; // gray color for N/A
+                    }
+                    return point;
+                });
+
                 Highcharts.chart('q21Chart', {
                     chart: { type: 'pie' },
 
@@ -534,16 +541,22 @@ window.onload = function() {
 
                     series: [{
                         name: 'Responses',
-                        data: response.q21
+                        colorByPoint: false, // important to respect the color set on point
+                        data: pieDataq21
                     }]
                 });
 
-                // 🔟 Doughnut – Q22
+                //  Doughnut – Q22
+                let pieDataq22 = response.q22.map(point => {
+                    if (point.name === 'Yes') point.color = '#00c698';      // Green
+                    else if (point.name === 'No') point.color = '#DE4436';  // Red
+                    else if (point.name === 'N/A') point.color = '#cccccc'; // Gray
+                    return point;
+                });
+
                 Highcharts.chart('q22Chart', {
                     chart: { type: 'pie' },
-
                     title: { text: 'Vaccination Card Issued to the client ?' },
-
                     plotOptions: {
                         pie: {
                             innerSize: '60%',
@@ -553,28 +566,27 @@ window.onload = function() {
                             }
                         }
                     },
-
                     tooltip: {
                         pointFormat: '<b>{point.y}</b>'
                     },
-
                     series: [{
                         name: 'Responses',
-                        data: response.q22,
-						colors: [
-							'#00c698',
-							'#DE4436',
-							'#cccccc'
-						]
+                        colorByPoint: false, // important: respect point.color
+                        data: pieDataq22
                     }]
                 });
 
-                // 1️⃣1️⃣ Doughnut – Q23
+                // Assign colors dynamically per point
+                let pieDataq23 = response.q23.map(point => {
+                    if (point.name === 'Yes') point.color = '#00c698';      // Green
+                    else if (point.name === 'No') point.color = '#DE4436';  // Red
+                    else if (point.name === 'N/A') point.color = '#cccccc'; // Gray
+                    return point;
+                });
+
                 Highcharts.chart('q23Chart', {
                     chart: { type: 'pie' },
-
                     title: { text: 'Any Adverse Event Following Immunization (AEFI)' },
-
                     plotOptions: {
                         pie: {
                             innerSize: '60%',
@@ -584,28 +596,27 @@ window.onload = function() {
                             }
                         }
                     },
-
                     tooltip: {
                         pointFormat: '<b>{point.y}</b>'
                     },
-
                     series: [{
                         name: 'Responses',
-                        data: response.q23,
-						colors: [
-							'#00c698',
-							'#DE4436',
-							'#cccccc'
-						]
+                        colorByPoint: false, // Important: respect point.color
+                        data: pieDataq23
                     }]
                 });
 
-                // 1️⃣2️⃣ Doughnut – Q24
+                // Doughnut – Q24
+                let pieDataq24 = response.q24.map(point => {
+                    if (point.name === 'Yes') point.color = '#00c698';      // Green
+                    else if (point.name === 'No') point.color = '#DE4436';  // Red
+                    else if (point.name === 'N/A') point.color = '#cccccc'; // Gray
+                    return point;
+                });
+
                 Highcharts.chart('q24Chart', {
                     chart: { type: 'pie' },
-
                     title: { text: 'Referred' },
-
                     plotOptions: {
                         pie: {
                             innerSize: '60%',
@@ -615,14 +626,13 @@ window.onload = function() {
                             }
                         }
                     },
-
                     tooltip: {
                         pointFormat: '<b>{point.y}</b>'
                     },
-
                     series: [{
                         name: 'Responses',
-                        data: response.q24
+                        colorByPoint: false, // important to respect point.color
+                        data: pieDataq24
                     }]
                 });
                 

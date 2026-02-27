@@ -4,7 +4,8 @@
 
             <?php $role = $this->session->userdata('role'); ?>
 
-            <!-- Home (all roles) -->
+            <?php if($role != 3): ?>
+            <!-- Home -->
             <li class="nav-item <?= ($this->router->fetch_class() == 'welcome') ? 'active' : '' ?>">
                 <a href="<?= base_url('welcome/index'); ?>">
                     <span class="icon-holder">
@@ -13,9 +14,39 @@
                     <span class="title">Home</span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if($role == 3): ?>
+            <li class="nav-item dropdown 
+                <?= ($this->uri->segment(2) == 'add' || $this->uri->segment(2) == 'user_list') ? 'open' : '' ?>">                
+                <a class="dropdown-toggle" href="javascript:void(0);">
+                    <span class="icon-holder">
+                        <i class="anticon anticon-user"></i>
+                    </span>
+                    <span class="title">Users</span>
+                    <span class="arrow">
+                        <i class="arrow-icon"></i>
+                    </span>
+                </a>
+
+                <ul class="dropdown-menu">
+                    <li class="<?= ($this->uri->segment(2) == 'add') ? 'active' : '' ?>">
+                        <a href="<?= base_url('users/add'); ?>">
+                            <span>Add User</span>
+                        </a>
+                    </li>
+
+                    <li class="<?= ($this->uri->segment(2) == 'user_list') ? 'active' : '' ?>">
+                        <a href="<?= base_url('users/user_list'); ?>">
+                            <span>User List</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <?php endif; ?>
+            
             <!-- Dashboard (exclude role 1) -->
-            <?php if($role != 1): ?>
+            <?php if(!in_array($role, [1,3])): ?>
             <li class="nav-item dropdown 
                 <?= ($this->uri->segment(2) == 'map_view' || $this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health') ? 'open' : '' ?>">                
                 <a class="dropdown-toggle" href="javascript:void(0);">
@@ -63,7 +94,7 @@
             <?php endif; ?>
 
             <!-- Data Entry & View Data (role 1 & role 3) -->
-            <?php if(in_array($role, [1,3])): ?>
+            <?php if(in_array($role, [1])): ?>
                 <!-- Data Entry -->
                 <li class="nav-item dropdown 
                     <?= ($this->uri->segment(2) == 'opd_mnch' || $this->uri->segment(2) == 'child_health') ? 'open' : '' ?>">
@@ -94,7 +125,7 @@
                 </li>
             <?php endif; ?>
 
-            <?php if(in_array($role, [1,2,3])): ?>
+            <?php if(in_array($role, [1,2])): ?>
                 <!-- View Data -->
                 <li class="nav-item dropdown 
                     <?= ($this->uri->segment(2) == 'opd_report' || $this->uri->segment(2) == 'child_health_report') ? 'open' : '' ?>">
@@ -126,7 +157,7 @@
             <?php endif; ?>
 
             <!-- Reports -->
-            <?php if(in_array($role, [2,3,4])): ?>
+            <?php if(in_array($role, [2,4])): ?>
                 <li class="nav-item dropdown 
                     <?= ($this->uri->segment(2) == 'data_entry_status' || $this->uri->segment(2) == 'uc_wise_report') ? 'open' : '' ?>">
 
@@ -172,18 +203,6 @@
                             </a>
                         </li>
                     </ul>
-                </li>
-            <?php endif; ?>
-
-            <!-- Questions (only role 3) -->
-            <?php if($role == 3): ?>
-                <li class="nav-item">
-                    <a href="<?= base_url('questions'); ?>">
-                        <span class="icon-holder">
-                            <i class="anticon anticon-question-circle"></i>
-                        </span>
-                        <span class="title">Questions</span>
-                    </a>
                 </li>
             <?php endif; ?>
 

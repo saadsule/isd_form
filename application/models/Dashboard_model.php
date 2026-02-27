@@ -772,39 +772,62 @@ class Dashboard_model extends CI_Model {
 
         $r = $this->db->get()->row_array();
 
-        $safe = function($v) { return (int)$v; };
+        $safe = function($v) {
+            return (int)$v;
+        };
 
         $yesCount = $safe($r['yes_count']);
         $noCount  = $safe($r['no_count']);
+        
+        $q3Total =
+            $safe($r['fully_immunized']) +
+            $safe($r['vaccine_not_due']) +
+            $safe($r['child_unwell']) +
+            $safe($r['refusal_reason']);
+
+        $q3_na = max(0, $noCount - $q3Total);
+
+        $refusalTotal = $safe($r['refusal_reason']);
+
+        $q4Total =
+            $safe($r['demand_refusal']) +
+            $safe($r['misconception_refusal']) +
+            $safe($r['religious_refusal']);
+
+        $q4_na = max(0, $refusalTotal - $q4Total);
 
         $sunburst = [];
 
+        // Root: Not Vaccinated
         $sunburst[] = [
             'id'     => 'no',
             'parent' => '',
             'name'   => 'Not Vaccinated',
-            'value'  => $noCount
+            'value'  => $noCount,
+            'color'  => '#f7a35c'
         ];
 
+        // Q3 Options
         $sunburst[] = [
             'parent' => 'no',
             'name'   => 'Fully Immunized',
-            'value'  => $safe($r['fully_immunized'])
+            'value'  => $safe($r['fully_immunized']),
+            'color'  => '#7cb5ec'
         ];
 
         $sunburst[] = [
             'parent' => 'no',
             'name'   => 'Vaccine Not Due',
-            'value'  => $safe($r['vaccine_not_due'])
+            'value'  => $safe($r['vaccine_not_due']),
+            'color'  => '#90ed7d'
         ];
 
         $sunburst[] = [
             'parent' => 'no',
             'name'   => 'Child Unwell',
-            'value'  => $safe($r['child_unwell'])
+            'value'  => $safe($r['child_unwell']),
+            'color'  => '#8085e9'
         ];
-        
-        $refusalTotal = $safe($r['refusal_reason']);
 
         if ($refusalTotal > 0) {
 
@@ -812,25 +835,56 @@ class Dashboard_model extends CI_Model {
                 'id'     => 'refusal',
                 'parent' => 'no',
                 'name'   => 'Refusal',
-                'value'  => $refusalTotal
+                'value'  => $refusalTotal,
+                'color'  => '#f15c80'
             ];
 
             $sunburst[] = [
+                'id'     => 'yes',
                 'parent' => 'refusal',
+                'name'   => 'Yes',
+                'value'  => $q4Total,
+                'color'  => '#DE4436'
+            ];
+            
+            $sunburst[] = [
+                'parent' => 'yes',
                 'name'   => 'Demand Refusal',
-                'value'  => $safe($r['demand_refusal'])
+                'value'  => $safe($r['demand_refusal']),
+                'color'  => '#f49c42'
             ];
 
             $sunburst[] = [
-                'parent' => 'refusal',
+                'parent' => 'yes',
                 'name'   => 'Misconception Refusal',
-                'value'  => $safe($r['misconception_refusal'])
+                'value'  => $safe($r['misconception_refusal']),
+                'color'  => '#f7a35c'
             ];
 
             $sunburst[] = [
-                'parent' => 'refusal',
+                'parent' => 'yes',
                 'name'   => 'Religious Refusal',
-                'value'  => $safe($r['religious_refusal'])
+                'value'  => $safe($r['religious_refusal']),
+                'color'  => '#434348'
+            ];
+
+            // N/A under Refusal
+            if ($q4_na > 0) {
+                $sunburst[] = [
+                    'parent' => 'refusal',
+                    'name'   => 'N/A',
+                    'value'  => $q4_na,
+                    'color'  => '#cccccc'
+                ];
+            }
+        }
+        
+        if ($q3_na > 0) {
+            $sunburst[] = [
+                'parent' => 'no',
+                'name'   => 'N/A',
+                'value'  => $q3_na,
+                'color'  => '#cccccc'
             ];
         }
 
@@ -1404,7 +1458,18 @@ class Dashboard_model extends CI_Model {
             'q171' => ['Yes','No']
         ];
 
-        $colors = ["#7cb5ec", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#f49c42"];
+        $colors = [
+            '#1f77b4',
+            '#ff7f0e',
+            '#2ca02c',
+            '#d62728',
+            '#9467bd',
+            '#8c564b',
+            '#e377c2',
+            '#7f7f7f',
+            '#bcbd22',
+            '#17becf'
+        ];
 
         $data = [];
 
