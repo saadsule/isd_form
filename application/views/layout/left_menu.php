@@ -86,7 +86,7 @@
                     
                     <li class="<?= ($this->uri->segment(2) == 'export_health_data') ? 'active' : '' ?>">
                         <a href="<?= base_url('reports/export_health_data'); ?>">
-                            <span>Export Health Data</span>
+                            <span>Export Raw Data</span>
                         </a>
                     </li>
                 </ul>

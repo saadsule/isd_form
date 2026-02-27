@@ -95,9 +95,8 @@ class Reports extends CI_Controller {
             ];
         } else { // opd
             $headers = [
-                'visit_type','form_date','qr_code','anc_card_no','client_type','age_group','district','uc','facility_name','village',
-                'lhv_name','patient_name','guardian_name','disability','marital_status','pregnancy_status',
-                'notes','created_at'
+                'visit_type','form_date','qr_code','anc_card_no','client_type','district','uc','facility_name','village',
+                'lhv_name','patient_name','guardian_name','age_group','disability','marital_status','pregnancy_status',
             ];
         }
 
