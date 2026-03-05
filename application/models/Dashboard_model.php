@@ -920,13 +920,15 @@ class Dashboard_model extends CI_Model {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
         }
 
+        // Include option_id to preserve form order without changing other logic
         $this->db->select("
             d.question_id,
             d.answer AS antigen,
+            d.option_id,
             COUNT(*) AS total
         ", false);
 
-        $this->db->group_by(['d.question_id', 'd.answer']);
+        $this->db->group_by(['d.question_id', 'd.answer', 'd.option_id']);
 
         $result = $this->db->get()->result_array();
 
@@ -942,27 +944,27 @@ class Dashboard_model extends CI_Model {
         $dataMap = [];
 
         foreach ($result as $row) {
-
             if (!$row['antigen']) continue;
 
             $qLabel = $questions[$row['question_id']];
             $antigen = $row['antigen'];
 
-            $antigenList[$antigen] = true;
+            // Add unique antigen preserving form order
+            if (!in_array($antigen, $antigenList)) {
+                $antigenList[$row['option_id']] = $antigen;
+            }
+
             $dataMap[$qLabel][$antigen] = (int)$row['total'];
         }
 
-        $antigenList = array_values(array_keys($antigenList));
+        // Sort by option_id to maintain the same order as the form
+        ksort($antigenList);
+        $antigenList = array_values($antigenList);
 
         $data = [];
-
         foreach ($questionList as $y => $q) {
             foreach ($antigenList as $x => $antigen) {
-
-                $value = isset($dataMap[$q][$antigen])
-                    ? $dataMap[$q][$antigen]
-                    : 0;
-
+                $value = isset($dataMap[$q][$antigen]) ? $dataMap[$q][$antigen] : 0;
                 $data[] = [$x, $y, $value];
             }
         }
@@ -1818,6 +1820,46 @@ class Dashboard_model extends CI_Model {
         $this->db->order_by('DATE(m.form_date)', 'ASC');
 
         return $this->db->get()->result();
+    }
+    
+    //OPD MNCH Main Dashboard
+    public function get_visit_type_counts_opd($filters)
+    {
+        $this->db->select('visit_type, COUNT(id) as total');
+        $this->db->from('opd_mnch_master');
+
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(form_date) <=', $filters['end']);
+        }
+        
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('visit_type', $filters['visit_type']);
+        }
+
+        $this->db->group_by('visit_type');
+
+        $result = $this->db->get()->result();
+
+        $opd = 0;
+        $mnch = 0;
+
+        foreach($result as $row){
+            if($row->visit_type == 'OPD') $opd = $row->total;
+            if($row->visit_type == 'MNCH') $mnch = $row->total;
+        }
+
+        return [
+            'opd' => $opd,
+            'mnch'    => $mnch
+        ];
     }
     
 }

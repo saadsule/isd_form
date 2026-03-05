@@ -291,10 +291,10 @@ action="<?= isset($is_edit) && $is_edit
 </div>
 
 <div class="form-group row">
-<label class="col-sm-2 col-form-label">HF/Village *</label>
+<label class="col-sm-2 col-form-label">HF/Village </label>
 <div class="col-sm-4">
 <input type="text" name="village" class="form-control"
-value="<?= $rec ? htmlspecialchars($rec->village):'' ?>" required>
+value="<?= $rec ? htmlspecialchars($rec->village):'' ?>">
 </div>
 
 <label class="col-sm-2 col-form-label">HT/LHV Name *</label>
@@ -347,14 +347,14 @@ value="<?= $age ?>"
 
 </div>
 
-<label class="col-sm-2 col-form-label">Any Disability *</label>
+<label class="col-sm-2 col-form-label">Any Disability</label>
 <div class="col-sm-4">
 
 <?php $dis=['Yes','No']; foreach($dis as $d){ ?>
 <div class="form-check">
 <input class="form-check-input" type="radio" name="disability"
 value="<?= $d ?>"
-<?= ($rec && $rec->disability==$d)?'checked':'' ?> required>
+<?= ($rec && $rec->disability==$d)?'checked':'' ?>>
 <label class="form-check-label"><?= $d ?></label>
 </div>
 <?php } ?>
@@ -366,28 +366,28 @@ value="<?= $d ?>"
 
 <div class="form-group row">
     
-<label class="col-sm-2 col-form-label">Marital Status *</label>
+<label class="col-sm-2 col-form-label">Marital Status</label>
 <div class="col-sm-4">
 
 <?php $maritals=['Married','Unmarried']; foreach($maritals as $m){ ?>
 <div class="form-check">
 <input class="form-check-input" type="radio" name="marital_status"
 value="<?= $m ?>"
-<?= ($rec && $rec->marital_status==$m)?'checked':'' ?> required>
+<?= ($rec && $rec->marital_status==$m)?'checked':'' ?>>
 <label class="form-check-label"><?= $m ?></label>
 </div>
 <?php } ?>
 
 </div>
 
-<label class="col-sm-2 col-form-label">Pregnancy Status *</label>
+<label class="col-sm-2 col-form-label">Pregnancy Status</label>
 <div class="col-sm-4">
 
 <?php $preg=['Pregnant','Non-Pregnant']; foreach($preg as $p){ ?>
 <div class="form-check">
 <input class="form-check-input" type="radio" name="pregnancy_status"
 value="<?= $p ?>"
-<?= ($rec && $rec->pregnancy_status==$p)?'checked':'' ?> required>
+<?= ($rec && $rec->pregnancy_status==$p)?'checked':'' ?>>
 <label class="form-check-label"><?= $p ?></label>
 </div>
 <?php } ?>
@@ -402,9 +402,10 @@ value="<?= $p ?>"
 
 
 <!-- ================= DYNAMIC QUESTIONS ================= -->
+<!-- ================= DYNAMIC QUESTIONS ================= -->
 
 <?php
-$sections = array();
+$sections = [];
 foreach($questions as $q){
     $sections[$q->q_section][] = $q;
 }
@@ -413,63 +414,173 @@ foreach($questions as $q){
 <?php foreach($sections as $section_name => $section_questions): ?>
 
 <div class="card mb-4 form-section">
-<div class="card-body">
+    <div class="card-body">
+        <h4 class="section-title">🩺 <?= htmlspecialchars($section_name); ?></h4>
 
-<h4 class="section-title">🩺 <?= htmlspecialchars($section_name); ?></h4>
+        <?php
+        // Flags to render special groups once per section
+        $special_done_18_23 = false;
+        $special_done_30_31 = false;
+        ?>
 
-<?php foreach($section_questions as $q): ?>
+        <?php foreach($section_questions as $q): ?>
 
-<div class="form-group row">
+            <?php if(in_array($q->question_id,[18,19,20,21,22,23]) && !$special_done_18_23): ?>
+                <?php
+                $special_done_18_23 = true;
+                $sq = array();
+                foreach($section_questions as $sqq){
+                    if(in_array($sqq->question_id,[18,19,20,21,22,23])){
+                        $sq[$sqq->question_id] = $sqq;
+                    }
+                }
+                ?>
+                <!-- Row for Q18-21 -->
+                <div class="row">
+                    <?php foreach(array(18,19,20,21) as $id): ?>
+                        <?php if(isset($sq[$id])): ?>
+                        <div class="<?php echo ($id<=20)?'col-md-2':'col-md-6'; ?> mb-3">
+                            <label class="col-form-label">
+                                <span class="q-num"><?php echo $sq[$id]->q_num; ?></span> <?php echo htmlspecialchars($sq[$id]->q_text); ?>
+                            </label>
+                            <?php $options = isset($sq[$id]->options) ? $sq[$id]->options : array(); ?>
+                            <?php if($sq[$id]->q_type=='text'): ?>
+                                <input type="text" name="question[<?php echo $sq[$id]->question_id; ?>][0]" class="form-control" value="<?php echo isset($details[$sq[$id]->question_id][0]) ? htmlspecialchars($details[$sq[$id]->question_id][0]) : ''; ?>">
+                            <?php else: ?>
+                                <?php if($id==21):
+                                    $first = array_slice($options,0,7);
+                                    $second = array_slice($options,7); ?>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <?php foreach($first as $opt):
+                                                $checked = (isset($details[21]) && in_array($opt->option_id,$details[21])) ? 'checked' : ''; ?>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="question[21][]" value="<?php echo $opt->option_id; ?>" <?php echo $checked; ?>>
+                                                    <label class="form-check-label"><?php echo htmlspecialchars($opt->option_text); ?></label>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <?php foreach($second as $opt):
+                                                $checked = (isset($details[21]) && in_array($opt->option_id,$details[21])) ? 'checked' : ''; ?>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="question[21][]" value="<?php echo $opt->option_id; ?>" <?php echo $checked; ?>>
+                                                    <label class="form-check-label"><?php echo htmlspecialchars($opt->option_text); ?></label>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <?php foreach($options as $opt):
+                                        $checked = (isset($details[$sq[$id]->question_id]) && in_array($opt->option_id,$details[$sq[$id]->question_id])) ? 'checked' : ''; ?>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="<?php echo $sq[$id]->q_type; ?>" name="question[<?php echo $sq[$id]->question_id; ?>]<?php echo $sq[$id]->q_type=='checkbox'?'[]':''; ?>" value="<?php echo $opt->option_id; ?>" <?php echo $checked; ?>>
+                                            <label class="form-check-label"><?php echo htmlspecialchars($opt->option_text); ?></label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
 
-<label class="col-sm-5 col-form-label">
-<span class="q-num"><?= $q->q_num; ?></span>
-<?= htmlspecialchars($q->q_text); ?>
-</label>
+                <!-- Row for Q22-23 under Q21 -->
+                <div class="row">
+                    <?php foreach(array(22,23) as $id): ?>
+                        <?php if(isset($sq[$id])): ?>
+                        <div class="col-md-6 offset-md-6 mb-3">
+                            <label class="col-form-label"><span class="q-num"><?php echo $sq[$id]->q_num; ?></span> <?php echo htmlspecialchars($sq[$id]->q_text); ?></label>
+                            <?php $options = isset($sq[$id]->options) ? $sq[$id]->options : array(); ?>
+                            <?php if($sq[$id]->q_type=='text'): ?>
+                                <input type="text" name="question[<?php echo $sq[$id]->question_id; ?>][0]" class="form-control" value="<?php echo isset($details[$sq[$id]->question_id][0]) ? htmlspecialchars($details[$sq[$id]->question_id][0]) : ''; ?>">
+                            <?php else: ?>
+                                <?php foreach($options as $opt):
+                                    $checked = (isset($details[$sq[$id]->question_id]) && in_array($opt->option_id,$details[$sq[$id]->question_id])) ? 'checked' : ''; ?>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="<?php echo $sq[$id]->q_type; ?>" name="question[<?php echo $sq[$id]->question_id; ?>]<?php echo $sq[$id]->q_type=='checkbox'?'[]':''; ?>" value="<?php echo $opt->option_id; ?>" <?php echo $checked; ?>>
+                                        <label class="form-check-label"><?php echo htmlspecialchars($opt->option_text); ?></label>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
 
-<div class="col-sm-7">
+            <?php elseif(in_array($q->question_id,[30,31]) && !$special_done_30_31): ?>
+                <?php
+                $special_done_30_31 = true;
+                $sq2 = array();
+                foreach($section_questions as $sqq){
+                    if(in_array($sqq->question_id,[30,31])){
+                        $sq2[$sqq->question_id] = $sqq;
+                    }
+                }
+                ?>
+                <!-- Row for Q30 -->
+                <?php if(isset($sq2[30])): ?>
+                <div class="row mb-3">
+                    <label class="col-12 col-form-label"><span class="q-num"><?php echo $sq2[30]->q_num; ?></span> <?php echo htmlspecialchars($sq2[30]->q_text); ?></label>
+                    <?php $options = isset($sq2[30]->options) ? $sq2[30]->options : array(); ?>
+                    <?php foreach($options as $opt):
+                        $checked = (isset($details[30]) && in_array($opt->option_id,$details[30])) ? 'checked' : ''; ?>
+                        <div class="col-md-4 d-inline-block">
+                            <div class="form-check">
+                                <input class="form-check-input" type="<?php echo $sq2[30]->q_type; ?>" name="question[30]<?php echo $sq2[30]->q_type=='checkbox'?'[]':''; ?>" value="<?php echo $opt->option_id; ?>" <?php echo $checked; ?>>
+                                <label class="form-check-label"><?php echo htmlspecialchars($opt->option_text); ?></label>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
 
-<?php $options = isset($q->options) ? $q->options : array(); ?>
+                <!-- Row for Q31 -->
+                <?php if(isset($sq2[31])): ?>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="col-form-label"><span class="q-num"><?php echo $sq2[31]->q_num; ?></span> <?php echo htmlspecialchars($sq2[31]->q_text); ?></label>
+                        <?php $options = isset($sq2[31]->options) ? $sq2[31]->options : array(); ?>
+                        <?php if($sq2[31]->q_type=='text'): ?>
+                            <input type="text" name="question[31][0]" class="form-control" value="<?php echo isset($details[31][0]) ? htmlspecialchars($details[31][0]) : ''; ?>">
+                        <?php else: ?>
+                            <?php foreach($options as $opt):
+                                $checked = (isset($details[31]) && in_array($opt->option_id,$details[31])) ? 'checked' : ''; ?>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="<?php echo $sq2[31]->q_type; ?>" name="question[31]<?php echo $sq2[31]->q_type=='checkbox'?'[]':''; ?>" value="<?php echo $opt->option_id; ?>" <?php echo $checked; ?>>
+                                    <label class="form-check-label"><?php echo htmlspecialchars($opt->option_text); ?></label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
 
-<?php if($q->q_type == 'text'): ?>
+            <?php elseif(!in_array($q->question_id,[18,19,20,21,22,23,30,31])): ?>
+                <!-- NORMAL QUESTIONS -->
+                <div class="form-group row">
+                    <label class="col-sm-5 col-form-label">
+                        <span class="q-num"><?php echo $q->q_num; ?></span> <?php echo htmlspecialchars($q->q_text); ?>
+                    </label>
+                    <div class="col-sm-7">
+                    <?php $options = isset($q->options) ? $q->options : array(); ?>
+                    <?php if($q->q_type=='text'): ?>
+                        <input type="text" name="question[<?php echo $q->question_id; ?>][0]" class="form-control" value="<?php echo isset($details[$q->question_id][0]) ? htmlspecialchars($details[$q->question_id][0]) : ''; ?>">
+                    <?php else: ?>
+                        <?php foreach($options as $opt):
+                            $checked = (isset($details[$q->question_id]) && in_array($opt->option_id,$details[$q->question_id])) ? 'checked' : ''; ?>
+                            <div class="form-check">
+                                <input class="form-check-input" type="<?php echo $q->q_type; ?>" name="question[<?php echo $q->question_id; ?>]<?php echo $q->q_type=='checkbox'?'[]':''; ?>" value="<?php echo $opt->option_id; ?>" <?php echo $checked; ?>>
+                                <label class="form-check-label"><?php echo htmlspecialchars($opt->option_text); ?></label>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
 
-<input type="text"
-name="question[<?= $q->question_id; ?>][0]"
-class="form-control"
-value="<?= isset($details[$q->question_id][0]) 
-? htmlspecialchars($details[$q->question_id][0]) : '' ?>">
-
-<?php else: ?>
-
-<?php foreach($options as $opt): 
-
-$checked = (
-isset($details[$q->question_id]) &&
-in_array($opt->option_id,$details[$q->question_id])
-) ? 'checked' : '';
-?>
-
-<div class="form-check">
-<input class="form-check-input"
-type="<?= $q->q_type; ?>"
-name="question[<?= $q->question_id; ?>]<?= ($q->q_type=='checkbox')?'[]':''; ?>"
-value="<?= $opt->option_id; ?>"
-<?= $checked ?>>
-
-<label class="form-check-label">
-<?= htmlspecialchars($opt->option_text); ?>
-</label>
-</div>
-
-<?php endforeach; ?>
-
-<?php endif; ?>
-
-</div>
-</div>
-
-<?php endforeach; ?>
-
-</div>
+        <?php endforeach; ?>
+    </div>
 </div>
 
 <?php endforeach; ?>

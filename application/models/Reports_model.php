@@ -263,6 +263,7 @@ class Reports_model extends CI_Model {
             // Conditional aggregation: group answers for this question
             $select_questions[] = "GROUP_CONCAT(
                 CASE WHEN chd.question_id = {$qid} THEN chd.answer END
+                ORDER BY chd.option_id ASC
                 SEPARATOR ', '
             ) AS `Q{$qid}`";
         }
@@ -342,6 +343,7 @@ class Reports_model extends CI_Model {
 
             $select_questions[] = "GROUP_CONCAT(
                 CASE WHEN omd.question_id = {$qid} THEN omd.answer END
+                ORDER BY omd.option_id ASC
                 SEPARATOR ', '
             ) AS `Q{$qid}`";
         }

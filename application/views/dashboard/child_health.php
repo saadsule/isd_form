@@ -1,3 +1,9 @@
+<?php 
+// Default start and end dates
+$default_start = isset($filters['start']) ? $filters['start'] : '2025-12-01';
+$default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
+
+?>
 <div class="page-container">
     <div class="main-content">
 
@@ -15,12 +21,10 @@
                         <label>Select Date Range *</label>
                         <div class="d-flex align-items-center m-b-15">
                             <input type="text" class="form-control datepicker-input" name="start" placeholder="From"
-                                   autocomplete="off"
-                                   value="<?= isset($filters['start']) ? $filters['start'] : '' ?>" required="">
+                                   autocomplete="off" value="<?= $default_start ?>" required>
                             <span class="p-h-10">to</span>
                             <input type="text" class="form-control datepicker-input" name="end" placeholder="To"
-                                   autocomplete="off"
-                                   value="<?= isset($filters['end']) ? $filters['end'] : '' ?>" required="">
+                                   autocomplete="off" value="<?= $default_end ?>" required>
                         </div>
                     </div>
 
@@ -28,9 +32,14 @@
                     <div class="col-md-4">
                         <label>Select UC(s) *</label>
                         <select class="select2" name="uc[]" multiple="multiple" style="width:100%">
-                            <?php foreach($ucs as $u): ?>
-                                <option value="<?= $u->pk_id ?>"
-                                    <?= (isset($filters['uc']) && in_array($u->pk_id,$filters['uc'])) ? 'selected' : '' ?>>
+                            <?php
+                            // Determine selected UCs: use $filters['uc'] if set, otherwise select all by default
+                            $selected_ucs = isset($filters['uc']) 
+                                ? (is_array($filters['uc']) ? $filters['uc'] : [$filters['uc']])
+                                : array_map(function($u){ return $u->pk_id; }, $ucs); // select all by default
+
+                            foreach($ucs as $u): ?>
+                                <option value="<?= $u->pk_id ?>" <?= in_array($u->pk_id, $selected_ucs) ? 'selected' : '' ?>>
                                     <?= $u->uc_name ?>
                                 </option>
                             <?php endforeach; ?>
@@ -41,15 +50,18 @@
                     <!-- Visit Type -->
                     <div class="col-md-4">
                         <label>Visit Type *</label>
+                        <?php
+                        $visit_types = ['Outreach', 'Fixed Site'];
+                        $selected_visit_types = isset($filters['visit_type']) 
+                            ? (is_array($filters['visit_type']) ? $filters['visit_type'] : [$filters['visit_type']])
+                            : $visit_types; // select all by default
+                        ?>
                         <select class="select2" name="visit_type[]" multiple="multiple" style="width:100%">
-                            <?php
-                            $visit_type = ['Outreach','Fixed Site'];
-                            foreach($visit_type as $vt){
-                                echo "<option value='{$vt}' ".
-                                (isset($filters['visit_type']) && in_array($vt,$filters['visit_type']) ? 'selected' : '').
-                                ">{$vt}</option>";
-                            }
-                            ?>
+                            <?php foreach($visit_types as $vt): ?>
+                                <option value="<?= $vt ?>" <?= in_array($vt, $selected_visit_types) ? 'selected' : '' ?>>
+                                    <?= $vt ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                         <small class="text-danger error-message" data-for="visit_type[]"></small>
                     </div>
@@ -1161,6 +1173,19 @@ window.onload = function() {
             }
         });
     }
+
+    // Function to build filters from form
+    function getFilters() {
+        return {
+            uc: $('[name="uc[]"]').val(),
+            start: $('[name="start"]').val(),
+            end: $('[name="end"]').val(),
+            visit_type: $('[name="visit_type[]"]').val()
+        };
+    }
+
+    // Load dashboard for first time automatically
+    loadDashboard(getFilters());
 
     // APPLY FILTER BUTTON
     $('#filterForm').on('submit', function(e){

@@ -58,7 +58,12 @@ class Auth extends CI_Controller {
 
                 $this->session->set_userdata($session_data);
 
-                redirect(base_url('welcome/index'));
+                // Role-based redirection
+                if ($user->role == 4) {
+                    redirect(base_url('dashboard/map_view'));
+                } else {
+                    redirect(base_url('welcome/index'));
+                }
 
             } else {
                 // Failed login

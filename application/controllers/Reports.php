@@ -179,5 +179,62 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/export_health_data', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function view_health_data()
+    {
+        $this->load->model('Reports_model');
+
+        $filters = [
+            'uc'        => $this->input->get('uc'),
+            'start'     => $this->input->get('start'),
+            'end'       => $this->input->get('end'),
+            'form_type' => $this->input->get('form_type'),
+        ];
+
+        $data['filters'] = $filters;
+        $data['ucs'] = $this->Reports_model->get_ucs();
+        $data['page_title'] = "View Health Data";
+
+        $data['table_data'] = [];
+        $data['headers'] = [];
+        $data['question_labels'] = [];
+
+        if (!empty($filters['form_type'])) {
+
+            if ($filters['form_type'] == 'chf') {
+                $result = $this->Reports_model->get_child_health_data($filters);
+
+                $data['headers'] = [
+                    'visit_type','form_date','qr_code','client_type','district','uc','facility_name','village',
+                    'vaccinator_name','patient_name','guardian_name','dob','age_group',
+                    'gender','marital_status','pregnancy_status','disability',
+                    'play_learning_kit','nutrition_package','created_at'
+                ];
+
+            } elseif ($filters['form_type'] == 'opd') {
+                $result = $this->Reports_model->get_opd_mnch_data($filters);
+
+                $data['headers'] = [
+                    'visit_type','form_date','qr_code','anc_card_no','client_type','district','uc','facility_name','village',
+                    'lhv_name','patient_name','guardian_name','age_group','disability',
+                    'marital_status','pregnancy_status'
+                ];
+            } else {
+                show_error("Invalid form type selected");
+                return;
+            }
+
+            $data['table_data'] = $result['data'];
+            $data['question_labels'] = $result['questions'];
+
+            // Add dynamic question headers
+            foreach ($data['question_labels'] as $label) {
+                $data['headers'][] = $label;
+            }
+        }
+
+        $data['main_content'] = $this->load->view('reports/view_health_data', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
 
 }
