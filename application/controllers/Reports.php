@@ -50,9 +50,9 @@ class Reports extends CI_Controller {
         $this->load->model('Reports_model');
 
         $filters = [
-            'uc' => $this->input->get('uc'),
-            'start' => $this->input->get('start'),
-            'end' => $this->input->get('end'),
+            'uc'        => $this->input->get('uc'),
+            'start'     => $this->input->get('start'),
+            'end'       => $this->input->get('end'),
             'form_type' => $this->input->get('form_type'),
         ];
 
@@ -68,84 +68,121 @@ class Reports extends CI_Controller {
         $rowIndex = 1;
 
         $startDate = !empty($filters['start']) ? $filters['start'] : 'N/A';
-        $endDate = !empty($filters['end']) ? $filters['end'] : 'N/A';
+        $endDate   = !empty($filters['end']) ? $filters['end'] : 'N/A';
         $dateRange = "From: $startDate To: $endDate";
 
+        // Get data and questions
         if ($form_type == 'chf') {
             $reportTitle = "Child Health Report - North Waziristan ($dateRange)";
             $result = $this->Reports_model->get_child_health_data($filters);
-        } elseif ($form_type == 'opd') {
+        } else {
             $reportTitle = "OPD/MNCH Report - North Waziristan ($dateRange)";
             $result = $this->Reports_model->get_opd_mnch_data($filters);
-        } else {
-            show_error("Invalid form type selected");
-            return;
         }
 
         $data = $result['data'];
         $question_labels = $result['questions'];
+        $question_options = $result['options'];
 
         // Base headers
         if ($form_type == 'chf') {
-            $headers = [
+            $base_headers = [
                 'visit_type','form_date','qr_code','client_type','district','uc','facility_name','village',
                 'vaccinator_name','patient_name','guardian_name','dob','age_group',
                 'gender','marital_status','pregnancy_status','disability','play_learning_kit','nutrition_package',
                 'created_at'
             ];
-        } else { // opd
-            $headers = [
+        } else {
+            $base_headers = [
                 'visit_type','form_date','qr_code','anc_card_no','client_type','district','uc','facility_name','village',
                 'lhv_name','patient_name','guardian_name','age_group','disability','marital_status','pregnancy_status',
             ];
         }
 
-        // Add dynamic question headers
+        // Build full headers (used for column count)
+        $headers = $base_headers;
         foreach ($question_labels as $qid => $label) {
-            $headers[] = $label;
+            if (!empty($question_options[$qid])) {
+                foreach ($question_options[$qid] as $opt) {
+                    $headers[] = $opt['column'];
+                }
+            } else {
+                $headers[] = $label; // Use actual question label even if no options
+            }
         }
 
         $lastColumnIndex = count($headers) - 1;
         $lastColumn = PHPExcel_Cell::stringFromColumnIndex($lastColumnIndex);
 
-        // Heading
+        // Report title
         $sheet->mergeCells("A{$rowIndex}:{$lastColumn}{$rowIndex}");
         $sheet->setCellValue("A{$rowIndex}", $reportTitle);
         $sheet->getStyle("A{$rowIndex}")->applyFromArray([
-            'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => 'FFFFFF']],
-            'alignment' => ['horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT, 'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER],
-            'fill' => ['type' => PHPExcel_Style_Fill::FILL_SOLID, 'startcolor' => ['rgb' => '1F4E78']]
+            'font' => ['bold'=>true, 'size'=>16, 'color'=>['rgb'=>'FFFFFF']],
+            'alignment'=>['horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_LEFT, 'vertical'=>PHPExcel_Style_Alignment::VERTICAL_CENTER],
+            'fill'=>['type'=>PHPExcel_Style_Fill::FILL_SOLID,'startcolor'=>['rgb'=>'1F4E78']]
         ]);
         $sheet->getRowDimension($rowIndex)->setRowHeight(30);
         $rowIndex += 2;
 
-        // Table header
+        // Table header: two rows
         $colIndex = 0;
-        foreach ($headers as $h) {
+        foreach ($base_headers as $h) {
             $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, strtoupper(str_replace('_',' ',$h)));
+            $sheet->mergeCellsByColumnAndRow($colIndex, $rowIndex, $colIndex, $rowIndex+1);
             $colIndex++;
         }
 
-        $sheet->getStyle("A{$rowIndex}:{$lastColumn}{$rowIndex}")->applyFromArray([
+        foreach ($question_labels as $qid => $label) {
+            $startCol = $colIndex;
+
+            if (!empty($question_options[$qid])) {
+                foreach ($question_options[$qid] as $opt) {
+                    $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex+1, $opt['option_text']);
+                    $colIndex++;
+                }
+            } else {
+                // No options: leave blank row below
+                $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex+1, '');
+                $colIndex++;
+            }
+
+            // Merge question label horizontally
+            $sheet->mergeCellsByColumnAndRow($startCol, $rowIndex, $colIndex-1, $rowIndex);
+            $sheet->setCellValueByColumnAndRow($startCol, $rowIndex, $label);
+            $sheet->getStyleByColumnAndRow($startCol, $rowIndex, $colIndex-1, $rowIndex)
+                  ->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        }
+
+        // Style header rows
+        $sheet->getStyle("A{$rowIndex}:{$lastColumn}".($rowIndex+1))->applyFromArray([
             'font'=>['bold'=>true],
             'alignment'=>['horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_CENTER],
             'fill'=>['type'=>PHPExcel_Style_Fill::FILL_SOLID,'startcolor'=>['rgb'=>'D9E1F2']],
             'borders'=>['allborders'=>['style'=>PHPExcel_Style_Border::BORDER_THIN]]
         ]);
 
-        $rowIndex++;
+        $rowIndex += 2;
 
         // Data rows
         foreach ($data as $row) {
             $colIndex = 0;
-            foreach ($headers as $h) {
-                if (in_array($h, $question_labels)) {
-                    $qid = array_search($h, $question_labels);
-                    $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, isset($row['Q'.$qid]) ? $row['Q'.$qid] : '');
-                } else {
-                    $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, isset($row[$h]) ? $row[$h] : '');
-                }
+            foreach ($base_headers as $h) {
+                $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, isset($row[$h]) ? $row[$h] : '');
                 $colIndex++;
+            }
+
+            foreach ($question_labels as $qid => $label) {
+                if (!empty($question_options[$qid])) {
+                    foreach ($question_options[$qid] as $opt) {
+                        $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, isset($row[$opt['column']]) ? $row[$opt['column']] : '');
+                        $colIndex++;
+                    }
+                } else {
+                    // No options, leave blank cell
+                    $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, '');
+                    $colIndex++;
+                }
             }
             $rowIndex++;
         }
@@ -201,37 +238,41 @@ class Reports extends CI_Controller {
 
         if (!empty($filters['form_type'])) {
 
-            if ($filters['form_type'] == 'chf') {
-                $result = $this->Reports_model->get_child_health_data($filters);
+        if ($filters['form_type'] == 'chf') {
 
-                $data['headers'] = [
-                    'visit_type','form_date','qr_code','client_type','district','uc','facility_name','village',
-                    'vaccinator_name','patient_name','guardian_name','dob','age_group',
-                    'gender','marital_status','pregnancy_status','disability',
-                    'play_learning_kit','nutrition_package','created_at'
-                ];
+            $result = $this->Reports_model->get_child_health_data($filters);
 
-            } elseif ($filters['form_type'] == 'opd') {
-                $result = $this->Reports_model->get_opd_mnch_data($filters);
+            $data['headers'] = [
+                'visit_type','form_date','qr_code','client_type','district','uc','facility_name','village',
+                'vaccinator_name','patient_name','guardian_name','dob','age_group',
+                'gender','marital_status','pregnancy_status','disability',
+                'play_learning_kit','nutrition_package','created_at'
+            ];
 
-                $data['headers'] = [
-                    'visit_type','form_date','qr_code','anc_card_no','client_type','district','uc','facility_name','village',
-                    'lhv_name','patient_name','guardian_name','age_group','disability',
-                    'marital_status','pregnancy_status'
-                ];
-            } else {
-                show_error("Invalid form type selected");
-                return;
-            }
+        } elseif ($filters['form_type'] == 'opd') {
 
-            $data['table_data'] = $result['data'];
-            $data['question_labels'] = $result['questions'];
+            $result = $this->Reports_model->get_opd_mnch_data($filters);
 
-            // Add dynamic question headers
-            foreach ($data['question_labels'] as $label) {
-                $data['headers'][] = $label;
-            }
+            $data['headers'] = [
+                'visit_type','form_date','qr_code','anc_card_no','client_type','district','uc','facility_name','village',
+                'lhv_name','patient_name','guardian_name','age_group','disability',
+                'marital_status','pregnancy_status'
+            ];
+
+        } else {
+            show_error("Invalid form type selected");
+            return;
         }
+
+        $data['table_data'] = $result['data'];
+        $data['question_labels'] = $result['questions'];
+        $data['question_options'] = $result['options'];
+
+        // Add question columns
+        foreach ($data['question_labels'] as $qid => $label) {
+            $data['headers'][] = 'Q'.$qid;
+        }
+    }
 
         $data['main_content'] = $this->load->view('reports/view_health_data', $data, TRUE);
         $this->load->view('layout/main', $data);

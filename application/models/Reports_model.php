@@ -244,7 +244,6 @@ class Reports_model extends CI_Model {
     
     public function get_child_health_data($filters)
     {
-        // Step 1: Get all active questions for 'chf' in order
         $questions = $this->db
             ->where('status', 1)
             ->where('form_type', 'chf')
@@ -254,21 +253,46 @@ class Reports_model extends CI_Model {
 
         $select_questions = [];
         $question_labels = [];
+        $question_options = [];
 
         foreach ($questions as $q) {
+
             $qid = $q['question_id'];
             $label = $q['q_order'] . '. ' . strtoupper($q['q_text']);
+
             $question_labels[$qid] = $label;
 
-            // Conditional aggregation: group answers for this question
-            $select_questions[] = "GROUP_CONCAT(
-                CASE WHEN chd.question_id = {$qid} THEN chd.answer END
-                ORDER BY chd.option_id ASC
-                SEPARATOR ', '
-            ) AS `Q{$qid}`";
+            // get options
+            $options = $this->db
+                ->where('question_id', $qid)
+                ->order_by('option_id','ASC')
+                ->get('question_options')
+                ->result_array();
+
+            foreach ($options as $opt) {
+
+                $oid = $opt['option_id'];
+                $col = "Q{$qid}_{$oid}";
+
+                $question_options[$qid][] = [
+                    'option_id'=>$oid,
+                    'option_text'=>$opt['option_text'],
+                    'column'=>$col
+                ];
+
+                $select_questions[] = "
+                    MAX(
+                        CASE
+                        WHEN chd.question_id = {$qid}
+                        AND chd.option_id = {$oid}
+                        THEN '✔'
+                        ELSE ''
+                        END
+                    ) AS `$col`
+                ";
+            }
         }
 
-        // Step 2: Main query
         $this->db->select("
             chm.master_id,
             chm.form_date,
@@ -297,7 +321,9 @@ class Reports_model extends CI_Model {
             chm.age_group,
             ".implode(',', $select_questions)."
         ");
+
         $this->db->from('child_health_master chm');
+
         $this->db->join('child_health_detail chd', 'chd.master_id = chm.master_id', 'left');
         $this->db->join('uc u', 'u.pk_id = chm.uc', 'left');
         $this->db->join('facilities f','f.id = chm.facility_id','left');
@@ -305,6 +331,7 @@ class Reports_model extends CI_Model {
         if(!empty($filters['uc'])) {
             $this->db->where_in('chm.uc', $filters['uc']);
         }
+
         if(!empty($filters['start']) && !empty($filters['end'])) {
             $this->db->where('chm.form_date >=', $filters['start']);
             $this->db->where('chm.form_date <=', $filters['end']);
@@ -314,18 +341,19 @@ class Reports_model extends CI_Model {
 
         $this->db->order_by('u.pk_id', 'ASC');
         $this->db->order_by('chm.form_date', 'ASC');
-        
+
         $result = $this->db->get()->result_array();
 
         return [
             'data' => $result,
-            'questions' => $question_labels
+            'questions' => $question_labels,
+            'options' => $question_options
         ];
     }
 
     public function get_opd_mnch_data($filters)
     {
-        // Step 1: Get all active questions for 'opd' in order
+        // Step 1: Get all active questions for 'opd'
         $questions = $this->db
             ->where('status', 1)
             ->where('form_type', 'opd')
@@ -335,17 +363,43 @@ class Reports_model extends CI_Model {
 
         $select_questions = [];
         $question_labels = [];
+        $question_options = [];
 
         foreach ($questions as $q) {
             $qid = $q['question_id'];
             $label = $q['q_order'] . '. ' . strtoupper($q['q_text']);
             $question_labels[$qid] = $label;
 
-            $select_questions[] = "GROUP_CONCAT(
-                CASE WHEN omd.question_id = {$qid} THEN omd.answer END
-                ORDER BY omd.option_id ASC
-                SEPARATOR ', '
-            ) AS `Q{$qid}`";
+            // Get options for this question
+            $options = $this->db
+                ->where('question_id', $qid)
+                ->order_by('option_id', 'ASC')
+                ->get('question_options')
+                ->result_array();
+
+            foreach ($options as $opt) {
+                $oid = $opt['option_id'];
+                $col = "Q{$qid}_{$oid}";
+
+                // Keep options info for view
+                $question_options[$qid][] = [
+                    'option_id' => $oid,
+                    'option_text' => $opt['option_text'],
+                    'column' => $col
+                ];
+
+                // Tick mark column
+                $select_questions[] = "
+                    MAX(
+                        CASE 
+                        WHEN omd.question_id = {$qid} 
+                        AND omd.option_id = {$oid} 
+                        THEN '✔'
+                        ELSE ''
+                        END
+                    ) AS `$col`
+                ";
+            }
         }
 
         // Step 2: Main query
@@ -390,12 +444,13 @@ class Reports_model extends CI_Model {
 
         $this->db->order_by('u.pk_id', 'ASC');
         $this->db->order_by('omm.form_date', 'ASC');
-        
+
         $result = $this->db->get()->result_array();
 
         return [
             'data' => $result,
-            'questions' => $question_labels
+            'questions' => $question_labels,
+            'options' => $question_options
         ];
     }
     
