@@ -278,5 +278,94 @@ class Dashboard extends CI_Controller {
             'flame_q25'            => $flameData,
         ]);
     }
+    
+    public function opd_mnch_health()
+    {
+        $data['page_title'] = "OPD/MNCH Health Dashboard";
+
+        // Get filters from GET
+        $filters = [
+            'uc'        => $this->input->get('uc'),
+            'start'     => $this->input->get('start'),
+            'end'       => $this->input->get('end'),
+            'visit_type'=> $this->input->get('visit_type'),
+        ];
+        $data['filters'] = $filters;
+
+        // Load UCs for filter dropdown
+        $data['ucs'] = $this->Dashboard_model->get_ucs();
+
+        // Load the main content view
+        $data['main_content'] = $this->load->view('dashboard/opd_mnch_health', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
+    public function get_opd_mnch_health_ajax()
+    {
+        $filters = $this->input->post();
+
+        // cards
+        $summary = $this->Dashboard_model->get_summary_cards($filters);
+
+        // Pie chart: Visit Type
+        $visit_counts = $this->Dashboard_model->get_visit_type_counts_opd($filters);
+
+        // Pie chart: Client Type
+        $client_counts = $this->Dashboard_model->get_client_type_counts_opd($filters);
+        
+        // Pie chart: Disablility
+        $disablility_counts = $this->Dashboard_model->get_disability_counts_opd($filters);
+        
+        // Pie chart: Marital
+        $marital_counts = $this->Dashboard_model->get_marital_type_counts_opd($filters);
+        
+        // Pie chart: Pregnancy
+        $pregnancy_counts = $this->Dashboard_model->get_pregnancy_type_counts_opd($filters);
+        
+        // Q 18.1
+        $q181_counts = $this->Dashboard_model->get_q181_counts($filters);
+        
+        // Q 18.2
+        $q182_counts = $this->Dashboard_model->get_q182_counts($filters);
+        
+        // Q 18.4
+        $q184_counts = $this->Dashboard_model->get_q184_counts($filters);
+        
+        echo json_encode([
+            // Summary
+            'catchment_population' => $summary['catchment_population'],
+            'total_ucs'            => $summary['total_ucs'],
+            'date_range'           => $summary['date_range'],
+            
+            // OPD/MNCH
+            'opd'                  => $visit_counts['opd'],
+            'mnch'                 => $visit_counts['mnch'],
+            
+            // Client Type
+            'new_client'      => $client_counts['New'],
+            'followup_client' => $client_counts['Followup'],
+
+            // Disability
+            'disability_yes'  => $disablility_counts['Yes'],
+            'disability_no'   => $disablility_counts['No'],
+
+            // Marital Status
+            'married'         => $marital_counts['Married'],
+            'unmarried'       => $marital_counts['Unmarried'],
+
+            // Pregnancy Status
+            'pregnant'        => $pregnancy_counts['Pregnant'],
+            'non_pregnant'    => $pregnancy_counts['Non-Pregnant'],
+            
+            // Q 18.1
+            'q181'                 => $q181_counts,
+            
+            // Q 18.2
+            'q182'                 => $q182_counts,
+            
+            // Q 18.4
+            'q184'                 => $q184_counts,
+        ]);
+    }
 
 }

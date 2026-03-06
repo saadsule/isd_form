@@ -985,8 +985,8 @@ class Forms extends CI_Controller {
             show_404();
         }
 
-        // Only block if already verified
         $status = isset($form->verification_status) ? $form->verification_status : 'Pending';
+
         if($status == 'Verified'){
             show_error('Form already verified.');
         }
@@ -999,6 +999,19 @@ class Forms extends CI_Controller {
 
         $this->db->where('master_id', $id);
         $this->db->update('child_health_master', $data);
+
+
+        // Insert validation history
+        $log = [
+            'module_name' => 'child_health',
+            'master_id' => $id,
+            'validation_status' => 'Verified',
+            'remarks' => 'Form verified',
+            'user_id' => $this->session->userdata('user_id'),
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->insert('record_validation', $log);
 
         redirect('forms/view_child_health/'.$id);
     }
@@ -1017,20 +1030,34 @@ class Forms extends CI_Controller {
 
         $status = isset($form->verification_status) ? $form->verification_status : 'Pending';
 
-        // Only block reporting if already verified
         if($status == 'Verified'){
             show_error('Verified form cannot be reported.');
         }
+
+        $reason = $this->input->post('report_reason');
 
         $data = [
             'verification_status' => 'Reported',
             'verified_by' => $this->session->userdata('user_id'),
             'verified_at' => date('Y-m-d H:i:s'),
-            'report_reason' => $this->input->post('report_reason')
+            'report_reason' => $reason
         ];
 
         $this->db->where('master_id', $id);
         $this->db->update('child_health_master', $data);
+
+
+        // Insert validation history
+        $log = [
+            'module_name' => 'child_health',
+            'master_id' => $id,
+            'validation_status' => 'Reported',
+            'remarks' => $reason,
+            'user_id' => $this->session->userdata('user_id'),
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->insert('record_validation', $log);
 
         redirect('forms/view_child_health/'.$id);
     }
@@ -1062,6 +1089,18 @@ class Forms extends CI_Controller {
         $this->db->where('id', $id);
         $this->db->update('opd_mnch_master', $data);
 
+        // Insert validation history
+        $log = [
+            'module_name' => 'opd_mnch',
+            'master_id' => $id,
+            'validation_status' => 'Verified',
+            'remarks' => 'Form verified',
+            'user_id' => $this->session->userdata('user_id'),
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->insert('record_validation', $log);
+
         redirect('forms/view_opd_mnch/'.$id);
     }
     
@@ -1079,19 +1118,34 @@ class Forms extends CI_Controller {
 
         // Only block if already verified
         $status = isset($form->verification_status) ? $form->verification_status : 'Pending';
+
         if($status == 'Verified'){
             show_error('Verified form cannot be reported.');
         }
+
+        $reason = $this->input->post('report_reason');
 
         $data = [
             'verification_status' => 'Reported',
             'verified_by' => $this->session->userdata('user_id'),
             'verified_at' => date('Y-m-d H:i:s'),
-            'report_reason' => $this->input->post('report_reason')
+            'report_reason' => $reason
         ];
 
         $this->db->where('id', $id);
         $this->db->update('opd_mnch_master', $data);
+
+        // Insert validation history
+        $log = [
+            'module_name' => 'opd_mnch',
+            'master_id' => $id,
+            'validation_status' => 'Reported',
+            'remarks' => $reason,
+            'user_id' => $this->session->userdata('user_id'),
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->insert('record_validation', $log);
 
         redirect('forms/view_opd_mnch/'.$id);
     }

@@ -1862,4 +1862,264 @@ class Dashboard_model extends CI_Model {
         ];
     }
     
+    public function get_client_type_counts_opd($filters)
+    {
+        $this->db->select('client_type, COUNT(id) as total');
+        $this->db->from('opd_mnch_master');
+
+        // Apply filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('visit_type', $filters['visit_type']);
+        }
+
+        $this->db->group_by('client_type');
+        $result = $this->db->get()->result();
+
+        // Initialize counts
+        $newClient = 0;
+        $followUp = 0;
+
+        foreach ($result as $row) {
+            if (strtolower($row->client_type) == 'new') $newClient = $row->total;
+            if (strtolower($row->client_type) == 'followup') $followUp = $row->total;
+        }
+
+        return [
+            'New'      => $newClient,
+            'Followup' => $followUp
+        ];
+    }
+    
+    public function get_disability_counts_opd($filters)
+    {
+        $this->db->select('disability, COUNT(id) as total');
+        $this->db->from('opd_mnch_master');
+
+        // Apply filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('visit_type', $filters['visit_type']);
+        }
+
+        $this->db->group_by('disability');
+        $result = $this->db->get()->result();
+
+        // Initialize counts
+        $yes = 0;
+        $no  = 0;
+
+        foreach ($result as $row) {
+            if (strtolower($row->disability) == 'yes') $yes = $row->total;
+            if (strtolower($row->disability) == 'no')  $no  = $row->total;
+        }
+
+        return [
+            'Yes' => $yes,
+            'No'  => $no
+        ];
+    }
+    
+    public function get_marital_type_counts_opd($filters)
+    {
+        $this->db->select('marital_status, COUNT(id) as total');
+        $this->db->from('opd_mnch_master');
+
+        // Apply filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('visit_type', $filters['visit_type']);
+        }
+
+        $this->db->group_by('marital_status');
+        $result = $this->db->get()->result();
+
+        // Initialize counts
+        $married   = 0;
+        $unmarried = 0;
+
+        foreach ($result as $row) {
+            if (strtolower($row->marital_status) == 'married')   $married   = $row->total;
+            if (strtolower($row->marital_status) == 'unmarried') $unmarried = $row->total;
+        }
+
+        return [
+            'Married'   => $married,
+            'Unmarried' => $unmarried
+        ];
+    }
+    
+    public function get_pregnancy_type_counts_opd($filters)
+    {
+        $this->db->select('pregnancy_status, COUNT(id) as total');
+        $this->db->from('opd_mnch_master');
+
+        // Apply filters
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('uc', $filters['uc']);
+        }
+
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(form_date) >=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(form_date) <=', $filters['end']);
+        }
+
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('visit_type', $filters['visit_type']);
+        }
+
+        $this->db->group_by('pregnancy_status');
+        $result = $this->db->get()->result();
+
+        // Initialize counts
+        $pregnant     = 0;
+        $nonPregnant  = 0;
+
+        foreach ($result as $row) {
+            if (strtolower($row->pregnancy_status) == 'pregnant')       $pregnant    = $row->total;
+            if (strtolower($row->pregnancy_status) == 'non-pregnant')   $nonPregnant = $row->total;
+        }
+
+        return [
+            'Pregnant'      => $pregnant,
+            'Non-Pregnant'  => $nonPregnant
+        ];
+    }
+    
+    public function get_q181_counts($filters)
+    {
+        $this->db->from('opd_mnch_master m');
+        $this->db->join('opd_mnch_detail d', 'm.id = d.master_id AND d.question_id = 18', 'left');
+
+        // Apply filters dynamically
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        // Count each option separately
+        $this->db->select("
+            SUM(CASE WHEN d.answer = '1st' THEN 1 ELSE 0 END) AS first_option,
+            SUM(CASE WHEN d.answer = '2nd' THEN 1 ELSE 0 END) AS second_option,
+            SUM(CASE WHEN d.answer = '3rd' THEN 1 ELSE 0 END) AS third_option
+        ", false);
+
+        // Execute query
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+    
+    public function get_q182_counts($filters)
+    {
+        $this->db->from('opd_mnch_master m');
+        $this->db->join('opd_mnch_detail d', 'm.id = d.master_id AND d.question_id = 19', 'left');
+
+        // Apply filters dynamically
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        // Count each option separately
+        $this->db->select("
+            SUM(CASE WHEN d.answer = '1st' THEN 1 ELSE 0 END) AS first_option,
+            SUM(CASE WHEN d.answer = '2nd' THEN 1 ELSE 0 END) AS second_option,
+            SUM(CASE WHEN d.answer = '3rd' THEN 1 ELSE 0 END) AS third_option,
+            SUM(CASE WHEN d.answer = '4th' THEN 1 ELSE 0 END) AS fourth_option
+        ", false);
+
+        // Execute query
+        $query = $this->db->get();
+        return $query->row_array();
+    }
+    
+    public function get_q184_counts($filters)
+    {
+        $this->db->select('d.answer, COUNT(d.answer) as total');
+        $this->db->from('opd_mnch_master m');
+        $this->db->join('opd_mnch_detail d', 'm.id = d.master_id AND d.question_id = 21', 'left');
+
+        // Apply filters dynamically
+        if (!empty($filters['uc'])) {
+            $this->db->where_in('m.uc', $filters['uc']);
+        }
+        if (!empty($filters['start'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        }
+        if (!empty($filters['end'])) {
+            $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        }
+        if (!empty($filters['visit_type'])) {
+            $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+
+        // Group by actual answer text
+        $this->db->group_by('d.answer');
+        $this->db->order_by('d.option_id', 'ASC'); // optional, largest first
+
+        $query = $this->db->get();
+        $result = $query->result_array();
+
+        $counts = [];
+        foreach ($result as $row) {
+            if (isset($row['answer']) && trim($row['answer']) != '') {
+                $counts[$row['answer']] = (int)$row['total'];
+            }
+        }
+
+        return $counts; 
+    }
+    
 }

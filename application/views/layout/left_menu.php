@@ -48,7 +48,7 @@
             <!-- Dashboard (exclude role 1) -->
             <?php if(!in_array($role, [1,3])): ?>
             <li class="nav-item dropdown 
-                <?= ($this->uri->segment(2) == 'map_view' || $this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health' || $this->uri->segment(2) == 'view_health_data') ? 'open' : '' ?>">                
+                <?= ($this->uri->segment(2) == 'map_view' || $this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health' || $this->uri->segment(2) == 'view_health_data' || $this->uri->segment(2) == 'opd_mnch_health') ? 'open' : '' ?>">                
                 <a class="dropdown-toggle" href="javascript:void(0);">
                     <span class="icon-holder">
                         <i class="anticon anticon-dashboard"></i>
@@ -84,11 +84,17 @@
                         </a>
                     </li>
                     
-                    <li class="<?= ($this->uri->segment(2) == 'export_health_data') ? 'active' : '' ?>">
+                    <li class="<?= ($this->uri->segment(2) == 'opd_mnch_health') ? 'active' : '' ?>">
+                        <a href="<?= base_url('dashboard/opd_mnch_health'); ?>">
+                            <span>OPD Dashboard</span>
+                        </a>
+                    </li>
+                    
+<!--                    <li class="<?= ($this->uri->segment(2) == 'export_health_data') ? 'active' : '' ?>">
                         <a href="<?= base_url('reports/export_health_data'); ?>">
                             <span>Export Raw Data</span>
                         </a>
-                    </li>
+                    </li>-->
                     
                     <li class="<?= ($this->uri->segment(2) == 'view_health_data') ? 'active' : '' ?>">
                         <a href="<?= base_url('reports/view_health_data'); ?>">
