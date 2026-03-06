@@ -277,5 +277,19 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/view_health_data', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function validation_report()
+    {
+        $data['report'] = $this->Reports_model->get_validation_report();
+        $data['main_content'] = $this->load->view('reports/validation_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
+    public function duplicate_qr_report()
+    {
+        $data['duplicates'] = $this->Reports_model->get_duplicate_qr_report();
+        $data['main_content'] = $this->load->view('reports/duplicate_qr_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
 
 }

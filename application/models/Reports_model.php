@@ -265,7 +265,7 @@ class Reports_model extends CI_Model {
             // get options
             $options = $this->db
                 ->where('question_id', $qid)
-                ->order_by('option_id','ASC')
+                ->order_by('option_order','ASC')
                 ->get('question_options')
                 ->result_array();
 
@@ -285,7 +285,7 @@ class Reports_model extends CI_Model {
                         CASE
                         WHEN chd.question_id = {$qid}
                         AND chd.option_id = {$oid}
-                        THEN '✔'
+                        THEN 'Yes'
                         ELSE ''
                         END
                     ) AS `$col`
@@ -373,7 +373,7 @@ class Reports_model extends CI_Model {
             // Get options for this question
             $options = $this->db
                 ->where('question_id', $qid)
-                ->order_by('option_id', 'ASC')
+                ->order_by('option_order', 'ASC')
                 ->get('question_options')
                 ->result_array();
 
@@ -394,7 +394,7 @@ class Reports_model extends CI_Model {
                         CASE 
                         WHEN omd.question_id = {$qid} 
                         AND omd.option_id = {$oid} 
-                        THEN '✔'
+                        THEN 'Yes'
                         ELSE ''
                         END
                     ) AS `$col`
@@ -452,6 +452,78 @@ class Reports_model extends CI_Model {
             'questions' => $question_labels,
             'options' => $question_options
         ];
+    }
+    
+    public function get_validation_report()
+    {
+        $this->db->select('rv.*, u.full_name, 
+            CASE 
+                WHEN rv.module_name = "child_health" THEN ch.created_by
+                WHEN rv.module_name = "opd_mnch" THEN om.created_by
+                ELSE NULL
+            END as form_created_by', FALSE);
+
+        $this->db->from('record_validation rv');
+        $this->db->join('users u', 'u.user_id = rv.user_id', 'left');
+        $this->db->join('child_health_master ch', 'rv.master_id = ch.master_id AND rv.module_name = "child_health"', 'left');
+        $this->db->join('opd_mnch_master om', 'rv.master_id = om.id AND rv.module_name = "opd_mnch"', 'left');
+
+        // Apply role-based restriction
+        $user_role = $this->session->userdata('role');
+        $user_id   = $this->session->userdata('user_id');
+
+        if ($user_role == 1) {
+            // Role 1 can only see records they created
+            $this->db->group_start();
+            $this->db->where('ch.created_by', $user_id);
+            $this->db->or_where('om.created_by', $user_id);
+            $this->db->group_end();
+        }
+
+        $this->db->order_by('rv.created_at', 'DESC');
+
+        $records = $this->db->get()->result_array();
+
+        // Count statuses
+        $verified = 0;
+        $reported = 0;
+
+        foreach ($records as $row) {
+            if(strtolower($row['validation_status']) == 'verified'){
+                $verified++;
+            }
+            if(strtolower($row['validation_status']) == 'reported'){
+                $reported++;
+            }
+        }
+
+        return [
+            'records' => $records,
+            'verified_total' => $verified,
+            'reported_total' => $reported
+        ];
+    }
+    
+    public function get_duplicate_qr_report()
+    {
+        // Child Health duplicates
+        $this->db->select('qr_code, COUNT(*) as total, "child_health" as module_name');
+        $this->db->from('child_health_master');
+        $this->db->group_by('qr_code');
+        $this->db->having('COUNT(*) > 1');
+        $child_duplicates = $this->db->get()->result_array();
+
+        // OPD MNCH duplicates
+        $this->db->select('qr_code, COUNT(*) as total, "opd_mnch" as module_name');
+        $this->db->from('opd_mnch_master');
+        $this->db->group_by('qr_code');
+        $this->db->having('COUNT(*) > 1');
+        $opd_duplicates = $this->db->get()->result_array();
+
+        // Merge both results
+        $duplicates = array_merge($child_duplicates, $opd_duplicates);
+
+        return $duplicates;
     }
     
 }

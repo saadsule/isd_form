@@ -65,6 +65,12 @@
                             <span>Map</span>
                         </a>
                     </li>
+                    
+                    <li class="<?= ($this->uri->segment(2) == 'child_health') ? 'active' : '' ?>">
+                        <a href="<?= base_url('dashboard/child_health'); ?>">
+                            <span>Main Dashboard</span>
+                        </a>
+                    </li>
 
                     <li class="<?= ($this->uri->segment(2) == 'outreach') ? 'active' : '' ?>">
                         <a href="<?= base_url('dashboard/outreach'); ?>">
@@ -78,17 +84,11 @@
                         </a>
                     </li>
                     
-                    <li class="<?= ($this->uri->segment(2) == 'child_health') ? 'active' : '' ?>">
-                        <a href="<?= base_url('dashboard/child_health'); ?>">
-                            <span>Main Dashboard</span>
-                        </a>
-                    </li>
-                    
-                    <li class="<?= ($this->uri->segment(2) == 'opd_mnch_health') ? 'active' : '' ?>">
+<!--                    <li class="<?= ($this->uri->segment(2) == 'opd_mnch_health') ? 'active' : '' ?>">
                         <a href="<?= base_url('dashboard/opd_mnch_health'); ?>">
                             <span>OPD Dashboard</span>
                         </a>
-                    </li>
+                    </li>-->
                     
 <!--                    <li class="<?= ($this->uri->segment(2) == 'export_health_data') ? 'active' : '' ?>">
                         <a href="<?= base_url('reports/export_health_data'); ?>">
