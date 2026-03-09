@@ -331,6 +331,18 @@ class Reports_model extends CI_Model {
         if(!empty($filters['uc'])) {
             $this->db->where_in('chm.uc', $filters['uc']);
         }
+        
+        if(!empty($filters['gender'])) {
+            $this->db->where_in('chm.gender', $filters['gender']);
+        }
+        
+        if(!empty($filters['age_group'])) {
+            $this->db->where_in('chm.age_group', $filters['age_group']);
+        }
+        
+        if(!empty($filters['visit_type'])) {
+            $this->db->where_in('chm.visit_type', $filters['visit_type']);
+        }
 
         if(!empty($filters['start']) && !empty($filters['end'])) {
             $this->db->where('chm.form_date >=', $filters['start']);
@@ -435,6 +447,15 @@ class Reports_model extends CI_Model {
         if (!empty($filters['uc'])) {
             $this->db->where_in('omm.uc', $filters['uc']);
         }
+        
+        if(!empty($filters['age_group'])) {
+            $this->db->where_in('omm.age_group', $filters['age_group']);
+        }
+        
+        if(!empty($filters['visit_type'])) {
+            $this->db->where_in('omm.visit_type', $filters['visit_type']);
+        }
+        
         if (!empty($filters['start']) && !empty($filters['end'])) {
             $this->db->where('omm.form_date >=', $filters['start']);
             $this->db->where('omm.form_date <=', $filters['end']);
@@ -524,6 +545,26 @@ class Reports_model extends CI_Model {
         $duplicates = array_merge($child_duplicates, $opd_duplicates);
 
         return $duplicates;
+    }
+    
+    public function get_qr_records($qr_code, $form_type)
+    {
+
+        if($form_type == 'chf'){
+
+            $this->db->where('qr_code',$qr_code);
+            return $this->db->get('child_health_master')->result_array();
+
+        }
+
+        if($form_type == 'opd'){
+
+            $this->db->where('qr_code',$qr_code);
+            return $this->db->get('opd_mnch_master')->result_array();
+
+        }
+
+        return [];
     }
     
 }

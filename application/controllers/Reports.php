@@ -222,10 +222,13 @@ class Reports extends CI_Controller {
         $this->load->model('Reports_model');
 
         $filters = [
-            'uc'        => $this->input->get('uc'),
-            'start'     => $this->input->get('start'),
-            'end'       => $this->input->get('end'),
-            'form_type' => $this->input->get('form_type'),
+        'uc'        => $this->input->get('uc'),
+        'start'     => $this->input->get('start'),
+        'end'       => $this->input->get('end'),
+        'form_type' => $this->input->get('form_type'),
+        'gender'    => $this->input->get('gender'),
+        'age_group' => $this->input->get('age_group'),
+        'visit_type'=> $this->input->get('visit_type'),
         ];
 
         $data['filters'] = $filters;
@@ -272,6 +275,7 @@ class Reports extends CI_Controller {
         foreach ($data['question_labels'] as $qid => $label) {
             $data['headers'][] = 'Q'.$qid;
         }
+        $data['headers'][] = 'view';
     }
 
         $data['main_content'] = $this->load->view('reports/view_health_data', $data, TRUE);
@@ -290,6 +294,20 @@ class Reports extends CI_Controller {
         $data['duplicates'] = $this->Reports_model->get_duplicate_qr_report();
         $data['main_content'] = $this->load->view('reports/duplicate_qr_report', $data, TRUE);
         $this->load->view('layout/main', $data);
+    }
+    
+    public function qr_code_report($qr_code, $form_type)
+    {
+        $this->load->model('Reports_model');
+
+        $data['records'] = $this->Reports_model->get_qr_records($qr_code, $form_type);
+
+        $data['qr_code'] = $qr_code;
+        $data['form_type'] = $form_type;
+        $data['page_title'] = "QR Code Record";
+
+        $data['main_content'] = $this->load->view('reports/qr_code_report',$data,true);
+        $this->load->view('layout/main',$data);
     }
 
 }

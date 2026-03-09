@@ -1,3 +1,8 @@
+<?php 
+// Default start and end dates
+$default_start = isset($filters['start']) ? $filters['start'] : '2025-12-01';
+$default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
+?>
 <div class="page-container">
     <div class="main-content">
 
@@ -15,8 +20,12 @@
                         <label>Select UC(s) *</label>
                         <div class="m-b-15">
                             <select class="select2" name="uc[]" multiple="multiple" style="width:100%">
-                                <?php foreach($ucs as $u): ?>
-                                    <option value="<?= $u->pk_id ?>" <?= (isset($filters['uc']) && in_array($u->pk_id,$filters['uc'])) ? 'selected' : '' ?>>
+                                <?php
+                                $selected_ucs = isset($filters['uc'])
+                                    ? (is_array($filters['uc']) ? $filters['uc'] : [$filters['uc']])
+                                    : array_map(function($u){ return $u->pk_id; }, $ucs);
+                                foreach($ucs as $u): ?>
+                                    <option value="<?= $u->pk_id ?>" <?= in_array($u->pk_id, $selected_ucs) ? 'selected' : '' ?>>
                                         <?= $u->uc_name ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -32,10 +41,14 @@
                             <select class="select2" name="gender[]" multiple="multiple" style="width:100%">
                                 <?php
                                 $genders = ['Male','Female'];
-                                foreach($genders as $g){
-                                    echo "<option value='{$g}' ".(isset($filters['gender']) && in_array($g,$filters['gender']) ? 'selected' : '').">{$g}</option>";
-                                }
-                                ?>
+                                $selected_genders = isset($filters['gender'])
+                                    ? (is_array($filters['gender']) ? $filters['gender'] : [$filters['gender']])
+                                    : $genders;
+                                foreach($genders as $g): ?>
+                                    <option value="<?= $g ?>" <?= in_array($g, $selected_genders) ? 'selected' : '' ?>>
+                                        <?= $g ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                             <small class="text-danger error-message" data-for="gender[]"></small>
                         </div>
@@ -48,10 +61,14 @@
                             <select class="select2" name="age_group[]" multiple="multiple" style="width:100%">
                                 <?php
                                 $age_groups = ['<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year'];
-                                foreach($age_groups as $ag){
-                                    echo "<option value='{$ag}' ".(isset($filters['age_group']) && in_array($ag,$filters['age_group']) ? 'selected' : '').">{$ag}</option>";
-                                }
-                                ?>
+                                $selected_age_groups = isset($filters['age_group'])
+                                    ? (is_array($filters['age_group']) ? $filters['age_group'] : [$filters['age_group']])
+                                    : $age_groups;
+                                foreach($age_groups as $ag): ?>
+                                    <option value="<?= $ag ?>" <?= in_array($ag, $selected_age_groups) ? 'selected' : '' ?>>
+                                        <?= $ag ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                             <small class="text-danger error-message" data-for="age_group[]"></small>
                         </div>
@@ -61,23 +78,18 @@
                     <div class="col-md-4">
                         <label>Select Date Range *</label>
                         <div class="d-flex align-items-center m-b-15">
-                            <input type="text" class="form-control datepicker-input" name="start" placeholder="From" 
+                            <input type="text" class="form-control datepicker-input" name="start" placeholder="From"
                                    autocomplete="off"
-                                   value="<?= isset($filters['start']) ? $filters['start'] : '' ?>" required="">
+                                   value="<?= $default_start ?>" required="">
                             <span class="p-h-10">to</span>
-                            <input type="text" class="form-control datepicker-input" name="end" placeholder="To" 
+                            <input type="text" class="form-control datepicker-input" name="end" placeholder="To"
                                    autocomplete="off"
-                                   value="<?= isset($filters['end']) ? $filters['end'] : '' ?>" required="">
+                                   value="<?= $default_end ?>" required="">
                         </div>
                     </div>
-                    
+
                     <div class="col-md-12">
-                        <hr style="
-                            border: none;
-                            height: 3px;
-                            background: linear-gradient(to right, transparent, #6e8c75, transparent);
-                            opacity:1;
-                        ">
+                        <hr style="border: none; height: 3px; background: linear-gradient(to right, transparent, #6e8c75, transparent); opacity:1;">
                     </div>
 
                     <!-- Client Type -->
@@ -87,14 +99,19 @@
                             <select class="select2" name="client_type[]" multiple="multiple" style="width:100%">
                                 <?php
                                 $client_types = ['New','Followup'];
-                                foreach($client_types as $vt){
-                                    echo "<option value='{$vt}' ".(isset($filters['client_type']) && in_array($vt,$filters['client_type']) ? 'selected' : '').">{$vt}</option>";
-                                }
-                                ?>
+                                $selected_client_types = isset($filters['client_type'])
+                                    ? (is_array($filters['client_type']) ? $filters['client_type'] : [$filters['client_type']])
+                                    : $client_types;
+                                foreach($client_types as $vt): ?>
+                                    <option value="<?= $vt ?>" <?= in_array($vt, $selected_client_types) ? 'selected' : '' ?>>
+                                        <?= $vt ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
-                    
+
+                    <!-- Vaccination History -->
                     <div class="col-md-3 mt-2">
                         <label>Vaccination History (For Under Five Years Children) (Plot 2)</label>
                         <div class="m-b-15">
@@ -113,81 +130,86 @@
                                     10 => "Refusal Type – Misconception Refusal",
                                     11 => "Refusal Type – Religious Refusal"
                                 ];
-
-                                foreach($vaccination_history_options as $id => $text){
-                                    $selected = (isset($filters['vaccination_history']) && in_array($id, $filters['vaccination_history'])) ? 'selected' : '';
-                                    echo "<option value='{$id}' {$selected}>{$text}</option>";
-                                }
-                                ?>
+                                $selected_vaccination = isset($filters['vaccination_history'])
+                                    ? (is_array($filters['vaccination_history']) ? $filters['vaccination_history'] : [$filters['vaccination_history']])
+                                    : array_keys($vaccination_history_options);
+                                foreach($vaccination_history_options as $id => $text): ?>
+                                    <option value="<?= $id ?>" <?= in_array($id, $selected_vaccination) ? 'selected' : '' ?>>
+                                        <?= $text ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
-                    
+
+                    <!-- Antigens < 1 Year -->
                     <div class="col-md-3 mt-2">
                         <label>Antigens Administered to Child &lt; 1 Year (Plot 3)</label>
                         <div class="m-b-15">
                             <select class="select2" name="antigens[]" multiple="multiple" style="width:100%">
                                 <?php
-                                // Fetch options from database
                                 $this->db->select('option_id, option_text');
                                 $this->db->from('question_options');
                                 $this->db->where('question_id', 5);
-                                $this->db->where('status', 1); // Only active options
+                                $this->db->where('status', 1);
                                 $this->db->order_by('option_order', 'ASC');
-                                $query = $this->db->get();
-                                $options = $query->result();
-
-                                foreach($options as $opt){
-                                    $selected = (isset($filters['antigens']) && in_array($opt->option_id, $filters['antigens'])) ? 'selected' : '';
-                                    echo "<option value='{$opt->option_id}' {$selected}>{$opt->option_text}</option>";
-                                }
-                                ?>
+                                $options = $this->db->get()->result();
+                                $selected_antigens = isset($filters['antigens'])
+                                    ? (is_array($filters['antigens']) ? $filters['antigens'] : [$filters['antigens']])
+                                    : array_map(function($opt){ return $opt->option_id; }, $options);
+                                foreach($options as $opt): ?>
+                                    <option value="<?= $opt->option_id ?>" <?= in_array($opt->option_id, $selected_antigens) ? 'selected' : '' ?>>
+                                        <?= $opt->option_text ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
-                    
+
+                    <!-- Antigens 1–2 Years -->
                     <div class="col-md-3 mt-2">
                         <label>Antigens Administered to Child 1–2 Years (Plot 4)</label>
                         <div class="m-b-15">
                             <select class="select2" name="antigens_1_2_years[]" multiple="multiple" style="width:100%">
                                 <?php
-                                // Fetch options from database for question_id = 6
                                 $this->db->select('option_id, option_text');
                                 $this->db->from('question_options');
                                 $this->db->where('question_id', 6);
-                                $this->db->where('status', 1); // Only active options
+                                $this->db->where('status', 1);
                                 $this->db->order_by('option_order', 'ASC');
-                                $query = $this->db->get();
-                                $options = $query->result();
-
-                                foreach($options as $opt){
-                                    $selected = (isset($filters['antigens_1_2_years']) && in_array($opt->option_id, $filters['antigens_1_2_years'])) ? 'selected' : '';
-                                    echo "<option value='{$opt->option_id}' {$selected}>{$opt->option_text}</option>";
-                                }
-                                ?>
+                                $options = $this->db->get()->result();
+                                $selected_antigens_1_2 = isset($filters['antigens_1_2_years'])
+                                    ? (is_array($filters['antigens_1_2_years']) ? $filters['antigens_1_2_years'] : [$filters['antigens_1_2_years']])
+                                    : array_map(function($opt){ return $opt->option_id; }, $options);
+                                foreach($options as $opt): ?>
+                                    <option value="<?= $opt->option_id ?>" <?= in_array($opt->option_id, $selected_antigens_1_2) ? 'selected' : '' ?>>
+                                        <?= $opt->option_text ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
-                    
+
+                    <!-- Antigens 2–5 Years -->
                     <div class="col-md-3 mt-2">
                         <label>Antigens Administered to Child 2–5 Years (Plot 5)</label>
                         <div class="m-b-15">
                             <select class="select2" name="antigens_2_5_years[]" multiple="multiple" style="width:100%">
                                 <?php
-                                // Fetch options from database for question_id = 7
                                 $this->db->select('option_id, option_text');
                                 $this->db->from('question_options');
                                 $this->db->where('question_id', 7);
-                                $this->db->where('status', 1); // Only active options
+                                $this->db->where('status', 1);
                                 $this->db->order_by('option_order', 'ASC');
-                                $query = $this->db->get();
-                                $options = $query->result();
-
-                                foreach($options as $opt){
-                                    $selected = (isset($filters['antigens_2_5_years']) && in_array($opt->option_id, $filters['antigens_2_5_years'])) ? 'selected' : '';
-                                    echo "<option value='{$opt->option_id}' {$selected}>{$opt->option_text}</option>";
-                                }
-                                ?>
+                                $options = $this->db->get()->result();
+                                $selected_antigens_2_5 = isset($filters['antigens_2_5_years'])
+                                    ? (is_array($filters['antigens_2_5_years']) ? $filters['antigens_2_5_years'] : [$filters['antigens_2_5_years']])
+                                    : array_map(function($opt){ return $opt->option_id; }, $options);
+                                foreach($options as $opt): ?>
+                                    <option value="<?= $opt->option_id ?>" <?= in_array($opt->option_id, $selected_antigens_2_5) ? 'selected' : '' ?>>
+                                        <?= $opt->option_text ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
@@ -302,57 +324,50 @@
 
 <script>
 document.getElementById("filterForm").onsubmit = function(e) {
-
     let requiredFields = ["uc[]", "gender[]", "age_group[]"];
     let valid = true;
-
     // Clear old errors
     document.querySelectorAll(".error-message").forEach(el => el.innerHTML = "");
     document.querySelectorAll(".select2-container").forEach(el => el.style.border = "");
-
     requiredFields.forEach(function(name) {
-
         let select = document.getElementsByName(name)[0];
         let errorBox = document.querySelector('[data-for="'+name+'"]');
-
         if (!select || select.selectedOptions.length === 0) {
-
             valid = false;
-
             // Add red border
             let select2Box = select.nextElementSibling;
             if (select2Box) {
                 select2Box.style.borderRadius = "4px";
             }
-
             // Show message
             if (errorBox) {
                 errorBox.innerHTML = "This field is required.";
             }
         }
-
     });
-
     if (!valid) {
         e.preventDefault();
         return false;
     }
-
 };
 document.addEventListener("DOMContentLoaded", function(){
-
     // Initialize Select2
     $('.select2').select2({
         placeholder: "Select option(s)",
         allowClear: true,
         width:'100%'
     });
-
     // Initialize datepicker
     $('.datepicker-input').datepicker({
         format:'yyyy-mm-dd',
         autoclose:true
     });
+
+    // Auto-submit on first load (clean URL = no filters applied yet)
+    if (window.location.search === '') {
+        document.getElementById("filterForm").submit();
+        return;
+    }
 
     <?php if($isFilterApplied): ?>
 
