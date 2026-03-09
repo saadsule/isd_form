@@ -549,22 +549,21 @@ class Reports_model extends CI_Model {
     
     public function get_qr_records($qr_code, $form_type)
     {
-
-        if($form_type == 'chf'){
-
-            $this->db->where('qr_code',$qr_code);
-            return $this->db->get('child_health_master')->result_array();
-
+        if ($form_type == 'chf') {
+            $this->db->select("m.*, u.uc AS uc_name, 'chf' AS form_type");
+            $this->db->from('child_health_master m');
+            $this->db->join('uc u', 'u.pk_id = m.uc', 'left');
+            $this->db->where('m.qr_code', $qr_code);
+            return $this->db->get()->result_array();
         }
-
-        if($form_type == 'opd'){
-
-            $this->db->where('qr_code',$qr_code);
-            return $this->db->get('opd_mnch_master')->result_array();
-
+        if ($form_type == 'opd') {
+            $this->db->select("m.*, u.uc AS uc_name, 'opd' AS form_type");
+            $this->db->from('opd_mnch_master m');
+            $this->db->join('uc u', 'u.pk_id = m.uc', 'left');
+            $this->db->where('m.qr_code', $qr_code);
+            return $this->db->get()->result_array();
         }
-
-        return [];
+        return array();
     }
     
 }

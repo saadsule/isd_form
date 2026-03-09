@@ -4,14 +4,13 @@
 
             <?php $role = $this->session->userdata('role'); ?>
 
-            <?php if($role != 3): ?>
-            <!-- Home -->
-            <li class="nav-item <?= ($this->router->fetch_class() == 'welcome') ? 'active' : '' ?>">
-                <a href="<?= base_url('welcome/index'); ?>">
+            <?php if(!in_array($role, [1,3])): ?>
+            <li class="<?= ($this->uri->segment(2) == 'map_view') ? 'active' : '' ?>">
+                <a href="<?= base_url('dashboard/map_view'); ?>">
                     <span class="icon-holder">
-                        <i class="anticon anticon-home"></i>
+                        <i class="anticon anticon-environment"></i>
                     </span>
-                    <span class="title">Home</span>
+                    <span>Map</span>
                 </a>
             </li>
             <?php endif; ?>
@@ -48,7 +47,7 @@
             <!-- Dashboard (exclude role 1) -->
             <?php if(!in_array($role, [1,3])): ?>
             <li class="nav-item dropdown 
-                <?= ($this->uri->segment(2) == 'map_view' || $this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health' || $this->uri->segment(2) == 'view_health_data' || $this->uri->segment(2) == 'opd_mnch_health') ? 'open' : '' ?>">                
+                <?= ($this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health' || $this->uri->segment(2) == 'view_health_data' || $this->uri->segment(2) == 'opd_mnch_health') ? 'open' : '' ?>">                
                 <a class="dropdown-toggle" href="javascript:void(0);">
                     <span class="icon-holder">
                         <i class="anticon anticon-dashboard"></i>
@@ -60,12 +59,6 @@
                 </a>
 
                 <ul class="dropdown-menu">
-                    <li class="<?= ($this->uri->segment(2) == 'map_view') ? 'active' : '' ?>">
-                        <a href="<?= base_url('dashboard/map_view'); ?>">
-                            <span>Map</span>
-                        </a>
-                    </li>
-                    
                     <li class="<?= ($this->uri->segment(2) == 'child_health') ? 'active' : '' ?>">
                         <a href="<?= base_url('dashboard/child_health'); ?>">
                             <span>Main Dashboard</span>
@@ -171,7 +164,7 @@
             <!-- Reports -->
             <?php if(in_array($role, [2,4])): ?>
                 <li class="nav-item dropdown 
-                    <?= ($this->uri->segment(2) == 'data_entry_status' || $this->uri->segment(2) == 'uc_wise_report') ? 'open' : '' ?>">
+                    <?= ($this->uri->segment(2) == 'index' || $this->uri->segment(2) == 'validation_report' || $this->uri->segment(2) == 'data_entry_status' || $this->uri->segment(2) == 'uc_wise_report') ? 'open' : '' ?>">
 
                     <a class="dropdown-toggle" href="javascript:void(0);">
                         <span class="icon-holder">
@@ -184,6 +177,13 @@
                     </a>
 
                     <ul class="dropdown-menu">
+                        <!-- Home -->
+                        <li class="nav-item <?= ($this->router->fetch_class() == 'welcome') ? 'active' : '' ?>">
+                            <a href="<?= base_url('welcome/index'); ?>">
+                                <span class="title">Reporting Overview</span>
+                            </a>
+                        </li>
+                        
                         <?php if($role != 4): ?>
                             <!-- role 2 & 3 see all reports -->
 <!--                            <li class="<?= ($this->uri->segment(2) == 'data_entry_status') ? 'active' : '' ?>">
@@ -191,6 +191,12 @@
                                     <span>Data Entry Status</span>
                                 </a>
                             </li>-->
+                            
+                            <li class="<?= ($this->uri->segment(2) == 'validation_report') ? 'active' : '' ?>">
+                                <a href="<?= base_url('reports/validation_report'); ?>">
+                                    <span>Validation Report</span>
+                                </a>
+                            </li>
                             
                             <!-- role 2 & 3 see all reports -->
                             <li class="<?= ($this->uri->segment(2) == 'date_wise_progress') ? 'active' : '' ?>">

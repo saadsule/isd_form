@@ -21,7 +21,13 @@
     <link href="<?php echo base_url('assets/vendors/select2/select2.css') ?>" rel="stylesheet">
     <link href="<?php echo base_url('assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css') ?>" rel="stylesheet">
 </head>
-
+<style>
+    .select2-container-multi .select2-choices {
+        min-height: 26px;
+        max-height: 100px;
+        overflow-y: auto !important;
+    }
+</style>
 <body>
     <div class="app">
         <div class="layout">

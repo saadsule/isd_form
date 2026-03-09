@@ -103,4 +103,3 @@ if($creator_id){
 </table>
 </div>
 </div>
-</div>

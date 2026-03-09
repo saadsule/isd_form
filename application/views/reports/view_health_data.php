@@ -274,14 +274,14 @@ $default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
 <?php if($filters['form_type'] == 'chf'): ?>
 
 <a style="padding: .1rem 0.4rem;" href="<?= base_url('forms/view_child_health/'.$row['master_id']) ?>"
-class="btn btn-success btn-sm" title="View">
+class="btn btn-success btn-sm" title="View" target="_blank">
 <i class="fa fa-eye"></i>
 </a>
 
 <?php elseif($filters['form_type'] == 'opd'): ?>
 
 <a style="padding: .1rem 0.4rem;" href="<?= base_url('forms/view_opd_mnch/'.$row['id']) ?>"
-class="btn btn-success btn-sm" title="View">
+class="btn btn-success btn-sm" title="View" target="_blank">
 <i class="fa fa-eye"></i>
 </a>
 
