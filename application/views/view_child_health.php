@@ -115,6 +115,15 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
             <i class="anticon anticon-printer"></i> Print
         </button>
 
+        <!-- Unverify Button -->
+        <?php if($this->session->userdata('role') == 2 && $form->verification_status == 'Verified'): ?>
+            <form method="post" action="<?= base_url('forms/unverify/'.$form->master_id) ?>" style="display:inline;">
+                <button type="submit" class="btn btn-warning mr-2" style="padding: 0.375rem 0.75rem; height: 32px;">
+                    <i class="fa fa-undo"></i> Unverify
+                </button>
+            </form>
+        <?php endif; ?>
+        
         <!-- Verify & Report Buttons -->
         <?php if($this->session->userdata('role') == 2 && ($form->verification_status == 'Pending' || $form->verification_status == 'Reported')): ?>
             <form method="post" action="<?= base_url('forms/verify/'.$form->master_id) ?>" style="display:inline;">

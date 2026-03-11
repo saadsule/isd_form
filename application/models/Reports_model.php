@@ -566,4 +566,73 @@ class Reports_model extends CI_Model {
         return array();
     }
     
+   public function get_vaccination_simple($filters)
+    {
+        $this->db->select("
+            u.uc AS uc_name,
+            u.pk_id AS uc_id,
+            DATE_FORMAT(m.form_date, '%Y-%m') AS month,
+            COUNT(DISTINCT m.qr_code) AS total
+        ");
+        $this->db->from('child_health_master m');
+        $this->db->join(
+            'child_health_detail d',
+            'm.master_id = d.master_id AND d.question_id IN (5,6,7)',
+            'inner'
+        );
+        $this->db->join('uc u', 'u.pk_id = m.uc', 'left');
+
+        // Month range filter — start of from_month to end of to_month
+        if (!empty($filters['from_month'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['from_month'] . '-01');
+        }
+        if (!empty($filters['to_month'])) {
+            // Last day of to_month
+            $this->db->where(
+                'DATE(m.form_date) <=',
+                date('Y-m-t', strtotime($filters['to_month'] . '-01'))
+            );
+        }
+
+        $this->db->group_by(array('m.uc', 'month'));
+        $this->db->order_by('u.pk_id', 'ASC');
+        $this->db->order_by('month',   'ASC');
+
+        return $this->db->get()->result_array();
+    }
+
+    public function get_vaccination_qr_by_month($filters)
+    {
+        $this->db->select("
+            m.uc,
+            u.uc AS uc_name,
+            u.pk_id AS uc_id,
+            DATE_FORMAT(m.form_date, '%Y-%m') AS month,
+            m.qr_code
+        ");
+        $this->db->from('child_health_master m');
+        $this->db->join(
+            'child_health_detail d',
+            'm.master_id = d.master_id AND d.question_id IN (5,6,7)',
+            'inner'
+        );
+        $this->db->join('uc u', 'u.pk_id = m.uc', 'left');
+
+        if (!empty($filters['from_month'])) {
+            $this->db->where('DATE(m.form_date) >=', $filters['from_month'] . '-01');
+        }
+        if (!empty($filters['to_month'])) {
+            $this->db->where(
+                'DATE(m.form_date) <=',
+                date('Y-m-t', strtotime($filters['to_month'] . '-01'))
+            );
+        }
+
+        $this->db->group_by(array('m.uc', 'month', 'm.qr_code'));
+        $this->db->order_by('u.pk_id', 'ASC');
+        $this->db->order_by('month',   'ASC');
+
+        return $this->db->get()->result_array();
+    }
+    
 }

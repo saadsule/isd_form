@@ -1062,6 +1062,40 @@ class Forms extends CI_Controller {
         redirect('forms/view_child_health/'.$id);
     }
     
+    public function unverify($id)
+    {
+        if($this->session->userdata('role') != 2){
+            show_error('Unauthorized Access');
+        }
+        $form = $this->db->get_where('child_health_master', ['master_id' => $id])->row();
+        if(!$form){
+            show_404();
+        }
+        if($form->verification_status != 'Verified'){
+            show_error('Form is not verified yet.');
+        }
+        $data = [
+            'verification_status' => 'Pending',
+            'verified_by' => NULL,
+            'verified_at' => NULL
+        ];
+        $this->db->where('master_id', $id);
+        $this->db->update('child_health_master', $data);
+
+        // Insert validation history
+        $log = [
+            'module_name' => 'child_health',
+            'master_id' => $id,
+            'validation_status' => 'Unverified',
+            'remarks' => 'Verification removed, reset to Pending',
+            'user_id' => $this->session->userdata('user_id'),
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        $this->db->insert('record_validation', $log);
+
+        redirect('forms/view_child_health/'.$id);
+    }
+    
     public function verify_opd_mnch($id)
     {
         if($this->session->userdata('role') != 2){
@@ -1145,6 +1179,40 @@ class Forms extends CI_Controller {
             'created_at' => date('Y-m-d H:i:s')
         ];
 
+        $this->db->insert('record_validation', $log);
+
+        redirect('forms/view_opd_mnch/'.$id);
+    }
+    
+    public function unverify_opd_mnch($id)
+    {
+        if($this->session->userdata('role') != 2){
+            show_error('Unauthorized Access');
+        }
+        $form = $this->db->get_where('opd_mnch_master', ['id' => $id])->row();
+        if(!$form){
+            show_404();
+        }
+        if($form->verification_status != 'Verified'){
+            show_error('Form is not verified yet.');
+        }
+        $data = [
+            'verification_status' => 'Pending',
+            'verified_by' => NULL,
+            'verified_at' => NULL
+        ];
+        $this->db->where('id', $id);
+        $this->db->update('opd_mnch_master', $data);
+
+        // Insert validation history
+        $log = [
+            'module_name' => 'opd_mnch',
+            'master_id' => $id,
+            'validation_status' => 'Unverified',
+            'remarks' => 'Verification removed, reset to Pending',
+            'user_id' => $this->session->userdata('user_id'),
+            'created_at' => date('Y-m-d H:i:s')
+        ];
         $this->db->insert('record_validation', $log);
 
         redirect('forms/view_opd_mnch/'.$id);

@@ -309,5 +309,87 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/qr_code_report',$data,true);
         $this->load->view('layout/main',$data);
     }
+    
+    public function vaccination_followup_report()
+    {
+        $filters         = array();
+        $isFilterApplied = FALSE;
+
+        if ($this->input->get('from_month')) {
+            $filters['from_month'] = $this->input->get('from_month');
+            $filters['to_month']   = $this->input->get('to_month');
+            $isFilterApplied       = TRUE;
+        }
+
+        $simple_data     = array();
+        $comparison_data = array();
+        $months          = array();
+
+        if ($isFilterApplied) {
+
+            // Simple Version
+            $simple_raw = $this->Reports_model->get_vaccination_simple($filters);
+            foreach ($simple_raw as $row) {
+                $simple_data[$row['uc_name']][$row['month']] = (int)$row['total'];
+                if (!in_array($row['month'], $months)) {
+                    $months[] = $row['month'];
+                }
+            }
+            sort($months);
+
+            // Comparison Version — QR code based matching
+            $qr_raw    = $this->Reports_model->get_vaccination_qr_by_month($filters);
+            $ucMonthQR = array();
+
+            foreach ($qr_raw as $row) {
+                // Key by qr_code to ensure unique per child per month
+                $ucMonthQR[$row['uc_name']][$row['month']][$row['qr_code']] = $row['qr_code'];
+            }
+
+            foreach ($ucMonthQR as $uc_name => $monthData) {
+
+                $base_month = $months[0];
+                $base_qr    = isset($monthData[$base_month])
+                              ? array_values($monthData[$base_month])
+                              : array();
+
+                foreach ($months as $i => $month) {
+                    $month_qr = isset($monthData[$month])
+                                ? array_values($monthData[$month])
+                                : array();
+
+                    if ($i == 0) {
+                        $comparison_data[$uc_name][$month] = array(
+                            'total'    => count($base_qr),
+                            'retained' => count($base_qr),
+                            'percent'  => 100
+                        );
+                    } else {
+                        // Match QR codes from base month against this month
+                        $retained   = count(array_intersect($base_qr, $month_qr));
+                        $base_count = count($base_qr);
+                        $comparison_data[$uc_name][$month] = array(
+                            'total'    => count($month_qr),
+                            'retained' => $retained,
+                            'percent'  => $base_count > 0
+                                          ? round(($retained / $base_count) * 100, 1)
+                                          : 0
+                        );
+                    }
+                }
+            }
+        }
+
+        $data = array(
+            'filters'         => $filters,
+            'isFilterApplied' => $isFilterApplied,
+            'months'          => $months,
+            'simple_data'     => $simple_data,
+            'comparison_data' => $comparison_data
+        );
+
+        $data['main_content'] = $this->load->view('reports/vaccination_followup',$data,true);
+        $this->load->view('layout/main',$data);
+    }
 
 }
