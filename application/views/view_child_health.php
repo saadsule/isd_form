@@ -104,9 +104,16 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
     <div class="d-flex align-items-center flex-wrap">
 
         <!-- Status Badge -->
-        <?php if($this->session->userdata('role') == 2  || $status!='Pending'): ?>    
-            <span class="badge badge-<?php echo $badge_color; ?> mr-2" style="font-size:14px;">
-                <?php echo $status; ?>
+        <?php if($this->session->userdata('role') == 2 || $status != 'Pending'): ?>    
+            <span class="badge badge-<?php echo $badge_color; ?> mr-2" style="font-size:11px; padding: 4px 8px; border-radius: 20px; font-weight:500;">
+                <?php if($status == 'Verified'): ?>
+                    <i class="fa fa-check-circle"></i>
+                <?php elseif($status == 'Reported'): ?>
+                    <i class="fa fa-flag"></i>
+                <?php else: ?>
+                    <i class="fa fa-clock-o"></i>
+                <?php endif; ?>
+                &nbsp;<?php echo $status; ?>
             </span>
         <?php endif; ?>
 

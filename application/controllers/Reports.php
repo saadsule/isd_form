@@ -310,7 +310,8 @@ class Reports extends CI_Controller {
         $this->load->view('layout/main',$data);
     }
     
-    public function vaccination_followup_report()
+    // Simple Version
+    public function vaccination_simple()
     {
         $filters         = array();
         $isFilterApplied = FALSE;
@@ -321,13 +322,10 @@ class Reports extends CI_Controller {
             $isFilterApplied       = TRUE;
         }
 
-        $simple_data     = array();
-        $comparison_data = array();
-        $months          = array();
+        $simple_data = array();
+        $months      = array();
 
         if ($isFilterApplied) {
-
-            // Simple Version
             $simple_raw = $this->Reports_model->get_vaccination_simple($filters);
             foreach ($simple_raw as $row) {
                 $simple_data[$row['uc_name']][$row['month']] = (int)$row['total'];
@@ -336,18 +334,47 @@ class Reports extends CI_Controller {
                 }
             }
             sort($months);
+        }
 
-            // Comparison Version — QR code based matching
+        $data = array(
+            'filters'         => $filters,
+            'isFilterApplied' => $isFilterApplied,
+            'months'          => $months,
+            'simple_data'     => $simple_data
+        );
+
+        $data['main_content'] = $this->load->view('reports/vaccination_simple',$data,true);
+        $this->load->view('layout/main',$data);
+    }
+
+    // Comparison Version
+    public function vaccination_comparison()
+    {
+        $filters         = array();
+        $isFilterApplied = FALSE;
+
+        if ($this->input->get('from_month')) {
+            $filters['from_month'] = $this->input->get('from_month');
+            $filters['to_month']   = $this->input->get('to_month');
+            $isFilterApplied       = TRUE;
+        }
+
+        $comparison_data = array();
+        $months          = array();
+
+        if ($isFilterApplied) {
             $qr_raw    = $this->Reports_model->get_vaccination_qr_by_month($filters);
             $ucMonthQR = array();
 
             foreach ($qr_raw as $row) {
-                // Key by qr_code to ensure unique per child per month
                 $ucMonthQR[$row['uc_name']][$row['month']][$row['qr_code']] = $row['qr_code'];
+                if (!in_array($row['month'], $months)) {
+                    $months[] = $row['month'];
+                }
             }
+            sort($months);
 
             foreach ($ucMonthQR as $uc_name => $monthData) {
-
                 $base_month = $months[0];
                 $base_qr    = isset($monthData[$base_month])
                               ? array_values($monthData[$base_month])
@@ -365,7 +392,6 @@ class Reports extends CI_Controller {
                             'percent'  => 100
                         );
                     } else {
-                        // Match QR codes from base month against this month
                         $retained   = count(array_intersect($base_qr, $month_qr));
                         $base_count = count($base_qr);
                         $comparison_data[$uc_name][$month] = array(
@@ -384,12 +410,118 @@ class Reports extends CI_Controller {
             'filters'         => $filters,
             'isFilterApplied' => $isFilterApplied,
             'months'          => $months,
-            'simple_data'     => $simple_data,
             'comparison_data' => $comparison_data
         );
 
-        $data['main_content'] = $this->load->view('reports/vaccination_followup',$data,true);
+        $data['main_content'] = $this->load->view('reports/vaccination_comparison',$data,true);
         $this->load->view('layout/main',$data);
+    }
+    
+    public function vaccination_detail()
+    {
+        $uc_name    = $this->input->get('uc_name');
+        $month      = $this->input->get('month');
+        $base_month = $this->input->get('base_month');
+
+        $start = $month . '-01';
+        $end   = date('Y-m-t', strtotime($start));
+
+        if (!empty($base_month)) {
+
+            $base_start = $base_month . '-01';
+            $base_end   = date('Y-m-t', strtotime($base_start));
+
+            // Get base month QR codes for this UC
+            $this->db->select('m.qr_code');
+            $this->db->from('child_health_master m');
+            $this->db->join('child_health_detail d', 'm.master_id = d.master_id AND d.question_id IN (5,6,7)', 'inner');
+            $this->db->join('uc u', 'u.pk_id = m.uc', 'left');
+            $this->db->where('u.uc', $uc_name);
+            $this->db->where('DATE(m.form_date) >=', $base_start);
+            $this->db->where('DATE(m.form_date) <=', $base_end);
+            $this->db->group_by('m.qr_code');
+            $base_qr_result = $this->db->get()->result_array();
+            $base_qr_codes  = array_column($base_qr_result, 'qr_code');
+
+            if (empty($base_qr_codes)) {
+                $data = array(
+                    'records'     => array(),
+                    'uc_name'     => $uc_name,
+                    'month'       => $month,
+                    'base_month'  => $base_month,
+                    'is_retained' => TRUE
+                );
+                $data['main_content'] = $this->load->view('reports/vaccination_detail', $data, true);
+                $this->load->view('layout/main', $data);
+                return;
+            }
+
+            // Get retained month records with vaccines
+            $this->db->select("
+                m.qr_code,
+                m.patient_name,
+                m.guardian_name,
+                m.age_group,
+                m.gender,
+                m.village,
+                m.form_date,
+                GROUP_CONCAT(DISTINCT qo.option_text ORDER BY qo.option_order ASC SEPARATOR ', ') AS vaccines
+            ", false);
+            $this->db->from('child_health_master m');
+            $this->db->join('child_health_detail d',   'm.master_id = d.master_id AND d.question_id IN (5,6,7)', 'inner');
+            $this->db->join('question_options qo',     'qo.option_id = d.option_id AND qo.question_id = d.question_id', 'left');
+            $this->db->join('uc u',                    'u.pk_id = m.uc', 'left');
+            $this->db->where('u.uc', $uc_name);
+            $this->db->where('DATE(m.form_date) >=', $start);
+            $this->db->where('DATE(m.form_date) <=', $end);
+            $this->db->where_in('m.qr_code', $base_qr_codes);
+            $this->db->group_by('m.master_id');
+            $this->db->order_by('m.form_date', 'ASC');
+            $result = $this->db->get()->result_array();
+
+            $data = array(
+                'records'     => $result,
+                'uc_name'     => $uc_name,
+                'month'       => $month,
+                'base_month'  => $base_month,
+                'is_retained' => TRUE
+            );
+
+        } else {
+
+            // Simple / base month — all vaccinated children with vaccines
+            $this->db->select("
+                m.qr_code,
+                m.patient_name,
+                m.guardian_name,
+                m.age_group,
+                m.gender,
+                m.village,
+                m.form_date,
+                GROUP_CONCAT(DISTINCT qo.option_text ORDER BY qo.option_order ASC SEPARATOR ', ') AS vaccines
+            ", false);
+            $this->db->from('child_health_master m');
+            $this->db->join('child_health_detail d',   'm.master_id = d.master_id AND d.question_id IN (5,6,7)', 'inner');
+            $this->db->join('question_options qo',     'qo.option_id = d.option_id AND qo.question_id = d.question_id', 'left');
+            $this->db->join('uc u',                    'u.pk_id = m.uc', 'left');
+            $this->db->where('u.uc', $uc_name);
+            $this->db->where('DATE(m.form_date) >=', $start);
+            $this->db->where('DATE(m.form_date) <=', $end);
+            $this->db->group_by('m.master_id');
+            $this->db->order_by('m.form_date', 'ASC');
+            $result = $this->db->get()->result_array();
+
+            $data = array(
+                'records'     => $result,
+                'uc_name'     => $uc_name,
+                'month'       => $month,
+                'base_month'  => NULL,
+                'is_retained' => FALSE
+            );
+        }
+
+        $data['main_content'] = $this->load->view('reports/vaccination_detail', $data, true);
+        $this->load->view('layout/main', $data);
     }
 
 }
