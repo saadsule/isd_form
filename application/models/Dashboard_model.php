@@ -903,33 +903,34 @@ class Dashboard_model extends CI_Model {
             'm.master_id = d.master_id AND d.question_id IN (5,6,7)',
             'left'
         );
-
+        // Join question_options to get option_order for proper sorting
+        $this->db->join(
+            'question_options qo',
+            'qo.option_id = d.option_id AND qo.question_id = d.question_id',
+            'left'
+        );
         if (!empty($filters['uc'])) {
             $this->db->where_in('m.uc', $filters['uc']);
         }
-
         if (!empty($filters['start'])) {
             $this->db->where('DATE(m.form_date) >=', $filters['start']);
         }
-
         if (!empty($filters['end'])) {
             $this->db->where('DATE(m.form_date) <=', $filters['end']);
         }
-
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
         }
-
-        // Include option_id to preserve form order without changing other logic
         $this->db->select("
             d.question_id,
             d.answer AS antigen,
             d.option_id,
+            MIN(qo.option_order) AS option_order,
             COUNT(*) AS total
         ", false);
 
         $this->db->group_by(['d.question_id', 'd.answer', 'd.option_id']);
-
+        $this->db->order_by('qo.option_order', 'ASC'); // Sort by option_order from DB
         $result = $this->db->get()->result_array();
 
         // Question labels
@@ -938,26 +939,24 @@ class Dashboard_model extends CI_Model {
             6 => 'Antigens 1–2 Year',
             7 => 'Antigens 2–5 Year'
         ];
-
         $questionList = array_values($questions);
         $antigenList = [];
         $dataMap = [];
 
         foreach ($result as $row) {
             if (!$row['antigen']) continue;
-
             $qLabel = $questions[$row['question_id']];
             $antigen = $row['antigen'];
 
-            // Add unique antigen preserving form order
-            if (!in_array($antigen, $antigenList)) {
-                $antigenList[$row['option_id']] = $antigen;
+            // Use option_order as key for correct ordering
+            if (!isset($antigenList[$row['option_order']])) {
+                $antigenList[$row['option_order']] = $antigen;
             }
 
             $dataMap[$qLabel][$antigen] = (int)$row['total'];
         }
 
-        // Sort by option_id to maintain the same order as the form
+        // Sort by option_order (already ordered from DB, ksort ensures PHP side too)
         ksort($antigenList);
         $antigenList = array_values($antigenList);
 
@@ -2120,6 +2119,505 @@ class Dashboard_model extends CI_Model {
         }
 
         return $counts; 
+    }
+    
+    public function get_sunburst_q19($filters)
+    {
+        $this->db->from('opd_mnch_master m');
+        $this->db->join(
+            'opd_mnch_detail d',
+            'm.id = d.master_id AND d.question_id IN (24,25)',
+            'left'
+        );
+        if (!empty($filters['uc']))         $this->db->where_in('m.uc', $filters['uc']);
+        if (!empty($filters['start']))      $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        if (!empty($filters['end']))        $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+
+        $this->db->select("
+            COUNT(DISTINCT m.id) AS total_records,
+
+            SUM(CASE WHEN d.question_id=24 AND d.answer='Yes' THEN 1 ELSE 0 END) AS yes_count,
+            SUM(CASE WHEN d.question_id=24 AND d.answer='No'  THEN 1 ELSE 0 END) AS no_count,
+
+            SUM(CASE WHEN d.question_id=25 AND d.answer='1st' THEN 1 ELSE 0 END) AS dose_1st,
+            SUM(CASE WHEN d.question_id=25 AND d.answer='2nd' THEN 1 ELSE 0 END) AS dose_2nd,
+            SUM(CASE WHEN d.question_id=25 AND d.answer='3rd' THEN 1 ELSE 0 END) AS dose_3rd,
+            SUM(CASE WHEN d.question_id=25 AND d.answer='4th' THEN 1 ELSE 0 END) AS dose_4th,
+            SUM(CASE WHEN d.question_id=25 AND d.answer='5th' THEN 1 ELSE 0 END) AS dose_5th
+        ", false);
+
+        $r = $this->db->get()->row_array();
+
+        $safe = function($v) {
+            return (int)$v;
+        };
+
+        $totalRecords = $safe($r['total_records']);
+        $yesCount     = $safe($r['yes_count']);
+        $noCount      = $safe($r['no_count']);
+
+        // Records where Q24 was not answered at all
+        $q24_na = max(0, $totalRecords - $yesCount - $noCount);
+
+        $doseTotal =
+            $safe($r['dose_1st']) +
+            $safe($r['dose_2nd']) +
+            $safe($r['dose_3rd']) +
+            $safe($r['dose_4th']) +
+            $safe($r['dose_5th']);
+
+        // Yes records where no dose was recorded in Q25
+        $dose_na = max(0, $yesCount - $doseTotal);
+
+        $sunburst = [];
+
+        // Root: Tetanus Vaccine Administered
+        $sunburst[] = [
+            'id'     => 'root',
+            'parent' => '',
+            'name'   => 'Tetanus Vaccine Administered',
+            'value'  => $totalRecords,
+            'color'  => '#2b908f'
+        ];
+
+        // Yes branch
+        $sunburst[] = [
+            'id'     => 'yes',
+            'parent' => 'root',
+            'name'   => 'Yes',
+            'value'  => $yesCount,
+            'color'  => '#7cb5ec'
+        ];
+
+        // Dose sub-label under Yes
+        $sunburst[] = [
+            'id'     => 'dose',
+            'parent' => 'yes',
+            'name'   => 'In case of Yes, mention Dose',
+            'value'  => $doseTotal,
+            'color'  => '#5aa0d0'
+        ];
+
+        // Dose breakdown
+        $sunburst[] = [
+            'parent' => 'dose',
+            'name'   => '1st',
+            'value'  => $safe($r['dose_1st']),
+            'color'  => '#90ed7d'
+        ];
+
+        $sunburst[] = [
+            'parent' => 'dose',
+            'name'   => '2nd',
+            'value'  => $safe($r['dose_2nd']),
+            'color'  => '#f7a35c'
+        ];
+
+        $sunburst[] = [
+            'parent' => 'dose',
+            'name'   => '3rd',
+            'value'  => $safe($r['dose_3rd']),
+            'color'  => '#8085e9'
+        ];
+
+        $sunburst[] = [
+            'parent' => 'dose',
+            'name'   => '4th',
+            'value'  => $safe($r['dose_4th']),
+            'color'  => '#f15c80'
+        ];
+
+        $sunburst[] = [
+            'parent' => 'dose',
+            'name'   => '5th',
+            'value'  => $safe($r['dose_5th']),
+            'color'  => '#e4d354'
+        ];
+
+        // Yes but no dose recorded
+        if ($dose_na > 0) {
+            $sunburst[] = [
+                'parent' => 'yes',
+                'name'   => 'N/A',
+                'value'  => $dose_na,
+                'color'  => '#cccccc'
+            ];
+        }
+
+        // No branch
+        $sunburst[] = [
+            'id'     => 'no',
+            'parent' => 'root',
+            'name'   => 'No',
+            'value'  => $noCount,
+            'color'  => '#f7a35c'
+        ];
+
+        // Q24 not answered at all
+        if ($q24_na > 0) {
+            $sunburst[] = [
+                'parent' => 'root',
+                'name'   => 'N/A',
+                'value'  => $q24_na,
+                'color'  => '#cccccc'
+            ];
+        }
+
+        return [
+            'sunburst'      => $sunburst,
+            'yes_count'     => $yesCount,
+            'no_count'      => $noCount,
+            'total_records' => $totalRecords
+        ];
+    }
+    
+    public function get_sunburst_q19_1($filters)
+    {
+        $this->db->from('opd_mnch_master m');
+        $this->db->join(
+            'opd_mnch_detail d',
+            'm.id = d.master_id AND d.question_id IN (26,27,28,29)',
+            'left'
+        );
+        if (!empty($filters['uc']))         $this->db->where_in('m.uc', $filters['uc']);
+        if (!empty($filters['start']))      $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        if (!empty($filters['end']))        $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+
+        $this->db->select("
+            COUNT(DISTINCT m.id) AS total_records,
+
+            SUM(CASE WHEN d.question_id=26 AND d.answer='Yes' THEN 1 ELSE 0 END) AS q26_yes,
+            SUM(CASE WHEN d.question_id=26 AND d.answer='No'  THEN 1 ELSE 0 END) AS q26_no,
+
+            SUM(CASE WHEN d.question_id=27 AND d.answer='Yes' THEN 1 ELSE 0 END) AS q27_yes,
+            SUM(CASE WHEN d.question_id=27 AND d.answer='No'  THEN 1 ELSE 0 END) AS q27_no,
+
+            SUM(CASE WHEN d.question_id=28 AND d.answer='Yes' THEN 1 ELSE 0 END) AS q28_yes,
+            SUM(CASE WHEN d.question_id=28 AND d.answer='No'  THEN 1 ELSE 0 END) AS q28_no,
+
+            SUM(CASE WHEN d.question_id=29 AND d.answer='Yes' THEN 1 ELSE 0 END) AS q29_yes,
+            SUM(CASE WHEN d.question_id=29 AND d.answer='No'  THEN 1 ELSE 0 END) AS q29_no
+        ", false);
+
+        $r = $this->db->get()->row_array();
+
+        $safe = function($v) {
+            return (int)(isset($v) ? $v : 0);
+        };
+
+        $totalRecords = $safe($r['total_records']);
+
+        // Q26 - TD Card Issued (Parent)
+        $q26_yes = $safe($r['q26_yes']);
+        $q26_no  = $safe($r['q26_no']);
+        $q26_na  = max(0, $totalRecords - $q26_yes - $q26_no);
+
+        // Q27 - Refused for TT (Child of Q26 Yes)
+        $q27_yes = $safe($r['q27_yes']);
+        $q27_no  = $safe($r['q27_no']);
+        $q27_na  = max(0, $q26_yes - $q27_yes - $q27_no);
+
+        // Q28 - Complete TT Schedule (Child of Q26 Yes)
+        $q28_yes = $safe($r['q28_yes']);
+        $q28_no  = $safe($r['q28_no']);
+        $q28_na  = max(0, $q26_yes - $q28_yes - $q28_no);
+
+        // Q29 - Dose Not Due (Child of Q26 Yes)
+        $q29_yes = $safe($r['q29_yes']);
+        $q29_no  = $safe($r['q29_no']);
+        $q29_na  = max(0, $q26_yes - $q29_yes - $q29_no);
+
+        $sunburst = [];
+
+        // Root: TD Card Issued (Q26)
+        $sunburst[] = [
+            'id'     => 'root',
+            'parent' => '',
+            'name'   => 'TD Card Issued',
+            'value'  => $totalRecords,
+            'color'  => '#2b908f'
+        ];
+
+        // Q26 Yes — parent of Q27, Q28, Q29
+        $sunburst[] = [
+            'id'     => 'q26_yes',
+            'parent' => 'root',
+            'name'   => 'Yes',
+            'value'  => $q26_yes,
+            'color'  => '#7cb5ec'
+        ];
+
+        // Q26 No — standalone leaf
+        $sunburst[] = [
+            'id'     => 'q26_no',
+            'parent' => 'root',
+            'name'   => 'No',
+            'value'  => $q26_no,
+            'color'  => '#f7a35c'
+        ];
+
+        // Q26 N/A — standalone leaf
+        if ($q26_na > 0) {
+            $sunburst[] = [
+                'parent' => 'root',
+                'name'   => 'N/A',
+                'value'  => $q26_na,
+                'color'  => '#cccccc'
+            ];
+        }
+
+        // ── Q27: Refused for TT (child of Q26 Yes) ──────────
+        $sunburst[] = [
+            'id'     => 'q27',
+            'parent' => 'q26_yes',
+            'name'   => 'Refused for TT',
+            'value'  => $q27_yes + $q27_no + $q27_na,
+            'color'  => '#f15c80'
+        ];
+        $sunburst[] = ['parent' => 'q27', 'name' => 'Yes', 'value' => $q27_yes, 'color' => '#90ed7d'];
+        $sunburst[] = ['parent' => 'q27', 'name' => 'No',  'value' => $q27_no,  'color' => '#f7a35c'];
+        if ($q27_na > 0) {
+            $sunburst[] = ['parent' => 'q27', 'name' => 'N/A', 'value' => $q27_na, 'color' => '#cccccc'];
+        }
+
+        // ── Q28: Complete TT Schedule (child of Q26 Yes) ────
+        $sunburst[] = [
+            'id'     => 'q28',
+            'parent' => 'q26_yes',
+            'name'   => 'Complete TT Schedule',
+            'value'  => $q28_yes + $q28_no + $q28_na,
+            'color'  => '#8085e9'
+        ];
+        $sunburst[] = ['parent' => 'q28', 'name' => 'Yes', 'value' => $q28_yes, 'color' => '#90ed7d'];
+        $sunburst[] = ['parent' => 'q28', 'name' => 'No',  'value' => $q28_no,  'color' => '#f7a35c'];
+        if ($q28_na > 0) {
+            $sunburst[] = ['parent' => 'q28', 'name' => 'N/A', 'value' => $q28_na, 'color' => '#cccccc'];
+        }
+
+        // ── Q29: Dose Not Due (child of Q26 Yes) ────────────
+        $sunburst[] = [
+            'id'     => 'q29',
+            'parent' => 'q26_yes',
+            'name'   => 'Dose Not Due',
+            'value'  => $q29_yes + $q29_no + $q29_na,
+            'color'  => '#e4d354'
+        ];
+        $sunburst[] = ['parent' => 'q29', 'name' => 'Yes', 'value' => $q29_yes, 'color' => '#90ed7d'];
+        $sunburst[] = ['parent' => 'q29', 'name' => 'No',  'value' => $q29_no,  'color' => '#f7a35c'];
+        if ($q29_na > 0) {
+            $sunburst[] = ['parent' => 'q29', 'name' => 'N/A', 'value' => $q29_na, 'color' => '#cccccc'];
+        }
+
+        return [
+            'sunburst'      => $sunburst,
+            'total_records' => $totalRecords
+        ];
+    }
+    
+    public function get_antigen_heatmap_opd($filters)
+    {
+        $this->db->from('opd_mnch_master m');
+        $this->db->join(
+            'opd_mnch_detail d',
+            'm.id = d.master_id AND d.question_id = 30',
+            'left'
+        );
+        $this->db->join(
+            'question_options qo',
+            'qo.option_id = d.option_id AND qo.question_id = d.question_id',
+            'left'
+        );
+
+        if (!empty($filters['uc']))         $this->db->where_in('m.uc', $filters['uc']);
+        if (!empty($filters['start']))      $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        if (!empty($filters['end']))        $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+
+        $this->db->select("
+            m.age_group,
+            d.answer AS diagnosis,
+            d.option_id,
+            MIN(qo.option_order) AS option_order,
+            COUNT(*) AS total
+        ", false);
+        $this->db->group_by(array('m.age_group', 'd.answer', 'd.option_id'));
+        $this->db->order_by('qo.option_order', 'ASC');
+
+        $result = $this->db->get()->result_array();
+
+        // Fixed age group order
+        $ageGroupOrder = array('0-14 Y', '15-49', '50 Y +');
+
+        $diagnosisList = array();
+        $dataMap       = array();
+
+        foreach ($result as $row) {
+            if (!$row['diagnosis'] || !$row['age_group']) continue;
+
+            $diagnosis = $row['diagnosis'];
+            $ageGroup  = $row['age_group'];
+
+            if (!isset($diagnosisList[$row['option_order']])) {
+                $diagnosisList[$row['option_order']] = $diagnosis;
+            }
+
+            $dataMap[$ageGroup][$diagnosis] = (int)$row['total'];
+        }
+
+        // Sort diagnosis by option_order
+        ksort($diagnosisList);
+        $diagnosisList = array_values($diagnosisList);
+
+        // Only include age groups that have data
+        $usedAgeGroups = array();
+        foreach ($ageGroupOrder as $ag) {
+            if (isset($dataMap[$ag])) {
+                $usedAgeGroups[] = $ag;
+            }
+        }
+
+        $data = array();
+        foreach ($usedAgeGroups as $y => $ag) {
+            foreach ($diagnosisList as $x => $diagnosis) {
+                $value  = isset($dataMap[$ag][$diagnosis]) ? $dataMap[$ag][$diagnosis] : 0;
+                $data[] = array($x, $y, $value);
+            }
+        }
+
+        return array(
+            'categoriesX' => $diagnosisList,
+            'categoriesY' => $usedAgeGroups,
+            'data'        => $data
+        );
+    }
+    
+    public function get_trimester_complication_heatmap($filters)
+    {
+        $this->db->from('opd_mnch_master m');
+        $this->db->join(
+            'opd_mnch_detail d18',
+            'm.id = d18.master_id AND d18.question_id = 18',
+            'left'
+        );
+        $this->db->join(
+            'opd_mnch_detail d21',
+            'm.id = d21.master_id AND d21.question_id = 21',
+            'left'
+        );
+        $this->db->join(
+            'question_options qo18',
+            'qo18.option_id = d18.option_id AND qo18.question_id = 18',
+            'left'
+        );
+        $this->db->join(
+            'question_options qo21',
+            'qo21.option_id = d21.option_id AND qo21.question_id = 21',
+            'left'
+        );
+
+        if (!empty($filters['uc']))         $this->db->where_in('m.uc', $filters['uc']);
+        if (!empty($filters['start']))      $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        if (!empty($filters['end']))        $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+
+        $this->db->select("
+            MIN(d18.answer)        AS trimester,
+            d18.option_id          AS trimester_option_id,
+            MIN(qo18.option_order) AS trimester_order,
+            MIN(d21.answer)        AS complication,
+            d21.option_id          AS complication_option_id,
+            MIN(qo21.option_order) AS complication_order,
+            COUNT(DISTINCT m.id)   AS total
+        ", false);
+
+        // Group only by option_ids — avoids cartesian text mismatches
+        $this->db->group_by(array('d18.option_id', 'd21.option_id'));
+        $this->db->order_by('trimester_order',    'ASC');
+        $this->db->order_by('complication_order', 'ASC');
+
+        $result = $this->db->get()->result_array();
+
+        $trimesterList    = array();
+        $complicationList = array();
+        $dataMap          = array();
+
+        foreach ($result as $row) {
+            if (!$row['trimester'] || !$row['complication']) continue;
+
+            $trimester    = $row['trimester'];
+            $complication = $row['complication'];
+
+            if (!isset($trimesterList[$row['trimester_order']])) {
+                $trimesterList[$row['trimester_order']] = $trimester;
+            }
+
+            if (!isset($complicationList[$row['complication_order']])) {
+                $complicationList[$row['complication_order']] = $complication;
+            }
+
+            $dataMap[$trimester][$complication] = (int)$row['total'];
+        }
+
+        ksort($trimesterList);
+        ksort($complicationList);
+        $trimesterList    = array_values($trimesterList);
+        $complicationList = array_values($complicationList);
+
+        $data = array();
+        foreach ($trimesterList as $y => $trimester) {
+            foreach ($complicationList as $x => $complication) {
+                $value  = isset($dataMap[$trimester][$complication]) ? $dataMap[$trimester][$complication] : 0;
+                $data[] = array($x, $y, $value);
+            }
+        }
+
+        return array(
+            'categoriesX' => $complicationList,
+            'categoriesY' => $trimesterList,
+            'data'        => $data
+        );
+    }
+    
+    public function get_gender_age_data_opd($filters = array())
+    {
+        $age_groups = array('0-14 Y', '15-49 Y', '50 Y +');
+
+        $this->db->select("
+            CASE
+                WHEN TRIM(m.age_group) IN ('0-14 Y', '0-14')   THEN '0-14 Y'
+                WHEN TRIM(m.age_group) IN ('15-49 Y', '15-49') THEN '15-49 Y'
+                WHEN TRIM(m.age_group) IN ('50 Y +', '50 Y+')  THEN '50 Y +'
+                ELSE 'Other'
+            END AS age_group,
+            COUNT(*) AS total
+        ");
+        $this->db->from('opd_mnch_master m');
+
+        if (!empty($filters['uc']))         $this->db->where_in('m.uc', $filters['uc']);
+        if (!empty($filters['start']))      $this->db->where('DATE(m.form_date) >=', $filters['start']);
+        if (!empty($filters['end']))        $this->db->where('DATE(m.form_date) <=', $filters['end']);
+        if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+
+        $this->db->group_by('age_group');
+        $this->db->order_by("FIELD(age_group, '0-14 Y', '15-49 Y', '50 Y +')");
+
+        $result = $this->db->get()->result_array();
+
+        $age_data = array_fill(0, count($age_groups), 0);
+
+        foreach ($result as $row) {
+            if (in_array($row['age_group'], $age_groups)) {
+                $index = array_search($row['age_group'], $age_groups);
+                $age_data[$index] = (int)$row['total'];
+            }
+        }
+
+        return array(
+            'age_groups' => $age_groups,
+            'data'       => $age_data
+        );
     }
     
 }

@@ -164,7 +164,10 @@
             <!-- Reports -->
             <?php if(in_array($role, [2,4])): ?>
                 <li class="nav-item dropdown 
-                    <?= ($this->uri->segment(2) == 'index' || $this->uri->segment(2) == 'validation_report' || $this->uri->segment(2) == 'data_entry_status' || $this->uri->segment(2) == 'uc_wise_report') ? 'open' : '' ?>">
+                    <?= ($this->uri->segment(2) == 'index' || $this->uri->segment(2) == 'validation_report' || 
+                    $this->uri->segment(2) == 'vaccination_simple' || $this->uri->segment(2) == 'vaccination_comparison'
+                     || $this->uri->segment(2) == 'date_wise_progress'  || $this->uri->segment(2) == 'date_wise_form_progress' 
+                    || $this->uri->segment(2) == 'data_entry_status' || $this->uri->segment(2) == 'uc_wise_report') ? 'open' : '' ?>">
 
                     <a class="dropdown-toggle" href="javascript:void(0);">
                         <span class="icon-holder">
@@ -218,6 +221,18 @@
                         <li class="<?= ($this->uri->segment(2) == 'uc_wise_report') ? 'active' : '' ?>">
                             <a href="<?= base_url('reports/uc_wise_report'); ?>">
                                 <span>UC Wise Report</span>
+                            </a>
+                        </li>
+                        
+                        <li class="<?= ($this->uri->segment(2) == 'vaccination_simple') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/vaccination_simple'); ?>">
+                                <span>Vaccination - Total</span>
+                            </a>
+                        </li>
+                        
+                        <li class="<?= ($this->uri->segment(2) == 'vaccination_comparison') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/vaccination_comparison'); ?>">
+                                <span>Vaccination - Retention</span>
                             </a>
                         </li>
                     </ul>

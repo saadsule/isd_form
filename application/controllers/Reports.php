@@ -476,6 +476,7 @@ class Reports extends CI_Controller {
             $this->db->where('DATE(m.form_date) <=', $end);
             $this->db->where_in('m.qr_code', $base_qr_codes);
             $this->db->group_by('m.master_id');
+            $this->db->order_by('m.qr_code', 'ASC');
             $this->db->order_by('m.form_date', 'ASC');
             $result = $this->db->get()->result_array();
 
@@ -508,6 +509,7 @@ class Reports extends CI_Controller {
             $this->db->where('DATE(m.form_date) >=', $start);
             $this->db->where('DATE(m.form_date) <=', $end);
             $this->db->group_by('m.master_id');
+            $this->db->order_by('m.qr_code', 'ASC');
             $this->db->order_by('m.form_date', 'ASC');
             $result = $this->db->get()->result_array();
 

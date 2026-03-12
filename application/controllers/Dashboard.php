@@ -331,6 +331,18 @@ class Dashboard extends CI_Controller {
         // Q 18.4
         $q184_counts = $this->Dashboard_model->get_q184_counts($filters);
         
+        // Q19
+        $sunburstData = $this->Dashboard_model->get_sunburst_q19($filters);
+        
+        // Q19.1
+        $sunburstData19_1 = $this->Dashboard_model->get_sunburst_q19_1($filters);
+        
+        $heatmap = $this->Dashboard_model->get_antigen_heatmap_opd($filters);
+        
+        $heatmap_trimester = $this->Dashboard_model->get_trimester_complication_heatmap($filters);
+        
+        $gender_age = $this->Dashboard_model->get_gender_age_data_opd($filters);
+        
         echo json_encode([
             // Summary
             'catchment_population' => $summary['catchment_population'],
@@ -365,6 +377,22 @@ class Dashboard extends CI_Controller {
             
             // Q 18.4
             'q184'                 => $q184_counts,
+            
+            // Q 19
+            //  sunburst data
+            'sunburst'             => $sunburstData['sunburst'],
+            'yes_count'            => $sunburstData['yes_count'],
+            'no_count'             => $sunburstData['no_count'],
+            
+            // Q 19.1
+            'sunburst19_1'         => $sunburstData19_1['sunburst'],
+            'total_records19_1'    => $sunburstData19_1['total_records'],
+            
+            'heatmap'              => $heatmap,
+            
+            'heatmap_trimester'              => $heatmap_trimester,
+            
+            'gender_age'           => $gender_age,
         ]);
     }
 
