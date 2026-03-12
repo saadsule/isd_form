@@ -313,108 +313,106 @@ class Reports extends CI_Controller {
     // Simple Version
     public function vaccination_simple()
     {
-        $filters         = array();
-        $isFilterApplied = FALSE;
+        $filters = array();
 
-        if ($this->input->get('from_month')) {
-            $filters['from_month'] = $this->input->get('from_month');
-            $filters['to_month']   = $this->input->get('to_month');
-            $isFilterApplied       = TRUE;
-        }
+        $filters['from_month'] = $this->input->get('from_month')
+                                 ? $this->input->get('from_month')
+                                 : '2025-12';
+
+        $filters['to_month']   = $this->input->get('to_month')
+                                 ? $this->input->get('to_month')
+                                 : date('Y-m');
 
         $simple_data = array();
         $months      = array();
 
-        if ($isFilterApplied) {
-            $simple_raw = $this->Reports_model->get_vaccination_simple($filters);
-            foreach ($simple_raw as $row) {
-                $simple_data[$row['uc_name']][$row['month']] = (int)$row['total'];
-                if (!in_array($row['month'], $months)) {
-                    $months[] = $row['month'];
-                }
+        $simple_raw = $this->Reports_model->get_vaccination_simple($filters);
+        foreach ($simple_raw as $row) {
+            $simple_data[$row['uc_name']][$row['month']] = (int)$row['total'];
+            if (!in_array($row['month'], $months)) {
+                $months[] = $row['month'];
             }
-            sort($months);
         }
+        sort($months);
 
         $data = array(
             'filters'         => $filters,
-            'isFilterApplied' => $isFilterApplied,
+            'isFilterApplied' => TRUE,
             'months'          => $months,
             'simple_data'     => $simple_data
         );
 
-        $data['main_content'] = $this->load->view('reports/vaccination_simple',$data,true);
-        $this->load->view('layout/main',$data);
+        $data['main_content'] = $this->load->view('reports/vaccination_simple', $data, true);
+        $this->load->view('layout/main', $data);
     }
 
     // Comparison Version
     public function vaccination_comparison()
     {
-        $filters         = array();
-        $isFilterApplied = FALSE;
+        $filters = array();
 
-        if ($this->input->get('from_month')) {
-            $filters['from_month'] = $this->input->get('from_month');
-            $filters['to_month']   = $this->input->get('to_month');
-            $isFilterApplied       = TRUE;
-        }
+        $filters['from_month'] = $this->input->get('from_month')
+                                 ? $this->input->get('from_month')
+                                 : '2025-12';
+
+        $filters['to_month']   = $this->input->get('to_month')
+                                 ? $this->input->get('to_month')
+                                 : date('Y-m');
 
         $comparison_data = array();
         $months          = array();
 
-        if ($isFilterApplied) {
-            $qr_raw    = $this->Reports_model->get_vaccination_qr_by_month($filters);
-            $ucMonthQR = array();
+        $qr_raw    = $this->Reports_model->get_vaccination_qr_by_month($filters);
+        $ucMonthQR = array();
 
-            foreach ($qr_raw as $row) {
-                $ucMonthQR[$row['uc_name']][$row['month']][$row['qr_code']] = $row['qr_code'];
-                if (!in_array($row['month'], $months)) {
-                    $months[] = $row['month'];
-                }
+        foreach ($qr_raw as $row) {
+            $ucMonthQR[$row['uc_name']][$row['month']][$row['qr_code']] = $row['qr_code'];
+            if (!in_array($row['month'], $months)) {
+                $months[] = $row['month'];
             }
-            sort($months);
+        }
+        sort($months);
 
-            foreach ($ucMonthQR as $uc_name => $monthData) {
-                $base_month = $months[0];
-                $base_qr    = isset($monthData[$base_month])
-                              ? array_values($monthData[$base_month])
-                              : array();
+        foreach ($ucMonthQR as $uc_name => $monthData) {
+            $base_month = $months[0];
+            $base_qr    = isset($monthData[$base_month])
+                          ? array_values($monthData[$base_month])
+                          : array();
 
-                foreach ($months as $i => $month) {
-                    $month_qr = isset($monthData[$month])
-                                ? array_values($monthData[$month])
-                                : array();
+            foreach ($months as $i => $month) {
+                $month_qr = isset($monthData[$month])
+                            ? array_values($monthData[$month])
+                            : array();
 
-                    if ($i == 0) {
-                        $comparison_data[$uc_name][$month] = array(
-                            'total'    => count($base_qr),
-                            'retained' => count($base_qr),
-                            'percent'  => 100
-                        );
-                    } else {
-                        $retained   = count(array_intersect($base_qr, $month_qr));
-                        $base_count = count($base_qr);
-                        $comparison_data[$uc_name][$month] = array(
-                            'total'    => count($month_qr),
-                            'retained' => $retained,
-                            'percent'  => $base_count > 0
-                                          ? round(($retained / $base_count) * 100, 1)
-                                          : 0
-                        );
-                    }
+                if ($i == 0) {
+                    $comparison_data[$uc_name][$month] = array(
+                        'total'    => count($base_qr),
+                        'retained' => count($base_qr),
+                        'percent'  => 100
+                    );
+                } else {
+                    $retained   = count(array_intersect($base_qr, $month_qr));
+                    $base_count = count($base_qr);
+                    $comparison_data[$uc_name][$month] = array(
+                        'total'    => count($month_qr),
+                        'retained' => $retained,
+                        'percent'  => $base_count > 0
+                                      ? round(($retained / $base_count) * 100, 1)
+                                      : 0
+                    );
                 }
             }
         }
 
         $data = array(
             'filters'         => $filters,
-            'isFilterApplied' => $isFilterApplied,
+            'isFilterApplied' => TRUE,
             'months'          => $months,
             'comparison_data' => $comparison_data
         );
 
-        $data['main_content'] = $this->load->view('reports/vaccination_comparison',$data,true);
-        $this->load->view('layout/main',$data);
+        $data['main_content'] = $this->load->view('reports/vaccination_comparison', $data, true);
+        $this->load->view('layout/main', $data);
     }
     
     public function vaccination_detail()

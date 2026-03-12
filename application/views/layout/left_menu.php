@@ -47,7 +47,9 @@
             <!-- Dashboard (exclude role 1) -->
             <?php if(!in_array($role, [1,3])): ?>
             <li class="nav-item dropdown 
-                <?= ($this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health' || $this->uri->segment(2) == 'view_health_data' || $this->uri->segment(2) == 'opd_mnch_health') ? 'open' : '' ?>">                
+                <?= ($this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'opd_mnch_health' || 
+                    $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health' || $this->uri->segment(2) == 'view_health_data' || 
+                    $this->uri->segment(2) == 'vaccination_simple' || $this->uri->segment(2) == 'vaccination_comparison' || $this->uri->segment(2) == 'opd_mnch_health') ? 'open' : '' ?>">                
                 <a class="dropdown-toggle" href="javascript:void(0);">
                     <span class="icon-holder">
                         <i class="anticon anticon-dashboard"></i>
@@ -61,7 +63,13 @@
                 <ul class="dropdown-menu">
                     <li class="<?= ($this->uri->segment(2) == 'child_health') ? 'active' : '' ?>">
                         <a href="<?= base_url('dashboard/child_health'); ?>">
-                            <span>Main Dashboard</span>
+                            <span>Dashboard - Child Health</span>
+                        </a>
+                    </li>
+                    
+                    <li class="<?= ($this->uri->segment(2) == 'opd_mnch_health') ? 'active' : '' ?>">
+                        <a href="<?= base_url('dashboard/opd_mnch_health'); ?>">
+                            <span>Dashboard - MNCH</span>
                         </a>
                     </li>
 
@@ -92,6 +100,18 @@
                     <li class="<?= ($this->uri->segment(2) == 'view_health_data') ? 'active' : '' ?>">
                         <a href="<?= base_url('reports/view_health_data'); ?>">
                             <span>View Raw Data</span>
+                        </a>
+                    </li>
+                    
+                    <li class="<?= ($this->uri->segment(2) == 'vaccination_simple') ? 'active' : '' ?>">
+                        <a href="<?= base_url('reports/vaccination_simple'); ?>">
+                            <span>Vaccination - Total</span>
+                        </a>
+                    </li>
+
+                    <li class="<?= ($this->uri->segment(2) == 'vaccination_comparison') ? 'active' : '' ?>">
+                        <a href="<?= base_url('reports/vaccination_comparison'); ?>">
+                            <span>Vaccination - Retention</span>
                         </a>
                     </li>
                 </ul>
@@ -164,8 +184,7 @@
             <!-- Reports -->
             <?php if(in_array($role, [2,4])): ?>
                 <li class="nav-item dropdown 
-                    <?= ($this->uri->segment(2) == 'index' || $this->uri->segment(2) == 'validation_report' || 
-                    $this->uri->segment(2) == 'vaccination_simple' || $this->uri->segment(2) == 'vaccination_comparison'
+                    <?= ($this->uri->segment(2) == 'index' || $this->uri->segment(2) == 'validation_report'
                      || $this->uri->segment(2) == 'date_wise_progress'  || $this->uri->segment(2) == 'date_wise_form_progress' 
                     || $this->uri->segment(2) == 'data_entry_status' || $this->uri->segment(2) == 'uc_wise_report') ? 'open' : '' ?>">
 
@@ -221,18 +240,6 @@
                         <li class="<?= ($this->uri->segment(2) == 'uc_wise_report') ? 'active' : '' ?>">
                             <a href="<?= base_url('reports/uc_wise_report'); ?>">
                                 <span>UC Wise Report</span>
-                            </a>
-                        </li>
-                        
-                        <li class="<?= ($this->uri->segment(2) == 'vaccination_simple') ? 'active' : '' ?>">
-                            <a href="<?= base_url('reports/vaccination_simple'); ?>">
-                                <span>Vaccination - Total</span>
-                            </a>
-                        </li>
-                        
-                        <li class="<?= ($this->uri->segment(2) == 'vaccination_comparison') ? 'active' : '' ?>">
-                            <a href="<?= base_url('reports/vaccination_comparison'); ?>">
-                                <span>Vaccination - Retention</span>
                             </a>
                         </li>
                     </ul>

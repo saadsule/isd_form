@@ -476,54 +476,66 @@ class Reports_model extends CI_Model {
     }
     
     public function get_validation_report()
-    {
-        $this->db->select('rv.*, u.full_name, 
-            CASE 
-                WHEN rv.module_name = "child_health" THEN ch.created_by
-                WHEN rv.module_name = "opd_mnch" THEN om.created_by
-                ELSE NULL
-            END as form_created_by', FALSE);
+{
+    $this->db->select('rv.*, u.full_name,
+        CASE 
+            WHEN rv.module_name = "child_health" THEN ch.created_by
+            WHEN rv.module_name = "opd_mnch" THEN om.created_by
+            ELSE NULL
+        END as form_created_by', FALSE);
+    $this->db->from('record_validation rv');
+    $this->db->join('users u', 'u.user_id = rv.user_id', 'left');
+    $this->db->join('child_health_master ch', 'rv.master_id = ch.master_id AND rv.module_name = "child_health"', 'left');
+    $this->db->join('opd_mnch_master om', 'rv.master_id = om.id AND rv.module_name = "opd_mnch"', 'left');
 
-        $this->db->from('record_validation rv');
-        $this->db->join('users u', 'u.user_id = rv.user_id', 'left');
-        $this->db->join('child_health_master ch', 'rv.master_id = ch.master_id AND rv.module_name = "child_health"', 'left');
-        $this->db->join('opd_mnch_master om', 'rv.master_id = om.id AND rv.module_name = "opd_mnch"', 'left');
-
-        // Apply role-based restriction
-        $user_role = $this->session->userdata('role');
-        $user_id   = $this->session->userdata('user_id');
-
-        if ($user_role == 1) {
-            // Role 1 can only see records they created
-            $this->db->group_start();
-            $this->db->where('ch.created_by', $user_id);
-            $this->db->or_where('om.created_by', $user_id);
-            $this->db->group_end();
-        }
-
-        $this->db->order_by('rv.created_at', 'DESC');
-
-        $records = $this->db->get()->result_array();
-
-        // Count statuses
-        $verified = 0;
-        $reported = 0;
-
-        foreach ($records as $row) {
-            if(strtolower($row['validation_status']) == 'verified'){
-                $verified++;
-            }
-            if(strtolower($row['validation_status']) == 'reported'){
-                $reported++;
-            }
-        }
-
-        return [
-            'records' => $records,
-            'verified_total' => $verified,
-            'reported_total' => $reported
-        ];
+    $user_role = $this->session->userdata('role');
+    $user_id   = $this->session->userdata('user_id');
+    if ($user_role == 1) {
+        $this->db->group_start();
+        $this->db->where('ch.created_by', $user_id);
+        $this->db->or_where('om.created_by', $user_id);
+        $this->db->group_end();
     }
+
+    $this->db->order_by('rv.module_name', 'ASC');
+    $this->db->order_by('rv.master_id',   'ASC');
+    $this->db->order_by('rv.created_at',  'ASC');
+
+    $records = $this->db->get()->result_array();
+
+    // Attach creator name to every row
+    foreach ($records as &$row) {
+        if (!empty($row['form_created_by'])) {
+            $creator = $this->db->get_where('users',
+                array('user_id' => $row['form_created_by']))->row();
+            $row['creator_name'] = $creator ? $creator->full_name : '-';
+        } else {
+            $row['creator_name'] = '-';
+        }
+    }
+    unset($row);
+
+    // Last status per unique form (records ordered ASC so last write wins)
+    $form_last_status = array();
+    foreach ($records as $row) {
+        $key = $row['module_name'] . '_' . $row['master_id'];
+        $form_last_status[$key] = strtolower($row['validation_status']);
+    }
+
+    $verified = 0;
+    $reported = 0;
+    foreach ($form_last_status as $status) {
+        if ($status == 'verified') $verified++;
+        if ($status == 'reported') $reported++;
+    }
+
+    return array(
+        'records'        => $records,
+        'verified_total' => $verified,
+        'reported_total' => $reported,
+        'unique_forms'   => count($form_last_status)
+    );
+}
     
     public function get_duplicate_qr_report()
     {
