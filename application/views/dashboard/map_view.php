@@ -161,95 +161,103 @@ $total_facilities = isset($summary->total_facilities) ? $summary->total_faciliti
     <!-- Left column -->
     <div class="col-md-3">
         <div class="row g-2">
-
             <!-- Age Group card -->
-            <!-- Age Group card -->
-<div class="col-12">
-    <div class="age-group-card">
-        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#64748b; margin-bottom:8px;">
-            <i class="anticon anticon-usergroup-add" style="margin-right:5px;"></i>
-            CH Forms — Age Breakdown
-        </div>
-        <?php
-        $age_config = array(
-            '<1 Year'   => '#f59e0b',
-            '1-2 Year'  => '#10b981',
-            '2-5 Year'  => '#8b5cf6',
-            '5-15 Year' => '#3b82f6',
-            '15-49 Year'=> '#e05c7a',
-        );
-        foreach ($age_config as $age => $color):
-            $count = isset($age_groups[$age]) ? $age_groups[$age] : 0;
-        ?>
-        <div class="age-row">
-            <div class="age-badge">
-                <span style="width:8px; height:8px; border-radius:50%; background:<?= $color ?>; display:inline-block; flex-shrink:0;"></span>
-                <?= $age ?>
+            <div class="col-12">
+                <div class="age-group-card">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#64748b; margin-bottom:8px;">
+                        <i class="anticon anticon-usergroup-add" style="margin-right:5px;"></i>
+                        CH Forms — Age Breakdown
+                    </div>
+                    <?php
+                    $age_config = array(
+                        '<1 Year'   => '#f59e0b',
+                        '1-2 Year'  => '#10b981',
+                        '2-5 Year'  => '#8b5cf6',
+                        '5-15 Year' => '#3b82f6',
+                        '15-49 Year'=> '#e05c7a',
+                    );
+                    foreach ($age_config as $age => $color):
+                        $count = isset($age_groups[$age]) ? $age_groups[$age] : 0;
+                    ?>
+                    <div class="age-row">
+                        <div class="age-badge">
+                            <span style="width:8px; height:8px; border-radius:50%; background:<?= $color ?>; display:inline-block; flex-shrink:0;"></span>
+                            <?= $age ?>
+                        </div>
+                        <div class="age-count" style="color:<?= $color ?>;"><?= $count ?></div>
+                    </div>
+                    <?php endforeach; ?>
+                    <div class="age-row" style="margin-top:6px; border-top:2px solid #f0f4f9; padding-top:8px; border-bottom:none;">
+                        <div class="age-badge" style="font-weight:700; color:#0f1c3f;">
+                            <span style="width:8px; height:8px; border-radius:50%; background:#0f1c3f; display:inline-block;"></span>
+                            Total
+                        </div>
+                        <div class="age-count" style="color:#0f1c3f;"><?= $ch_total ?></div>
+                    </div>
+                </div>
             </div>
-            <div class="age-count" style="color:<?= $color ?>;"><?= $count ?></div>
-        </div>
-        <?php endforeach; ?>
-        <div class="age-row" style="margin-top:6px; border-top:2px solid #f0f4f9; padding-top:8px; border-bottom:none;">
-            <div class="age-badge" style="font-weight:700; color:#0f1c3f;">
-                <span style="width:8px; height:8px; border-radius:50%; background:#0f1c3f; display:inline-block;"></span>
-                Total
+
+            <!-- Card 1: CH Fixed + CH Outreach -->
+            <div class="col-12 mt-1">
+                <div style="background:#fff; border-radius:8px; border:1px solid #e8edf5; box-shadow:0 1px 6px rgba(0,0,0,0.06); overflow:hidden;">
+                    <div style="background:#f8fafd; padding:5px 10px; border-bottom:1px solid #e8edf5;">
+                        <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#64748b;">
+                            <i class="anticon anticon-solution mr-1"></i> Child Health
+                        </span>
+                    </div>
+                    <div class="d-flex">
+                        <div class="d-flex align-items-center p-2" style="flex:1; border-right:1px solid #f0f4f9;">
+                            <div style="width:30px;height:30px;border-radius:7px;background:#fff7ed;color:#f97316;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">
+                                <i class="anticon anticon-home"></i>
+                            </div>
+                            <div class="ml-2">
+                                <div style="font-size:15px;font-weight:700;color:#0f1c3f;line-height:1;"><?= $ch_fix ?></div>
+                                <div style="font-size:9px;color:#8a94a6;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-top:2px;">Fixed Site</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center p-2" style="flex:1;">
+                            <div style="width:30px;height:30px;border-radius:7px;background:#ecfdf5;color:#10b981;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">
+                                <i class="anticon anticon-car"></i>
+                            </div>
+                            <div class="ml-2">
+                                <div style="font-size:15px;font-weight:700;color:#0f1c3f;line-height:1;"><?= $ch_out ?></div>
+                                <div style="font-size:9px;color:#8a94a6;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-top:2px;">Outreach</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="age-count" style="color:#0f1c3f;"><?= $ch_total ?></div>
-        </div>
-    </div>
-</div>
 
-            <!-- Vaccinated -->
-<div class="col-12 mt-1">
-    <div class="stat-card" style="border-left:3px solid #f59e0b; padding:7px 10px;">
-        <div class="stat-icon" style="background:#fffbeb; color:#f59e0b; width:32px; height:32px; font-size:14px;">
-            <i class="anticon anticon-home"></i>
-        </div>
-        <div>
-            <div class="stat-value" style="font-size:16px;"><?= $ch_fix ?></div>
-            <div class="stat-label">CH Fixed Site</div>
-        </div>
-    </div>
-</div>
-
-<!-- Total CH -->
-<div class="col-12 mt-1">
-    <div class="stat-card" style="border-left:3px solid #06b6d4; padding:7px 10px;">
-        <div class="stat-icon" style="background:#ecfeff; color:#06b6d4; width:32px; height:32px; font-size:14px;">
-            <i class="anticon anticon-car"></i>
-        </div>
-        <div>
-            <div class="stat-value" style="font-size:16px;"><?= $ch_out ?></div>
-            <div class="stat-label">CH Outreach</div>
-        </div>
-    </div>
-</div>
-
-<!-- Population -->
-<div class="col-12 mt-1">
-    <div class="stat-card" style="border-left:3px solid #0ea5e9; padding:7px 10px;">
-        <div class="stat-icon" style="background:#f0f9ff; color:#0ea5e9; width:32px; height:32px; font-size:14px;">
-            <i class="anticon anticon-heart"></i>
-        </div>
-        <div>
-            <div class="stat-value" style="font-size:16px;"><?= $mnch_total ?></div>
-            <div class="stat-label">Total MNCH Forms</div>
-        </div>
-    </div>
-</div>
-
-<!-- Facilities -->
-<div class="col-12 mt-1">
-    <div class="stat-card" style="border-left:3px solid #64748b; padding:7px 10px;">
-        <div class="stat-icon" style="background:#f8fafc; color:#64748b; width:32px; height:32px; font-size:14px;">
-            <i class="anticon anticon-medicine-box"></i>
-        </div>
-        <div>
-            <div class="stat-value" style="font-size:16px;"><?= $opd_total ?></div>
-            <div class="stat-label">Total OPD Forms</div>
-        </div>
-    </div>
-</div>
+            <!-- Card 2: OPD + MNCH -->
+            <div class="col-12 mt-1">
+                <div style="background:#fff; border-radius:8px; border:1px solid #e8edf5; box-shadow:0 1px 6px rgba(0,0,0,0.06); overflow:hidden;">
+                    <div style="background:#f8fafd; padding:5px 10px; border-bottom:1px solid #e8edf5;">
+                        <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#64748b;">
+                            <i class="anticon anticon-medicine-box mr-1"></i> OPD / MNCH
+                        </span>
+                    </div>
+                    <div class="d-flex">
+                        <div class="d-flex align-items-center p-2" style="flex:1; border-right:1px solid #f0f4f9;">
+                            <div style="width:30px;height:30px;border-radius:7px;background:#eff6ff;color:#3b82f6;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">
+                                <i class="anticon anticon-medicine-box"></i>
+                            </div>
+                            <div class="ml-2">
+                                <div style="font-size:15px;font-weight:700;color:#0f1c3f;line-height:1;"><?= $opd_total ?></div>
+                                <div style="font-size:9px;color:#8a94a6;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-top:2px;">OPD</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center p-2" style="flex:1;">
+                            <div style="width:30px;height:30px;border-radius:7px;background:#f5f3ff;color:#8b5cf6;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">
+                                <i class="anticon anticon-heart"></i>
+                            </div>
+                            <div class="ml-2">
+                                <div style="font-size:15px;font-weight:700;color:#0f1c3f;line-height:1;"><?= $mnch_total ?></div>
+                                <div style="font-size:9px;color:#8a94a6;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-top:2px;">MNCH</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
