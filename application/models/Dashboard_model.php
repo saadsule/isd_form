@@ -219,6 +219,57 @@ class Dashboard_model extends CI_Model {
         return $this->db->get()->row();
     }
     
+    public function get_today_stats()
+{
+    // OPD total
+    $opd_total = $this->db->where('visit_type', 'OPD')
+                           ->count_all_results('opd_mnch_master');
+
+    // MNCH total
+    $mnch_total = $this->db->where('visit_type', 'MNCH')
+                            ->count_all_results('opd_mnch_master');
+
+    // Child Health Outreach
+    $ch_outreach = $this->db->where('visit_type', 'Outreach')
+                             ->count_all_results('child_health_master');
+
+    // Child Health Fixed Site
+    $ch_fixed = $this->db->where('visit_type', 'Fixed Site')
+                          ->count_all_results('child_health_master');
+
+    // Child Health total
+    $ch_total = $ch_outreach + $ch_fixed;
+
+    // Vaccinated children (distinct QR codes with vaccination detail)
+    $this->db->select('COUNT(DISTINCT m.qr_code) as total');
+    $this->db->from('child_health_master m');
+    $this->db->join('child_health_detail d',
+        'm.master_id = d.master_id AND d.question_id IN (5,6,7)', 'inner');
+    $vaccinated       = $this->db->get()->row();
+    $vaccinated_total = $vaccinated ? (int)$vaccinated->total : 0;
+
+    // Age group counts — child health
+    $this->db->select('age_group, COUNT(*) as total');
+    $this->db->from('child_health_master');
+    $this->db->where('age_group !=', '');
+    $this->db->group_by('age_group');
+    $age_rows   = $this->db->get()->result_array();
+    $age_groups = array();
+    foreach ($age_rows as $row) {
+        $age_groups[$row['age_group']] = (int)$row['total'];
+    }
+
+    return array(
+        'opd_total'    => $opd_total,
+        'mnch_total'   => $mnch_total,
+        'ch_total'     => $ch_total,
+        'ch_outreach'  => $ch_outreach,
+        'ch_fixed'     => $ch_fixed,
+        'vaccinated'   => $vaccinated_total,
+        'age_groups'   => $age_groups
+    );
+}
+    
     // Get outreach graph data
     public function get_outreach_graph($filters)
     {

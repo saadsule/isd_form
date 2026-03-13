@@ -1,3 +1,8 @@
+<style>
+    .table th, .table td {
+        padding: 3px 5px !important;
+    }
+</style>
 <div class="page-container">
     <div class="main-content">
         <div class="page-header">
@@ -5,7 +10,7 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover table-sm" style="font-size: 10px;">
                 <thead class="thead-light">
                     <tr>
                         <th>Form Type</th>

@@ -40,6 +40,8 @@ class Dashboard extends CI_Controller {
         
         // Fetch totals
         $data['summary'] = $this->Dashboard_model->get_facility_summary_by_district($district_name);
+        
+        $data['today_stats']    = $this->Dashboard_model->get_today_stats();
 
         // Page title
         $data['page_title'] = "Facilities Map";

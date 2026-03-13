@@ -351,8 +351,7 @@ class Reports_model extends CI_Model {
 
         $this->db->group_by('chm.master_id');
 
-        $this->db->order_by('u.pk_id', 'ASC');
-        $this->db->order_by('chm.form_date', 'ASC');
+        $this->db->order_by('chm.form_date', 'DESC');
 
         $result = $this->db->get()->result_array();
 
@@ -463,8 +462,7 @@ class Reports_model extends CI_Model {
 
         $this->db->group_by('omm.id');
 
-        $this->db->order_by('u.pk_id', 'ASC');
-        $this->db->order_by('omm.form_date', 'ASC');
+        $this->db->order_by('omm.form_date', 'DESC');
 
         $result = $this->db->get()->result_array();
 
