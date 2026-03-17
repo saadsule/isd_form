@@ -101,7 +101,7 @@ $default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
                                 $client_types = ['New','Followup'];
                                 $selected_client_types = isset($filters['client_type'])
                                     ? (is_array($filters['client_type']) ? $filters['client_type'] : [$filters['client_type']])
-                                    : $client_types;
+                                    : [$client_types[0]];
                                 foreach($client_types as $vt): ?>
                                     <option value="<?= $vt ?>" <?= in_array($vt, $selected_client_types) ? 'selected' : '' ?>>
                                         <?= $vt ?>
@@ -132,7 +132,7 @@ $default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
                                 ];
                                 $selected_vaccination = isset($filters['vaccination_history'])
                                     ? (is_array($filters['vaccination_history']) ? $filters['vaccination_history'] : [$filters['vaccination_history']])
-                                    : array_keys($vaccination_history_options);
+                                    : [key(array_slice($vaccination_history_options, 0, 1, true))];
                                 foreach($vaccination_history_options as $id => $text): ?>
                                     <option value="<?= $id ?>" <?= in_array($id, $selected_vaccination) ? 'selected' : '' ?>>
                                         <?= $text ?>
@@ -157,7 +157,7 @@ $default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
                                 $options = $query->result();
                                 $selected_antigens = isset($filters['antigens'])
                                     ? (is_array($filters['antigens']) ? $filters['antigens'] : [$filters['antigens']])
-                                    : array_map(function($opt){ return $opt->option_id; }, $options);
+                                    : [$options[0]->option_id];
                                 foreach($options as $opt): ?>
                                     <option value="<?= $opt->option_id ?>" <?= in_array($opt->option_id, $selected_antigens) ? 'selected' : '' ?>>
                                         <?= $opt->option_text ?>
@@ -182,7 +182,7 @@ $default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
                                 $options = $query->result();
                                 $selected_antigens_1_2 = isset($filters['antigens_1_2_years'])
                                     ? (is_array($filters['antigens_1_2_years']) ? $filters['antigens_1_2_years'] : [$filters['antigens_1_2_years']])
-                                    : array_map(function($opt){ return $opt->option_id; }, $options);
+                                    : [$options[0]->option_id];
                                 foreach($options as $opt): ?>
                                     <option value="<?= $opt->option_id ?>" <?= in_array($opt->option_id, $selected_antigens_1_2) ? 'selected' : '' ?>>
                                         <?= $opt->option_text ?>
@@ -207,7 +207,7 @@ $default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
                                 $options = $query->result();
                                 $selected_antigens_2_5 = isset($filters['antigens_2_5_years'])
                                     ? (is_array($filters['antigens_2_5_years']) ? $filters['antigens_2_5_years'] : [$filters['antigens_2_5_years']])
-                                    : array_map(function($opt){ return $opt->option_id; }, $options);
+                                    : [$options[0]->option_id];
                                 foreach($options as $opt): ?>
                                     <option value="<?= $opt->option_id ?>" <?= in_array($opt->option_id, $selected_antigens_2_5) ? 'selected' : '' ?>>
                                         <?= $opt->option_text ?>

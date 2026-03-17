@@ -321,7 +321,6 @@ class="btn btn-success btn-sm" title="View" target="_blank">
         <?php endif; ?>
 
     </div>
-</div>
 
 
 <!-- JS Libraries for this page -->
