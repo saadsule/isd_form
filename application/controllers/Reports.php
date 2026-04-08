@@ -229,6 +229,7 @@ class Reports extends CI_Controller {
         'gender'    => $this->input->get('gender'),
         'age_group' => $this->input->get('age_group'),
         'visit_type'=> $this->input->get('visit_type'),
+        'data_mode' => $this->input->get('data_mode') ? $this->input->get('data_mode') : 'unique',
         ];
 
         $data['filters'] = $filters;
@@ -293,6 +294,13 @@ class Reports extends CI_Controller {
     {
         $data['duplicates'] = $this->Reports_model->get_duplicate_qr_report();
         $data['main_content'] = $this->load->view('reports/duplicate_qr_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
+    public function duplicate_qr_code()
+    {
+        $data['records']      = $this->Reports_model->get_duplicate_qr_code();
+        $data['main_content'] = $this->load->view('reports/duplicate_qr_code', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
     

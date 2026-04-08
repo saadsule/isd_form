@@ -349,7 +349,11 @@ class Reports_model extends CI_Model {
             $this->db->where('chm.form_date <=', $filters['end']);
         }
 
-        $this->db->group_by('chm.master_id');
+        if(empty($filters['data_mode']) || $filters['data_mode'] == 'unique') {
+            $this->db->group_by('chm.qr_code');
+        } else {
+            $this->db->group_by('chm.master_id');
+        }
 
         $this->db->order_by('chm.form_date', 'DESC');
 
@@ -460,7 +464,11 @@ class Reports_model extends CI_Model {
             $this->db->where('omm.form_date <=', $filters['end']);
         }
 
-        $this->db->group_by('omm.id');
+        if(empty($filters['data_mode']) || $filters['data_mode'] == 'unique') {
+            $this->db->group_by('omm.qr_code');
+        } else {
+            $this->db->group_by('omm.id');
+        }
 
         $this->db->order_by('omm.form_date', 'DESC');
 
@@ -643,6 +651,27 @@ class Reports_model extends CI_Model {
         $this->db->order_by('month',   'ASC');
 
         return $this->db->get()->result_array();
+    }
+   
+    public function get_duplicate_qr_code()
+    {
+        $sql = "SELECT
+                    child_health_master.qr_code,
+                    GROUP_CONCAT(child_health_master.master_id ORDER BY child_health_master.master_id)            AS master_ids,
+                    GROUP_CONCAT(child_health_master.patient_name ORDER BY child_health_master.master_id)         AS names,
+                    GROUP_CONCAT(child_health_master.dob         ORDER BY child_health_master.master_id)          AS dobs,
+                    GROUP_CONCAT(child_health_master.guardian_name ORDER BY child_health_master.master_id)        AS guardians,
+                    COUNT(DISTINCT child_health_master.patient_name)                                              AS name_count,
+                    GROUP_CONCAT(DISTINCT users.full_name)                                                        AS reported_by
+                FROM child_health_master
+                INNER JOIN users ON child_health_master.created_by = users.user_id
+                WHERE child_health_master.qr_code NOT LIKE '%Supplementary%'
+                GROUP BY child_health_master.qr_code
+                HAVING COUNT(DISTINCT child_health_master.patient_name) > 1
+                ORDER BY COUNT(DISTINCT child_health_master.patient_name) DESC";
+
+        $query = $this->db->query($sql);
+        return $query->result_array();
     }
     
 }
