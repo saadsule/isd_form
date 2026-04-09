@@ -131,12 +131,14 @@ $total      = count($records);
                             </span>
                         </td>
 
-                        <!-- Entered By (with one name per line) -->
+                        <!-- Entered By (like Guardian column - one name per line, all in one cell) -->
                         <td class="align-middle" style="padding:8px 12px;">
-                            <?php foreach ($reporters as $i => $reporter): ?>
-                                <div style="padding:3px 0;font-size:12px;color:#495057;
-                                            <?= $i < count($reporters)-1 ? 'border-bottom:1px dashed #dee2e6;' : '' ?>">
-                                    <?= htmlspecialchars($reporter) ?: '<span class="text-muted">—</span>' ?>
+                            <?php foreach ($names as $i => $name): 
+                                $reporter = isset($reporters[$i]) ? $reporters[$i] : '';
+                            ?>
+                                <div style="padding:4px 0;font-size:12px;color:#495057;
+                                            <?= $i < count($names)-1 ? 'border-bottom:1px dashed #dee2e6;' : '' ?>">
+                                    <?= !empty($reporter) ? htmlspecialchars($reporter) : '<span class="text-muted">Not Available</span>' ?>
                                 </div>
                             <?php endforeach; ?>
                         </td>

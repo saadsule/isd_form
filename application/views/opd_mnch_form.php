@@ -394,6 +394,18 @@ value="<?= $p ?>"
 
 </div>
 
+<label class="col-sm-2 col-form-label">Gender</label>
+<div class="col-sm-4">
+<?php $genders=['Male','Female']; foreach($genders as $g){ ?>
+<div class="form-check">
+    <input class="form-check-input" type="radio" name="gender"
+        value="<?= $g ?>"
+        <?= ($rec && $rec->gender==$g)?'checked':'' ?>>
+    <label class="form-check-label"><?= $g ?></label>
+</div>
+<?php } ?>
+</div>
+
 </div>
 
 </div>

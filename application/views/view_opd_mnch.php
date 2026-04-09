@@ -217,6 +217,10 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
     <th>Pregnancy Status</th>
     <td><?= !empty($master->pregnancy_status) ? $master->pregnancy_status : '-' ?></td>
 </tr>
+<tr>
+    <th>Gender</th>
+    <td><?= !empty($master->gender) ? $master->gender : '-' ?></td>
+</tr>
 </table>
 </div>
 </div>

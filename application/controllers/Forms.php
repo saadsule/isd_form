@@ -20,6 +20,91 @@ class Forms extends CI_Controller {
         $this->load->view('layout/main', $data);
     }
     
+    // ============================================
+// ADD THIS METHOD TO YOUR Forms Controller
+// ============================================
+
+public function check_qr_code()
+{
+    $this->load->database();
+    $this->load->model('Forms_model');
+    
+    $qr_code = $this->input->post('qr_code');
+    
+    if(empty($qr_code)) {
+        echo json_encode(['success' => false, 'message' => 'QR code is empty']);
+        return;
+    }
+    
+    // Search for all records with this QR code
+    $records = $this->db
+        ->select('master_id, form_date, client_type, patient_name, guardian_name, dob, age_year, age_month, age_day, gender, district, uc, village, facility_id, vaccinator_name')
+        ->from('child_health_master')
+        ->where('qr_code', $qr_code)
+        ->order_by('form_date', 'DESC')
+        ->get()
+        ->result();
+    
+    if(count($records) > 0) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'QR code found',
+            'count' => count($records),
+            'records' => $records
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'QR code not found in database'
+        ]);
+    }
+}
+
+// ============================================
+// ADD THIS METHOD TO YOUR Forms Controller
+// ============================================
+
+public function get_child_master_ajax()
+{
+    $this->load->database();
+    
+    $master_id = $this->input->post('master_id');
+    
+    if(empty($master_id)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid master ID']);
+        return;
+    }
+    
+    // Fetch the record
+    $record = $this->db
+        ->select('master_id, patient_name, guardian_name, dob, age_year, age_month, age_day, gender, marital_status, pregnancy_status, disability')
+        ->from('child_health_master')
+        ->where('master_id', $master_id)
+        ->get()
+        ->row();
+    
+    if($record) {
+        echo json_encode([
+            'success' => true,
+            'data' => [  
+                'master_id' => $record->master_id,
+                'patient_name' => $record->patient_name,
+                'guardian_name' => $record->guardian_name,
+                'dob' => $record->dob,
+                'age_year' => (int)$record->age_year,
+                'age_month' => (int)$record->age_month,
+                'age_day' => (int)$record->age_day,
+                'gender' => $record->gender,
+                'marital_status' => $record->marital_status,
+                'pregnancy_status' => $record->pregnancy_status,
+                'disability' => $record->disability
+            ]
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Record not found']);
+    }
+}
+    
     public function child_health($id = null)
     {
         $this->load->model('Questions_model');
@@ -495,6 +580,7 @@ class Forms extends CI_Controller {
             'age_group' => $this->input->post('age_group'),
             'marital_status' => $this->input->post('marital_status'),
             'pregnancy_status' => $this->input->post('pregnancy_status'),
+            'gender' => $this->input->post('gender'),
             'created_by' => $this->session->userdata('user_id'),
             'facility_id' => $this->input->post('facility_id'),
             'qr_code' => $this->input->post('qr_code'),
@@ -667,6 +753,7 @@ class Forms extends CI_Controller {
             'age_group' => $this->input->post('age_group'),
             'marital_status' => $this->input->post('marital_status'),
             'pregnancy_status' => $this->input->post('pregnancy_status'),
+            'gender' => $this->input->post('gender'),
             'created_by' => $this->session->userdata('user_id'),
             'facility_id' => $this->input->post('facility_id'),
             'qr_code' => $this->input->post('qr_code'),

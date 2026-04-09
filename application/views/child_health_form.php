@@ -616,12 +616,635 @@ value="<?= $opt->option_id; ?>"
 </div>
 
 </form>
+    
+<!-- ============================================ -->
+<!-- ENHANCED QR CODE LOOKUP - CLICKABLE BADGE -->
+<!-- ============================================ -->
+ 
+<style>
+    /* Locked field styling */
+    .field-locked {
+        background-color: #f8f9fa !important;
+        border-color: #dee2e6 !important;
+        color: #666 !important;
+        cursor: not-allowed !important;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+ 
+    .field-locked:focus {
+        background-color: #f8f9fa !important;
+        border-color: #dee2e6 !important;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05) !important;
+        outline: none !important;
+    }
+ 
+    /* Status badge styling */
+    .qr-status-badge {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-left: 8px;
+        margin-top: 6px;
+        animation: slideIn 0.3s ease-out;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+ 
+    .qr-status-badge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+ 
+    .qr-status-unique {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        cursor: default;
+    }
+ 
+    .qr-status-unique:hover {
+        transform: none;
+        box-shadow: none;
+    }
+ 
+    .qr-status-exists {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+ 
+    .qr-status-checking {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+        cursor: default;
+    }
+ 
+    .qr-status-checking:hover {
+        transform: none;
+        box-shadow: none;
+    }
+ 
+    /* Badge with records found style */
+    .qr-status-badge.has-records {
+        cursor: pointer;
+        user-select: none;
+    }
+ 
+    .qr-status-badge.has-records:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+ 
+    /* Modal styling */
+    .modal-header.bg-success {
+        background-color: #28a745 !important;
+    }
+ 
+    .modal-body {
+        padding: 20px;
+    }
+ 
+    .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+ 
+    /* Table row highlighting */
+    .qr-record-row {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+ 
+    .qr-record-row:hover {
+        background-color: #e7f3ff;
+        transform: translateX(2px);
+    }
+ 
+    .qr-record-row.selected {
+        background-color: #d4edda;
+        font-weight: 500;
+        border-left: 4px solid #28a745;
+    }
+ 
+    /* Alert styling */
+    .lock-indicator {
+        background-color: #fffbea;
+        border-left: 4px solid #ffc107;
+        border-radius: 4px;
+        animation: slideDown 0.3s ease-out;
+        margin-top: 15px;
+        padding: 12px 15px;
+    }
+ 
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+ 
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+ 
+    /* Spinner */
+    .qr-spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #ffc107;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 6px;
+        vertical-align: middle;
+    }
+ 
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+ 
+    /* Badge with icon */
+    .badge-icon {
+        margin-right: 4px;
+    }
+</style>
+ 
+<!-- MODAL FOR QR CODE RESULTS -->
+<div class="modal fade" id="qrResultModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="qrModalLabel">📋 Previous Records Found</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="qrTableContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info btn-sm" id="reloadQrBtn" onclick="location.reload()">New Search</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </div>
     
 <!-- Load jQuery first -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+
+<!-- JAVASCRIPT FOR ENHANCED QR CODE LOGIC -->
+<script>
+$(document).ready(function() {
+    
+    // Configuration
+    const CONFIG = {
+        lockedFields: [
+            'patient_name', 'guardian_name', 'dob', 'age_year', 'age_month', 'age_day',
+            'age_group', 'gender', 'marital_status', 'pregnancy_status', 'disability'
+        ],
+        ajaxTimeout: 10000,
+        debounceDelay: 500
+    };
+ 
+    // State management
+    let qrState = {
+        currentQR: '',
+        selectedMasterId: null,
+        isLocked: false,
+        lastCheckTime: null,
+        lastRecords: null,
+        badgeElement: null
+    };
+ 
+    /**
+     * ============================================
+     * QR CODE FOCUSOUT EVENT HANDLER
+     * ============================================
+     */
+    $('#qr_input').on('focusout', function() {
+        const qrValue = $(this).val().trim();
+ 
+        // Remove old badge
+        removeBadge();
+ 
+        // Validation: Empty QR
+        if (qrValue === '') {
+            unlockPersonalInfoFields();
+            qrState.currentQR = '';
+            qrState.selectedMasterId = null;
+            qrState.lastRecords = null;
+            return;
+        }
+ 
+        // Check if same QR (skip re-check within 5 seconds)
+        if (qrValue === qrState.currentQR && qrState.lastCheckTime) {
+            const timeDiff = Date.now() - qrState.lastCheckTime;
+            if (timeDiff < 5000) {
+                // Show cached badge
+                showCachedBadge();
+                return;
+            }
+        }
+ 
+        qrState.currentQR = qrValue;
+        showCheckingBadge();
+        checkQRCodeInDatabase(qrValue);
+    });
+ 
+    /**
+     * ============================================
+     * REMOVE BADGE
+     * ============================================
+     */
+    function removeBadge() {
+        if (qrState.badgeElement) {
+            qrState.badgeElement.remove();
+            qrState.badgeElement = null;
+        } else {
+            $('#qr_input').parent().find('.qr-status-badge').remove();
+        }
+    }
+ 
+    /**
+     * ============================================
+     * SHOW CHECKING BADGE
+     * ============================================
+     */
+    function showCheckingBadge() {
+        removeBadge();
+        const badge = $('<span class="qr-status-badge qr-status-checking">' +
+            '<span class="qr-spinner"></span>Checking...' +
+            '</span>');
+        $('#qr_input').after(badge);
+        qrState.badgeElement = badge[0];
+    }
+ 
+    /**
+     * ============================================
+     * SHOW CACHED BADGE
+     * ============================================
+     */
+    function showCachedBadge() {
+        removeBadge();
+        if (qrState.lastRecords && qrState.lastRecords.length > 0) {
+            showExistsBadge(qrState.lastRecords.length, true);
+        } else {
+            showUniqueBadge();
+        }
+    }
+ 
+    /**
+     * ============================================
+     * CHECK QR CODE IN DATABASE
+     * ============================================
+     */
+    function checkQRCodeInDatabase(qrValue) {
+        $.ajax({
+            url: "<?= base_url('forms/check_qr_code') ?>",
+            type: "POST",
+            data: { qr_code: qrValue },
+            dataType: "json",
+            timeout: CONFIG.ajaxTimeout,
+            success: function(response) {
+                qrState.lastCheckTime = Date.now();
+ 
+                if (response.success && response.count > 0) {
+                    // QR EXISTS - Cache records
+                    qrState.lastRecords = response.records;
+                    showExistsBadge(response.count, true);
+                    displayQRResultsModal(response.records);
+                    $('#qrResultModal').modal('show');
+                } else {
+                    // QR DOES NOT EXIST - New record
+                    qrState.lastRecords = null;
+                    showUniqueBadge();
+                    unlockPersonalInfoFields();
+                    qrState.selectedMasterId = null;
+                    qrState.isLocked = false;
+                }
+            },
+            error: function(xhr, status, error) {
+                removeBadge();
+                const errorBadge = $('<span class="qr-status-badge qr-status-checking" style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;">' +
+                    '⚠️ Error checking QR' +
+                    '</span>');
+                $('#qr_input').after(errorBadge);
+                qrState.badgeElement = errorBadge[0];
+ 
+                console.error('QR Check Error:', error);
+            }
+        });
+    }
+ 
+    /**
+     * ============================================
+     * SHOW UNIQUE BADGE (Not clickable)
+     * ============================================
+     */
+    function showUniqueBadge() {
+        removeBadge();
+        const badge = $('<span class="qr-status-badge qr-status-unique">' +
+            '✓ This is a new record' +
+            '</span>');
+        $('#qr_input').after(badge);
+        qrState.badgeElement = badge[0];
+    }
+ 
+    /**
+     * ============================================
+     * SHOW EXISTS BADGE (Clickable to reopen popup)
+     * ============================================
+     */
+    function showExistsBadge(count, isClickable = false) {
+        removeBadge();
+        const badge = $('<span class="qr-status-badge qr-status-exists ' + (isClickable ? 'has-records' : '') + '">' +
+            '📌 ' + count + ' record' + (count > 1 ? '(s)' : '') + ' found' +
+            '</span>');
+        
+        if (isClickable && qrState.lastRecords) {
+            badge.on('click', function(e) {
+                e.stopPropagation();
+                displayQRResultsModal(qrState.lastRecords);
+                $('#qrResultModal').modal('show');
+            });
+        }
+ 
+        $('#qr_input').after(badge);
+        qrState.badgeElement = badge[0];
+    }
+ 
+    /**
+     * ============================================
+     * DISPLAY QR RESULTS IN MODAL
+     * ============================================
+     */
+    function displayQRResultsModal(records) {
+        if (!records || records.length === 0) {
+            $('#qrTableContainer').html('<div class="alert alert-warning">No records found</div>');
+            return;
+        }
+ 
+        let html = '<div class="table-responsive">';
+        html += '<table class="table table-hover table-sm table-bordered">';
+        html += '<thead class="bg-light"><tr>';
+        html += '<th width="50px">Select</th>';
+        html += '<th>Date</th>';
+        html += '<th>Patient Name</th>';
+        html += '<th>Father/Husband</th>';
+        html += '<th>Age</th>';
+        html += '<th>Gender</th>';
+        html += '</tr></thead><tbody>';
+ 
+        $.each(records, function(i, rec) {
+            const age = rec.age_year + 'Y ' + rec.age_month + 'M ' + rec.age_day + 'D';
+            const rowClass = qrState.selectedMasterId === rec.master_id ? 'selected' : '';
+ 
+            html += '<tr class="qr-record-row ' + rowClass + '" data-master-id="' + sanitizeHTML(rec.master_id) + '">';
+            html += '<td class="text-center"><input type="radio" name="qr_select" class="qr-select-radio" value="' + sanitizeHTML(rec.master_id) + '"></td>';
+            html += '<td>' + sanitizeHTML(rec.form_date) + '</td>';
+            html += '<td><strong>' + sanitizeHTML(rec.patient_name) + '</strong></td>';
+            html += '<td>' + sanitizeHTML(rec.guardian_name) + '</td>';
+            html += '<td>' + age + '</td>';
+            html += '<td>' + sanitizeHTML(rec.gender) + '</td>';
+            html += '</tr>';
+        });
+ 
+        html += '</tbody></table></div>';
+        html += '<div class="alert alert-info mt-3 mb-0" style="font-size: 13px;">';
+        html += '<strong>💡 Tip:</strong> Click any row to select it, or click the badge again to view these records.';
+        html += '</div>';
+ 
+        $('#qrTableContainer').html(html);
+        bindQRRecordSelection();
+    }
+ 
+    /**
+     * ============================================
+     * BIND QR RECORD SELECTION
+     * ============================================
+     */
+    function bindQRRecordSelection() {
+        $('.qr-record-row').on('click', function() {
+            if (event.target.tagName !== 'INPUT') {
+                $(this).find('.qr-select-radio').prop('checked', true).change();
+            }
+        });
+ 
+        $('.qr-select-radio').on('change', function() {
+            if ($(this).is(':checked')) {
+                const masterId = $(this).val();
+                const row = $(this).closest('tr');
+ 
+                $('.qr-record-row').removeClass('selected');
+                row.addClass('selected');
+ 
+                fetchAndPopulateRecord(masterId);
+ 
+                setTimeout(() => {
+                    $('#qrResultModal').modal('hide');
+                }, 500);
+            }
+        });
+    }
+ 
+    /**
+     * ============================================
+     * FETCH FULL RECORD & POPULATE FORM
+     * ============================================
+     */
+    function fetchAndPopulateRecord(masterId) {
+        $.ajax({
+            url: "<?= base_url('forms/get_child_master_ajax') ?>",
+            type: "POST",
+            data: { master_id: masterId },
+            dataType: "json",
+            timeout: CONFIG.ajaxTimeout,
+            success: function(response) {
+                if (!response.success || !response.data) {
+                    showToast('Error: Could not fetch record details', 'error');
+                    return;
+                }
+ 
+                const rec = response.data;
+ 
+                // Populate fields
+                populateFormFields(rec);
+                autoSelectAgeGroup(rec.age_year);
+                $('input[name="client_type"][value="Followup"]').prop('checked', true);
+ 
+                // Lock fields
+                lockPersonalInfoFields();
+ 
+                qrState.selectedMasterId = masterId;
+                qrState.isLocked = true;
+ 
+                showToast('✓ Record loaded! Personal info is locked.', 'success');
+            },
+            error: function() {
+                showToast('Error: Failed to load record details', 'error');
+            }
+        });
+    }
+ 
+    /**
+     * ============================================
+     * POPULATE FORM FIELDS
+     * ============================================
+     */
+    function populateFormFields(rec) {
+        $('input[name="patient_name"]').val(sanitizeHTML(rec.patient_name));
+        $('input[name="guardian_name"]').val(sanitizeHTML(rec.guardian_name));
+        $('input[name="dob"]').val(rec.dob);
+        $('input[name="age_year"]').val(rec.age_year);
+        $('input[name="age_month"]').val(rec.age_month);
+        $('input[name="age_day"]').val(rec.age_day);
+ 
+        if (rec.gender) {
+            $('input[name="gender"][value="' + sanitizeHTML(rec.gender) + '"]').prop('checked', true);
+        }
+        if (rec.marital_status) {
+            $('input[name="marital_status"][value="' + sanitizeHTML(rec.marital_status) + '"]').prop('checked', true);
+        }
+        if (rec.pregnancy_status) {
+            $('input[name="pregnancy_status"][value="' + sanitizeHTML(rec.pregnancy_status) + '"]').prop('checked', true);
+        }
+        if (rec.disability) {
+            $('input[name="disability"][value="' + sanitizeHTML(rec.disability) + '"]').prop('checked', true);
+        }
+    }
+ 
+    /**
+     * ============================================
+     * LOCK PERSONAL INFO FIELDS
+     * ============================================
+     */
+    function lockPersonalInfoFields() {
+        CONFIG.lockedFields.forEach(fieldName => {
+            const fieldElements = $('[name="' + fieldName + '"]');
+            fieldElements.each(function() {
+                $(this).prop('disabled', true).addClass('field-locked');
+            });
+        });
+ 
+        removeLockIndicator();
+        const indicator = $('<div id="lock-indicator" class="alert lock-indicator">' +
+            '<strong>🔒 Personal Information Locked:</strong> These fields are auto-filled from the selected record. ' +
+            'Fill remaining fields to complete the form.' +
+            '</div>');
+        
+        $('#qr_input').closest('.form-group').after(indicator);
+    }
+ 
+    /**
+     * ============================================
+     * UNLOCK PERSONAL INFO FIELDS
+     * ============================================
+     */
+    function unlockPersonalInfoFields() {
+        CONFIG.lockedFields.forEach(fieldName => {
+            const fieldElements = $('[name="' + fieldName + '"]');
+            fieldElements.each(function() {
+                $(this).prop('disabled', false).removeClass('field-locked');
+            });
+        });
+ 
+        removeLockIndicator();
+    }
+ 
+    /**
+     * ============================================
+     * REMOVE LOCK INDICATOR
+     * ============================================
+     */
+    function removeLockIndicator() {
+        $('#lock-indicator').fadeOut('fast', function() {
+            $(this).remove();
+        });
+    }
+ 
+    /**
+     * ============================================
+     * AUTO-SELECT AGE GROUP
+     * ============================================
+     */
+    function autoSelectAgeGroup(years) {
+        years = parseInt(years);
+        let group = '';
+ 
+        if (years === 0) {
+            group = '<1 Year';
+        } else if (years >= 1 && years < 2) {
+            group = '1-2 Year';
+        } else if (years >= 2 && years < 5) {
+            group = '2-5 Year';
+        } else if (years >= 5 && years < 15) {
+            group = '5-15 Year';
+        } else if (years >= 15) {
+            group = '15-49 Year';
+        }
+ 
+        if (group !== '') {
+            $('input[name="age_group"][value="' + group + '"]').prop('checked', true);
+        }
+    }
+ 
+    /**
+     * ============================================
+     * TOAST NOTIFICATION
+     * ============================================
+     */
+    function showToast(message, type = 'info') {
+        const bgColor = type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8';
+ 
+        const toast = $('<div class="flash-msg flash-' + type + '" style="background: ' + bgColor + ';">' +
+            message + '</div>');
+ 
+        $('body').append(toast);
+ 
+        setTimeout(() => {
+            toast.fadeOut('slow', function() {
+                $(this).remove();
+            });
+        }, 4000);
+    }
+ 
+    /**
+     * ============================================
+     * SANITIZE HTML (XSS Prevention)
+     * ============================================
+     */
+    function sanitizeHTML(str) {
+        if (typeof str !== 'string') return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+ 
+});
+</script>
+
 <script>
 var selected_facility = <?= isset($rec->facility_id) ? json_encode($rec->facility_id) : '""' ?>;
 var selected_uc = "<?= isset($rec->uc) ? $rec->uc : '' ?>";

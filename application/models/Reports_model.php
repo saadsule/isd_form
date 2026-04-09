@@ -655,15 +655,15 @@ class Reports_model extends CI_Model {
    
     public function get_duplicate_qr_code()
     {
-        // First query to get duplicates with proper GROUP_CONCAT
+        // Query to get duplicates with proper GROUP_CONCAT in correct order
         $sql = "SELECT
                     chm.qr_code,
-                    GROUP_CONCAT(chm.master_id SEPARATOR ',')                      AS master_ids,
-                    GROUP_CONCAT(chm.patient_name SEPARATOR ',')                   AS names,
-                    GROUP_CONCAT(chm.dob SEPARATOR ',')                            AS dobs,
-                    GROUP_CONCAT(chm.guardian_name SEPARATOR ',')                  AS guardians,
-                    COUNT(DISTINCT chm.patient_name)                              AS name_count,
-                    GROUP_CONCAT(DISTINCT u.full_name SEPARATOR ',')             AS reported_by
+                    GROUP_CONCAT(chm.master_id ORDER BY chm.master_id SEPARATOR ',')                      AS master_ids,
+                    GROUP_CONCAT(chm.patient_name ORDER BY chm.master_id SEPARATOR ',')                   AS names,
+                    GROUP_CONCAT(chm.dob ORDER BY chm.master_id SEPARATOR ',')                            AS dobs,
+                    GROUP_CONCAT(chm.guardian_name ORDER BY chm.master_id SEPARATOR ',')                  AS guardians,
+                    GROUP_CONCAT(u.full_name ORDER BY chm.master_id SEPARATOR ',')                       AS reported_by,
+                    COUNT(DISTINCT chm.patient_name)                              AS name_count
                 FROM child_health_master chm
                 INNER JOIN users u ON chm.created_by = u.user_id
                 WHERE chm.qr_code NOT LIKE '%Supplementary%'
@@ -671,14 +671,13 @@ class Reports_model extends CI_Model {
                 GROUP BY chm.qr_code
                 HAVING COUNT(DISTINCT chm.patient_name) > 1
                 ORDER BY COUNT(DISTINCT chm.patient_name) DESC";
-
         $query = $this->db->query($sql);
         return $query->result_array();
     }
     
     public function get_neir_report($filters)
     {
-        // 1. Load only question_id 5, 6, 7 (vaccine questions for NEIR)
+        // 1. Load only question_id 5, 6, 7
         $questions = $this->db
             ->where('status', 1)
             ->where('form_type', 'chf')
@@ -688,9 +687,7 @@ class Reports_model extends CI_Model {
             ->result_array();
 
         // 2. Build unique vaccine columns by option_text
-        //    Same vaccine name (e.g. "OPV I") may appear in multiple questions
-        //    → merge them into ONE column, counting children who got it in ANY question
-        $unique_vaccines = array();   // [ safe_key => [ 'label'=>'BCG', 'oids'=>[1,2,...] ] ]
+        $unique_vaccines = array();
 
         foreach ($questions as $q) {
             $qid = (int) $q['question_id'];
@@ -704,7 +701,6 @@ class Reports_model extends CI_Model {
             foreach ($options as $opt) {
                 $oid   = (int) $opt['option_id'];
                 $label = trim($opt['option_text']);
-                // safe column key: lower-case, spaces→underscore, strip special chars
                 $key   = 'vac_' . preg_replace('/[^a-z0-9_]/', '', strtolower(str_replace(' ', '_', $label)));
 
                 if (!isset($unique_vaccines[$key])) {
@@ -714,7 +710,7 @@ class Reports_model extends CI_Model {
             }
         }
 
-        // 3. Build SELECT snippet for each unique vaccine
+        // 3. Build SELECT snippets
         $vaccine_selects = array();
         foreach ($unique_vaccines as $col => $info) {
             $oid_list          = implode(',', $info['oids']);
@@ -725,19 +721,15 @@ class Reports_model extends CI_Model {
 
         $vaccine_sql = !empty($vaccine_selects) ? ', ' . implode(', ', $vaccine_selects) : '';
 
-        // 4. Main grouped query
+        // 4. Main query — grouped by UC + facility + age_group only (no strategy/vaccinator split)
         $sql = "
             SELECT
-                'Khyber Pukhtunkhwa'                                                                AS province,
-                'North Waziristan'                                                                  AS district,
                 IFNULL(u.uc, '')                                                                    AS uc,
                 IFNULL(f.facility_name, '')                                                         AS facility_name,
                 IFNULL(chm.age_group, '')                                                           AS age_group,
-                IFNULL(chm.vaccinator_name, '')                                                     AS vaccinator_name,
-                'Prime Foundation'                                                                  AS organization,
-                IFNULL(chm.visit_type, '')                                                          AS strategy,
+                GROUP_CONCAT(DISTINCT chm.visit_type ORDER BY chm.visit_type SEPARATOR ' / ')      AS strategy,
                 COUNT(DISTINCT chm.master_id)                                                       AS children_enrolled,
-                COUNT(DISTINCT CASE WHEN chd.question_id IN (5,6,7) THEN chm.master_id END)         AS children_vaccinated
+                COUNT(DISTINCT CASE WHEN chd.question_id IN (5,6,7) THEN chm.master_id END)        AS children_vaccinated
                 {$vaccine_sql}
             FROM child_health_master chm
             LEFT JOIN child_health_detail chd ON chd.master_id = chm.master_id
@@ -759,9 +751,7 @@ class Reports_model extends CI_Model {
             GROUP BY
                 u.uc,
                 f.facility_name,
-                chm.age_group,
-                chm.vaccinator_name,
-                chm.visit_type
+                chm.age_group
             ORDER BY
                 u.uc            ASC,
                 f.facility_name ASC,
@@ -771,7 +761,7 @@ class Reports_model extends CI_Model {
         $query  = $this->db->query($sql, $binds);
         $result = $query->result_array();
 
-        // 5. Grand Total per row = sum of all vaccine columns
+        // 5. Grand Total per row
         foreach ($result as &$row) {
             $grand = 0;
             foreach (array_keys($unique_vaccines) as $col) {
@@ -783,7 +773,7 @@ class Reports_model extends CI_Model {
 
         return array(
             'data'    => $result,
-            'options' => $unique_vaccines,  // [ col_key => ['label'=>'BCG','oids'=>[...]] ]
+            'options' => $unique_vaccines,
         );
     }
     
