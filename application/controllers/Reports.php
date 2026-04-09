@@ -372,6 +372,67 @@ class Reports extends CI_Controller {
             ]);
         }
     }
+
+    public function qr_details($qr_code)
+    {
+        // Get all records for this QR code
+        $qr_code = urldecode($qr_code);
+
+        $this->db->where('qr_code', $qr_code);
+        $records = $this->db->get('child_health_master')->result_array();
+
+        if (empty($records)) {
+            show_404();
+        }
+
+        $data['qr_code'] = $qr_code;
+        $data['records'] = $records;
+        $data['total_records'] = count($records);
+        $data['main_content'] = $this->load->view('reports/qr_details', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+
+    public function update_qr_records()
+    {
+        // Check if user_id is 20
+        $user_id = $this->session->userdata('user_id');
+        if ($user_id != 20) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+
+        header('Content-Type: application/json');
+
+        $qr_code = $this->input->post('qr_code');
+        $patient_name = $this->input->post('patient_name');
+        $father_name = $this->input->post('father_name');
+        $selected_ids = $this->input->post('selected_ids'); // Array of master_ids
+
+        $selected_ids = json_decode($selected_ids, true);
+        
+        if (empty($qr_code) || empty($selected_ids)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid request']);
+            return;
+        }
+
+        // Update only selected records
+        $update_data = [
+            'patient_name' => $patient_name,
+            'guardian_name' => $father_name
+        ];
+
+        // Update only where master_id is in selected_ids
+        $this->db->where_in('master_id', $selected_ids);
+        $this->db->update('child_health_master', $update_data);
+
+        $affected = $this->db->affected_rows();
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Updated ' . $affected . ' records',
+            'affected_rows' => $affected
+        ]);
+    }
     
     public function qr_code_report($qr_code, $form_type)
     {

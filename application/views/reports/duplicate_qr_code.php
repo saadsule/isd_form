@@ -162,7 +162,6 @@ $total      = count($records);
                         <!-- Actions (with role-based visibility) -->
                         <td class="text-center align-middle" style="padding:8px 12px;">
                             <?php
-                                // Get user role
                                 $user_role = $this->session->userdata('role');
                                 $is_data_entry = ($user_role == 1);
 
@@ -176,46 +175,61 @@ $total      = count($records);
                                     $verification_status = isset($status_result['verification_status']) ? $status_result['verification_status'] : '';
                                     $is_reported = ($verification_status === 'Reported');
                             ?>
-                                <div style="display:flex;gap:4px;justify-content:center;padding:3px 0;
-                                            <?= $idx < count($ids)-1 ? 'border-bottom:1px dashed #dee2e6;' : '' ?>">
+                                    <div style="display:flex;gap:4px;justify-content:center;padding:3px 0;
+                                                <?= $idx < count($ids)-1 ? 'border-bottom:1px dashed #dee2e6;' : '' ?>">
 
-                                    <!-- View button (Always visible for all roles) -->
-                                    <a href="<?= $view_url_individual ?>" target="_blank"
-                                       class="btn btn-sm"
-                                       style="background:#e8f0fe;color:#1a3a6e;border:1px solid #b3cdf9;
-                                              padding:4px 8px;font-size:11px;min-width:30px;"
-                                       title="View Form">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
+                                        <!-- View button -->
+                                        <a href="<?= $view_url_individual ?>" target="_blank"
+                                           class="btn btn-sm"
+                                           style="background:#e8f0fe;color:#1a3a6e;border:1px solid #b3cdf9;
+                                                  padding:4px 8px;font-size:11px;min-width:30px;"
+                                           title="View Form">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
 
-                                    <!-- Copy edit URL button (Hide for Data Entry role) -->
-                                    <?php if (!$is_data_entry): ?>
-                                        <button type="button"
-                                                class="btn btn-sm btn-copy"
-                                                data-url="<?= htmlspecialchars($edit_url_individual) ?>"
-                                                style="background:#fff8e1;color:#856404;border:1px solid #ffd97d;
-                                                       padding:4px 8px;font-size:11px;min-width:30px;"
-                                                title="Copy Edit URL">
-                                            <i class="fa fa-copy"></i>
-                                        </button>
-                                    <?php endif; ?>
+                                        <?php if (!$is_data_entry): ?>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-copy"
+                                                    data-url="<?= htmlspecialchars($edit_url_individual) ?>"
+                                                    style="background:#fff8e1;color:#856404;border:1px solid #ffd97d;
+                                                           padding:4px 8px;font-size:11px;min-width:30px;"
+                                                    title="Copy Edit URL">
+                                                <i class="fa fa-copy"></i>
+                                            </button>
+                                        <?php endif; ?>
 
-                                    <?php if (!$is_data_entry): ?>
-                                        <button type="button"
-                                                class="btn btn-sm btn-wrong-qr"
-                                                data-id="<?= htmlspecialchars($id) ?>"
-                                                style="background:<?= $is_reported ? '#d4edda' : '#fce8e8' ?>;
-                                                       color:<?= $is_reported ? '#155724' : '#b02a37' ?>;
-                                                       border:1px solid <?= $is_reported ? '#c3e6cb' : '#f5c2c7' ?>;
-                                                       padding:4px 8px;font-size:11px;min-width:30px;"
-                                                title="<?= $is_reported ? 'Already Reported' : 'Mark as Wrong QR' ?>"
-                                                <?= $is_reported ? 'disabled' : '' ?>>
-                                            <i class="fa fa-<?= $is_reported ? 'check-circle' : 'times-circle' ?>"></i>
-                                        </button>
-                                    <?php endif; ?>
+                                        <?php if (!$is_data_entry): ?>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-wrong-qr"
+                                                    data-id="<?= htmlspecialchars($id) ?>"
+                                                    style="background:<?= $is_reported ? '#d4edda' : '#fce8e8' ?>;
+                                                           color:<?= $is_reported ? '#155724' : '#b02a37' ?>;
+                                                           border:1px solid <?= $is_reported ? '#c3e6cb' : '#f5c2c7' ?>;
+                                                           padding:4px 8px;font-size:11px;min-width:30px;"
+                                                    title="<?= $is_reported ? 'Already Reported' : 'Mark as Wrong QR' ?>"
+                                                    <?= $is_reported ? 'disabled' : '' ?>>
+                                                <i class="fa fa-<?= $is_reported ? 'check-circle' : 'times-circle' ?>"></i>
+                                            </button>
+                                        <?php endif; ?>
 
-                                </div>
+                                    </div>
                             <?php endforeach; ?>
+
+                            <?php 
+                            $user_id = $this->session->userdata('user_id');
+                            if ($user_id == 20): 
+                            ?>
+                                <div style="display:flex;justify-content:center;margin-top:6px;">
+                                    <a href="<?= base_url('reports/qr_details/' . urlencode($row['qr_code'])) ?>"
+                                       class="btn btn-sm"
+                                       style="background:#28a745;color:#fff;border:1px solid #1e7e34;
+                                              padding:6px 12px;font-size:11px;"
+                                       title="View QR Details">
+                                        <i class="fa fa-list"></i> Details
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+
                         </td>
                     </tr>
                     <?php endforeach; ?>
