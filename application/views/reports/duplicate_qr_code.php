@@ -83,9 +83,15 @@ $total      = count($records);
                             </span>
                         </td>
 
-                        <!-- Patient Names (one per line) -->
+                        <!-- Patient Names with Verified Badge (from query) -->
                         <td class="align-middle" style="padding:8px 12px;">
-                            <?php foreach ($names as $i => $name): ?>
+                            <?php 
+                            $verification_statuses = array_map('trim', explode(',', isset($row['verification_statuses']) ? $row['verification_statuses'] : ''));
+
+                            foreach ($names as $i => $name): 
+                                $status = isset($verification_statuses[$i]) ? $verification_statuses[$i] : '';
+                                $is_verified = ($status === 'Verified');
+                            ?>
                                 <div style="display:flex;align-items:center;gap:6px;
                                             padding:3px 0;<?= $i < count($names)-1 ? 'border-bottom:1px dashed #dee2e6;' : '' ?>">
                                     <span style="display:inline-flex;align-items:center;justify-content:center;
@@ -96,6 +102,16 @@ $total      = count($records);
                                     <span style="font-size:13px;font-weight:600;color:#212529;">
                                         <?= htmlspecialchars($name) ?>
                                     </span>
+
+                                    <!-- Verified Badge (small green checkmark) -->
+                                    <?php if ($is_verified): ?>
+                                        <span style="display:inline-flex;align-items:center;justify-content:center;
+                                                     width:18px;height:18px;background:#28a745;color:#fff;
+                                                     border-radius:50%;font-size:10px;margin-left:4px;"
+                                              title="Verified">
+                                            <i class="fa fa-check"></i>
+                                        </span>
+                                    <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
                         </td>
@@ -143,25 +159,27 @@ $total      = count($records);
                             <?php endforeach; ?>
                         </td>
 
-                        <!-- Actions (with separate buttons for each ID) -->
+                        <!-- Actions (with role-based visibility) -->
                         <td class="text-center align-middle" style="padding:8px 12px;">
                             <?php
+                                // Get user role
+                                $user_role = $this->session->userdata('role');
+                                $is_data_entry = ($user_role == 1);
+
                                 foreach ($ids as $idx => $id): 
                                     $view_url_individual = $view_base . $id;
                                     $edit_url_individual = $edit_base . $id;
-
                                     $this->db->select('verification_status');
                                     $this->db->from('child_health_master');
                                     $this->db->where('master_id', $id);
                                     $status_result = $this->db->get()->row_array();
-
                                     $verification_status = isset($status_result['verification_status']) ? $status_result['verification_status'] : '';
                                     $is_reported = ($verification_status === 'Reported');
                             ?>
                                 <div style="display:flex;gap:4px;justify-content:center;padding:3px 0;
                                             <?= $idx < count($ids)-1 ? 'border-bottom:1px dashed #dee2e6;' : '' ?>">
 
-                                    <!-- View button -->
+                                    <!-- View button (Always visible for all roles) -->
                                     <a href="<?= $view_url_individual ?>" target="_blank"
                                        class="btn btn-sm"
                                        style="background:#e8f0fe;color:#1a3a6e;border:1px solid #b3cdf9;
@@ -170,27 +188,31 @@ $total      = count($records);
                                         <i class="fa fa-eye"></i>
                                     </a>
 
-                                    <!-- Copy edit URL button -->
-                                    <button type="button"
-                                            class="btn btn-sm btn-copy"
-                                            data-url="<?= htmlspecialchars($edit_url_individual) ?>"
-                                            style="background:#fff8e1;color:#856404;border:1px solid #ffd97d;
-                                                   padding:4px 8px;font-size:11px;min-width:30px;"
-                                            title="Copy Edit URL">
-                                        <i class="fa fa-copy"></i>
-                                    </button>
+                                    <!-- Copy edit URL button (Hide for Data Entry role) -->
+                                    <?php if (!$is_data_entry): ?>
+                                        <button type="button"
+                                                class="btn btn-sm btn-copy"
+                                                data-url="<?= htmlspecialchars($edit_url_individual) ?>"
+                                                style="background:#fff8e1;color:#856404;border:1px solid #ffd97d;
+                                                       padding:4px 8px;font-size:11px;min-width:30px;"
+                                                title="Copy Edit URL">
+                                            <i class="fa fa-copy"></i>
+                                        </button>
+                                    <?php endif; ?>
 
-                                    <button type="button"
-                                            class="btn btn-sm btn-wrong-qr"
-                                            data-id="<?= htmlspecialchars($id) ?>"
-                                            style="background:<?= $is_reported ? '#d4edda' : '#fce8e8' ?>;
-                                                   color:<?= $is_reported ? '#155724' : '#b02a37' ?>;
-                                                   border:1px solid <?= $is_reported ? '#c3e6cb' : '#f5c2c7' ?>;
-                                                   padding:4px 8px;font-size:11px;min-width:30px;"
-                                            title="<?= $is_reported ? 'Already Reported' : 'Mark as Wrong QR' ?>"
-                                            <?= $is_reported ? 'disabled' : '' ?>>
-                                        <i class="fa fa-<?= $is_reported ? 'check-circle' : 'times-circle' ?>"></i>
-                                    </button>
+                                    <?php if (!$is_data_entry): ?>
+                                        <button type="button"
+                                                class="btn btn-sm btn-wrong-qr"
+                                                data-id="<?= htmlspecialchars($id) ?>"
+                                                style="background:<?= $is_reported ? '#d4edda' : '#fce8e8' ?>;
+                                                       color:<?= $is_reported ? '#155724' : '#b02a37' ?>;
+                                                       border:1px solid <?= $is_reported ? '#c3e6cb' : '#f5c2c7' ?>;
+                                                       padding:4px 8px;font-size:11px;min-width:30px;"
+                                                title="<?= $is_reported ? 'Already Reported' : 'Mark as Wrong QR' ?>"
+                                                <?= $is_reported ? 'disabled' : '' ?>>
+                                            <i class="fa fa-<?= $is_reported ? 'check-circle' : 'times-circle' ?>"></i>
+                                        </button>
+                                    <?php endif; ?>
 
                                 </div>
                             <?php endforeach; ?>

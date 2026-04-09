@@ -653,7 +653,6 @@ class Reports_model extends CI_Model {
    
     public function get_duplicate_qr_code()
     {
-        // Query to get duplicates with proper GROUP_CONCAT in correct order
         $sql = "SELECT
                     chm.qr_code,
                     GROUP_CONCAT(chm.master_id ORDER BY chm.master_id SEPARATOR ',')                      AS master_ids,
@@ -661,10 +660,13 @@ class Reports_model extends CI_Model {
                     GROUP_CONCAT(chm.dob ORDER BY chm.master_id SEPARATOR ',')                            AS dobs,
                     GROUP_CONCAT(chm.guardian_name ORDER BY chm.master_id SEPARATOR ',')                  AS guardians,
                     GROUP_CONCAT(u.full_name ORDER BY chm.master_id SEPARATOR ',')                       AS reported_by,
+                    GROUP_CONCAT(chm.verification_status ORDER BY chm.master_id SEPARATOR ',')           AS verification_statuses,
                     COUNT(DISTINCT chm.patient_name)                              AS name_count
                 FROM child_health_master chm
                 INNER JOIN users u ON chm.created_by = u.user_id
                 WHERE chm.qr_code NOT LIKE '%Supplementary%'
+                AND chm.qr_code NOT LIKE '%NA%'
+                AND chm.qr_code NOT LIKE '%N/A%'
                 AND chm.verification_status != 'Wrong QR'
                 GROUP BY chm.qr_code
                 HAVING COUNT(DISTINCT chm.patient_name) > 1
