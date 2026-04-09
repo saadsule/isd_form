@@ -721,20 +721,17 @@ class Reports_model extends CI_Model {
 
         $vaccine_sql = !empty($vaccine_selects) ? ', ' . implode(', ', $vaccine_selects) : '';
 
-        // 4. Main query — grouped by UC + facility + age_group only (no strategy/vaccinator split)
+        // 4. Main query — grouped by UC + age_group only
         $sql = "
             SELECT
                 IFNULL(u.uc, '')                                                                    AS uc,
-                IFNULL(f.facility_name, '')                                                         AS facility_name,
                 IFNULL(chm.age_group, '')                                                           AS age_group,
-                GROUP_CONCAT(DISTINCT chm.visit_type ORDER BY chm.visit_type SEPARATOR ' / ')      AS strategy,
                 COUNT(DISTINCT chm.master_id)                                                       AS children_enrolled,
                 COUNT(DISTINCT CASE WHEN chd.question_id IN (5,6,7) THEN chm.master_id END)        AS children_vaccinated
                 {$vaccine_sql}
             FROM child_health_master chm
             LEFT JOIN child_health_detail chd ON chd.master_id = chm.master_id
             LEFT JOIN uc u                    ON u.pk_id       = chm.uc
-            LEFT JOIN facilities f            ON f.id          = chm.facility_id
             WHERE 1=1
         ";
 
@@ -750,12 +747,10 @@ class Reports_model extends CI_Model {
         $sql .= "
             GROUP BY
                 u.uc,
-                f.facility_name,
                 chm.age_group
             ORDER BY
-                u.uc            ASC,
-                f.facility_name ASC,
-                chm.age_group   ASC
+                u.uc          ASC,
+                chm.age_group ASC
         ";
 
         $query  = $this->db->query($sql, $binds);

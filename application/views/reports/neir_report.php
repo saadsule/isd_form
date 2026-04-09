@@ -8,7 +8,7 @@ $records    = isset($records)    ? $records    : array();
 #neir_table th, #neir_table td { padding: 4px 6px !important; font-size: 11px; white-space: nowrap; vertical-align: middle !important; }
 #neir_table thead tr th { background-color: #1a3c5e !important; color: #fff !important; text-align: center; position: sticky; top: 0; z-index: 10; }
 #neir_table tfoot tr td { background-color: #1a3c5e !important; color: #fff !important; font-weight: 700; text-align: center; }
-.table-responsive { overflow-x: auto; max-height: 75vh; overflow-y: auto; }
+.neir-table-wrap { overflow-x: auto; max-height: 75vh; overflow-y: auto; }
 </style>
 
 <div class="page-container">
@@ -74,15 +74,13 @@ $records    = isset($records)    ? $records    : array();
                 }
             }
         ?>
-        <div class="table-responsive">
+        <div class="neir-table-wrap">
             <table class="table table-bordered table-hover m-b-0" id="neir_table">
                 <thead>
                     <tr>
-                        <th style="width:30px;">#</th>
-                        <th>UC</th>
-                        <th>Health Facility</th>
-                        <th style="width:70px;">Age Group</th>
-                        <th style="width:80px;">Strategy</th>
+                        <th style="width:35px;">#</th>
+                        <th style="width:120px;">UC</th>
+                        <th style="width:80px;">Age Group</th>
                         <th style="width:90px;">Children Enrolled</th>
                         <th style="width:90px;">Children Vaccinated</th>
                         <?php foreach ($options as $col => $info): ?>
@@ -97,10 +95,8 @@ $records    = isset($records)    ? $records    : array();
                     <td class="text-center">
                         <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#1a3c5e;color:#fff;border-radius:4px;font-size:10px;font-weight:700;"><?= $serial ?></span>
                     </td>
-                    <td><?= htmlspecialchars(isset($row['uc'])            ? $row['uc']            : '') ?></td>
-                    <td><?= htmlspecialchars(isset($row['facility_name']) ? $row['facility_name'] : '') ?></td>
-                    <td class="text-center"><?= htmlspecialchars(isset($row['age_group'])    ? $row['age_group']    : '') ?></td>
-                    <td class="text-center"><?= htmlspecialchars(isset($row['strategy'])     ? $row['strategy']     : '') ?></td>
+                    <td><?= htmlspecialchars(isset($row['uc'])         ? $row['uc']         : '') ?></td>
+                    <td class="text-center"><?= htmlspecialchars(isset($row['age_group']) ? $row['age_group'] : '') ?></td>
                     <td class="text-center"><?= (int) $row['children_enrolled'] ?></td>
                     <td class="text-center"><?= (int) $row['children_vaccinated'] ?></td>
                     <?php foreach (array_keys($options) as $col): ?>
@@ -112,7 +108,7 @@ $records    = isset($records)    ? $records    : array();
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="5">TOTAL</td>
+                        <td colspan="3">TOTAL</td>
                         <td><?= $tot_enrolled ?></td>
                         <td><?= $tot_vaccinated ?></td>
                         <?php foreach (array_keys($options) as $col): ?>
