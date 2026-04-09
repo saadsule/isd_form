@@ -44,7 +44,7 @@ $total      = count($records);
                             <th>Guardian</th>
                             <th style="width:90px;">Count</th>
                             <th>Entered By</th>
-                            <th style="width:110px;">Actions</th>
+                            <th style="width:140px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -57,6 +57,7 @@ $total      = count($records);
                             $dobs      = array_map('trim', explode(',', isset($row['dobs'])      ? $row['dobs']      : ''));
                             $guardians = array_map('trim', explode(',', isset($row['guardians']) ? $row['guardians'] : ''));
                             $ids       = array_map('trim', explode(',', isset($row['master_ids'])? $row['master_ids']: ''));
+                            $reporters = array_map('trim', explode(',', isset($row['reported_by']) ? $row['reported_by'] : ''));
                             $count     = (int) (isset($row['name_count']) ? $row['name_count'] : 0);
                             $first_id  = !empty($ids) ? $ids[0] : null;
                             $view_url  = $view_base . $first_id;
@@ -130,35 +131,67 @@ $total      = count($records);
                             </span>
                         </td>
 
-                        <!-- Entered By -->
-                        <td class="align-middle" style="font-size:12px;color:#495057;">
-                            <?= htmlspecialchars(isset($row['reported_by']) ? $row['reported_by'] : '') ?>
+                        <!-- Entered By (with one name per line) -->
+                        <td class="align-middle" style="padding:8px 12px;">
+                            <?php foreach ($reporters as $i => $reporter): ?>
+                                <div style="padding:3px 0;font-size:12px;color:#495057;
+                                            <?= $i < count($reporters)-1 ? 'border-bottom:1px dashed #dee2e6;' : '' ?>">
+                                    <?= htmlspecialchars($reporter) ?: '<span class="text-muted">—</span>' ?>
+                                </div>
+                            <?php endforeach; ?>
                         </td>
 
-                        <!-- Actions -->
-                        <td class="text-center align-middle">
-                            <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                        <!-- Actions (with separate buttons for each ID) -->
+                        <td class="text-center align-middle" style="padding:8px 12px;">
+                            <?php
+                                foreach ($ids as $idx => $id): 
+                                    $view_url_individual = $view_base . $id;
+                                    $edit_url_individual = $edit_base . $id;
 
-                                <!-- View button -->
-                                <a href="<?= $view_url ?>" target="_blank"
-                                   class="btn btn-sm"
-                                   style="background:#e8f0fe;color:#1a3a6e;border:1px solid #b3cdf9;
-                                          padding:4px 9px;"
-                                   title="View Form">
-                                    <i class="fa fa-eye"></i>
-                                </a>
+                                    $this->db->select('verification_status');
+                                    $this->db->from('child_health_master');
+                                    $this->db->where('master_id', $id);
+                                    $status_result = $this->db->get()->row_array();
 
-                                <!-- Copy edit URL button -->
-                                <button type="button"
-                                        class="btn btn-sm btn-copy"
-                                        data-url="<?= $edit_url ?>"
-                                        style="background:#fff8e1;color:#856404;border:1px solid #ffd97d;
-                                               padding:4px 9px;"
-                                        title="Copy Edit URL">
-                                    <i class="fa fa-copy"></i>
-                                </button>
+                                    $verification_status = isset($status_result['verification_status']) ? $status_result['verification_status'] : '';
+                                    $is_reported = ($verification_status === 'Reported');
+                            ?>
+                                <div style="display:flex;gap:4px;justify-content:center;padding:3px 0;
+                                            <?= $idx < count($ids)-1 ? 'border-bottom:1px dashed #dee2e6;' : '' ?>">
 
-                            </div>
+                                    <!-- View button -->
+                                    <a href="<?= $view_url_individual ?>" target="_blank"
+                                       class="btn btn-sm"
+                                       style="background:#e8f0fe;color:#1a3a6e;border:1px solid #b3cdf9;
+                                              padding:4px 8px;font-size:11px;min-width:30px;"
+                                       title="View Form">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+
+                                    <!-- Copy edit URL button -->
+                                    <button type="button"
+                                            class="btn btn-sm btn-copy"
+                                            data-url="<?= htmlspecialchars($edit_url_individual) ?>"
+                                            style="background:#fff8e1;color:#856404;border:1px solid #ffd97d;
+                                                   padding:4px 8px;font-size:11px;min-width:30px;"
+                                            title="Copy Edit URL">
+                                        <i class="fa fa-copy"></i>
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-wrong-qr"
+                                            data-id="<?= htmlspecialchars($id) ?>"
+                                            style="background:<?= $is_reported ? '#d4edda' : '#fce8e8' ?>;
+                                                   color:<?= $is_reported ? '#155724' : '#b02a37' ?>;
+                                                   border:1px solid <?= $is_reported ? '#c3e6cb' : '#f5c2c7' ?>;
+                                                   padding:4px 8px;font-size:11px;min-width:30px;"
+                                            title="<?= $is_reported ? 'Already Reported' : 'Mark as Wrong QR' ?>"
+                                            <?= $is_reported ? 'disabled' : '' ?>>
+                                        <i class="fa fa-<?= $is_reported ? 'check-circle' : 'times-circle' ?>"></i>
+                                    </button>
+
+                                </div>
+                            <?php endforeach; ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -180,42 +213,108 @@ $total      = count($records);
 
 <!-- Copy-to-clipboard script -->
 <script>
-document.querySelectorAll('.btn-copy').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        var url = this.getAttribute('data-url');
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(url).then(function() {
+    document.querySelectorAll('.btn-copy').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var url = this.getAttribute('data-url');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function() {
+                    showCopyToast(url);
+                });
+            } else {
+                // Fallback for non-HTTPS
+                var ta = document.createElement('textarea');
+                ta.value = url;
+                ta.style.position = 'fixed';
+                ta.style.opacity  = '0';
+                document.body.appendChild(ta);
+                ta.focus(); ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
                 showCopyToast(url);
-            });
-        } else {
-            // Fallback for non-HTTPS
-            var ta = document.createElement('textarea');
-            ta.value = url;
-            ta.style.position = 'fixed';
-            ta.style.opacity  = '0';
-            document.body.appendChild(ta);
-            ta.focus(); ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-            showCopyToast(url);
-        }
+            }
+        });
     });
-});
 
-function showCopyToast(url) {
-    // Simple toast notification
-    var toast = document.createElement('div');
-    toast.innerHTML = '<i class="fa fa-clipboard-check"></i> Edit URL copied!';
-    toast.style.cssText =
-        'position:fixed;bottom:30px;right:30px;z-index:9999;' +
-        'background:#1a3a6e;color:#fff;padding:10px 18px;' +
-        'border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.2);' +
-        'opacity:0;transition:opacity .3s;';
-    document.body.appendChild(toast);
-    setTimeout(function(){ toast.style.opacity = '1'; }, 10);
-    setTimeout(function(){
-        toast.style.opacity = '0';
-        setTimeout(function(){ document.body.removeChild(toast); }, 400);
-    }, 2500);
-}
+    // Mark as Wrong QR Handler
+    document.querySelectorAll('.btn-wrong-qr').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var masterId = this.getAttribute('data-id');
+            var button = this;
+
+            if (button.disabled) {
+                return;
+            }
+
+            if (confirm('Are you sure you want to mark this QR Code as Wrong?')) {
+                var xhr = new XMLHttpRequest();
+                var url = '<?= base_url('reports/mark_wrong_qr') ?>';
+
+                xhr.open('POST', url, true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                showWrongQRToast('Reported as Wrong QR');
+
+                                button.style.background = '#d4edda';
+                                button.style.color = '#155724';
+                                button.style.border = '1px solid #c3e6cb';
+                                button.disabled = true;
+                                button.title = 'Already Reported';
+
+                                button.innerHTML = '<i class="fa fa-check-circle"></i>';
+                            } else {
+                                alert('Error: ' + response.message);
+                            }
+                        } catch(e) {
+                            alert('Error: ' + e.message);
+                        }
+                    } else {
+                        alert('Network error');
+                    }
+                };
+
+                var postData = 'master_id=' + encodeURIComponent(masterId);
+                xhr.send(postData);
+            }
+        });
+    });
+
+    function showCopyToast(url) {
+        // Simple toast notification
+        var toast = document.createElement('div');
+        toast.innerHTML = '<i class="fa fa-clipboard-check"></i> Edit URL copied!';
+        toast.style.cssText =
+            'position:fixed;bottom:30px;right:30px;z-index:9999;' +
+            'background:#1a3a6e;color:#fff;padding:10px 18px;' +
+            'border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.2);' +
+            'opacity:0;transition:opacity .3s;';
+        document.body.appendChild(toast);
+        setTimeout(function(){ toast.style.opacity = '1'; }, 10);
+        setTimeout(function(){
+            toast.style.opacity = '0';
+            setTimeout(function(){ document.body.removeChild(toast); }, 400);
+        }, 2500);
+    }
+
+    function showWrongQRToast(message) {
+        var toast = document.createElement('div');
+        toast.innerHTML = '<i class="fa fa-check-circle"></i> ' + message;
+        toast.style.cssText =
+            'position:fixed;bottom:30px;right:30px;z-index:9999;' +
+            'background:#28a745;color:#fff;padding:10px 18px;' +
+            'border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.2);' +
+            'opacity:0;transition:opacity .3s;';
+        document.body.appendChild(toast);
+        setTimeout(function(){ toast.style.opacity = '1'; }, 10);
+        setTimeout(function(){
+            toast.style.opacity = '0';
+            setTimeout(function(){ document.body.removeChild(toast); }, 400);
+        }, 2500);
+    }
 </script>

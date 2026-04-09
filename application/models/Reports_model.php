@@ -655,23 +655,136 @@ class Reports_model extends CI_Model {
    
     public function get_duplicate_qr_code()
     {
+        // First query to get duplicates with proper GROUP_CONCAT
         $sql = "SELECT
-                    child_health_master.qr_code,
-                    GROUP_CONCAT(child_health_master.master_id ORDER BY child_health_master.master_id)            AS master_ids,
-                    GROUP_CONCAT(child_health_master.patient_name ORDER BY child_health_master.master_id)         AS names,
-                    GROUP_CONCAT(child_health_master.dob         ORDER BY child_health_master.master_id)          AS dobs,
-                    GROUP_CONCAT(child_health_master.guardian_name ORDER BY child_health_master.master_id)        AS guardians,
-                    COUNT(DISTINCT child_health_master.patient_name)                                              AS name_count,
-                    GROUP_CONCAT(DISTINCT users.full_name)                                                        AS reported_by
-                FROM child_health_master
-                INNER JOIN users ON child_health_master.created_by = users.user_id
-                WHERE child_health_master.qr_code NOT LIKE '%Supplementary%'
-                GROUP BY child_health_master.qr_code
-                HAVING COUNT(DISTINCT child_health_master.patient_name) > 1
-                ORDER BY COUNT(DISTINCT child_health_master.patient_name) DESC";
+                    chm.qr_code,
+                    GROUP_CONCAT(chm.master_id SEPARATOR ',')                      AS master_ids,
+                    GROUP_CONCAT(chm.patient_name SEPARATOR ',')                   AS names,
+                    GROUP_CONCAT(chm.dob SEPARATOR ',')                            AS dobs,
+                    GROUP_CONCAT(chm.guardian_name SEPARATOR ',')                  AS guardians,
+                    COUNT(DISTINCT chm.patient_name)                              AS name_count,
+                    GROUP_CONCAT(DISTINCT u.full_name SEPARATOR ',')             AS reported_by
+                FROM child_health_master chm
+                INNER JOIN users u ON chm.created_by = u.user_id
+                WHERE chm.qr_code NOT LIKE '%Supplementary%'
+                AND chm.verification_status != 'Wrong QR'
+                GROUP BY chm.qr_code
+                HAVING COUNT(DISTINCT chm.patient_name) > 1
+                ORDER BY COUNT(DISTINCT chm.patient_name) DESC";
 
         $query = $this->db->query($sql);
         return $query->result_array();
+    }
+    
+    public function get_neir_report($filters)
+    {
+        // 1. Load only question_id 5, 6, 7 (vaccine questions for NEIR)
+        $questions = $this->db
+            ->where('status', 1)
+            ->where('form_type', 'chf')
+            ->where_in('question_id', array(5, 6, 7))
+            ->order_by('q_order', 'ASC')
+            ->get('questions')
+            ->result_array();
+
+        // 2. Build unique vaccine columns by option_text
+        //    Same vaccine name (e.g. "OPV I") may appear in multiple questions
+        //    → merge them into ONE column, counting children who got it in ANY question
+        $unique_vaccines = array();   // [ safe_key => [ 'label'=>'BCG', 'oids'=>[1,2,...] ] ]
+
+        foreach ($questions as $q) {
+            $qid = (int) $q['question_id'];
+
+            $options = $this->db
+                ->where('question_id', $qid)
+                ->order_by('option_order', 'ASC')
+                ->get('question_options')
+                ->result_array();
+
+            foreach ($options as $opt) {
+                $oid   = (int) $opt['option_id'];
+                $label = trim($opt['option_text']);
+                // safe column key: lower-case, spaces→underscore, strip special chars
+                $key   = 'vac_' . preg_replace('/[^a-z0-9_]/', '', strtolower(str_replace(' ', '_', $label)));
+
+                if (!isset($unique_vaccines[$key])) {
+                    $unique_vaccines[$key] = array('label' => $label, 'oids' => array());
+                }
+                $unique_vaccines[$key]['oids'][] = $oid;
+            }
+        }
+
+        // 3. Build SELECT snippet for each unique vaccine
+        $vaccine_selects = array();
+        foreach ($unique_vaccines as $col => $info) {
+            $oid_list          = implode(',', $info['oids']);
+            $vaccine_selects[] = "
+                COUNT(DISTINCT CASE WHEN chd.option_id IN ({$oid_list}) THEN chm.master_id END) AS `{$col}`
+            ";
+        }
+
+        $vaccine_sql = !empty($vaccine_selects) ? ', ' . implode(', ', $vaccine_selects) : '';
+
+        // 4. Main grouped query
+        $sql = "
+            SELECT
+                'Khyber Pukhtunkhwa'                                                                AS province,
+                'North Waziristan'                                                                  AS district,
+                IFNULL(u.uc, '')                                                                    AS uc,
+                IFNULL(f.facility_name, '')                                                         AS facility_name,
+                IFNULL(chm.age_group, '')                                                           AS age_group,
+                IFNULL(chm.vaccinator_name, '')                                                     AS vaccinator_name,
+                'Prime Foundation'                                                                  AS organization,
+                IFNULL(chm.visit_type, '')                                                          AS strategy,
+                COUNT(DISTINCT chm.master_id)                                                       AS children_enrolled,
+                COUNT(DISTINCT CASE WHEN chd.question_id IN (5,6,7) THEN chm.master_id END)         AS children_vaccinated
+                {$vaccine_sql}
+            FROM child_health_master chm
+            LEFT JOIN child_health_detail chd ON chd.master_id = chm.master_id
+            LEFT JOIN uc u                    ON u.pk_id       = chm.uc
+            LEFT JOIN facilities f            ON f.id          = chm.facility_id
+            WHERE 1=1
+        ";
+
+        $binds = array();
+
+        if (!empty($filters['start']) && !empty($filters['end'])) {
+            $sql    .= " AND chm.form_date >= ?";
+            $binds[] = $filters['start'];
+            $sql    .= " AND chm.form_date <= ?";
+            $binds[] = $filters['end'];
+        }
+
+        $sql .= "
+            GROUP BY
+                u.uc,
+                f.facility_name,
+                chm.age_group,
+                chm.vaccinator_name,
+                chm.visit_type
+            ORDER BY
+                u.uc            ASC,
+                f.facility_name ASC,
+                chm.age_group   ASC
+        ";
+
+        $query  = $this->db->query($sql, $binds);
+        $result = $query->result_array();
+
+        // 5. Grand Total per row = sum of all vaccine columns
+        foreach ($result as &$row) {
+            $grand = 0;
+            foreach (array_keys($unique_vaccines) as $col) {
+                $grand += (int) (isset($row[$col]) ? $row[$col] : 0);
+            }
+            $row['grand_total'] = $grand;
+        }
+        unset($row);
+
+        return array(
+            'data'    => $result,
+            'options' => $unique_vaccines,  // [ col_key => ['label'=>'BCG','oids'=>[...]] ]
+        );
     }
     
 }

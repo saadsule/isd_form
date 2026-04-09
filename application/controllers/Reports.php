@@ -303,6 +303,76 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/duplicate_qr_code', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+
+    public function mark_wrong_qr()
+    {
+        // Set header for JSON response
+        header('Content-Type: application/json');
+
+        // Method 1: Check for AJAX header (more reliable)
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                   strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+
+        // Method 2: Check if POST request
+        $isPost = ($this->input->method() === 'post');
+
+        // Debug log (remove after testing)
+        log_message('info', 'AJAX Request - isAjax: ' . ($isAjax ? 'true' : 'false') . ', isPost: ' . ($isPost ? 'true' : 'false'));
+
+        // Accept request if either is true (more lenient)
+        if (!$isPost) {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Only POST method allowed']);
+            return;
+        }
+
+        $master_id = $this->input->post('master_id');
+
+        // Debug log
+        log_message('info', 'Master ID received: ' . $master_id);
+
+        // Validate master_id
+        if (empty($master_id)) {
+            echo json_encode(['success' => false, 'message' => 'Master ID is required']);
+            return;
+        }
+
+        if (!is_numeric($master_id)) {
+            echo json_encode(['success' => false, 'message' => 'Master ID must be numeric']);
+            return;
+        }
+
+        // Get user ID from session
+        $user_id = $this->session->userdata('user_id');
+
+        if (empty($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'User not logged in']);
+            return;
+        }
+
+        // Prepare data for update
+        $data = [
+            'report_reason' => 'Wrong QR',
+            'verification_status' => 'Reported',
+            'verified_by' => $user_id,
+            'verified_at' => date('Y-m-d H:i:s')
+        ];
+
+        // Debug log
+        log_message('info', 'Updating master_id: ' . $master_id . ' with status: Wrong QR');
+
+        // Update the record
+        $this->db->where('master_id', $master_id);
+        $success = $this->db->update('child_health_master', $data);
+
+        if ($success || $this->db->affected_rows() > 0) {
+            echo json_encode(['success' => true, 'message' => 'Marked as Wrong QR']);
+        } else {
+            $error = $this->db->error();
+            log_message('error', 'DB Error: ' . json_encode($error));
+            echo json_encode(['success' => false, 'message' => 'Database error: ' . $error['message']]);
+        }
+    }
     
     public function qr_code_report($qr_code, $form_type)
     {
@@ -531,5 +601,29 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/vaccination_detail', $data, true);
         $this->load->view('layout/main', $data);
     }
+    
+    public function neir_report()
+{
+    $this->load->model('Reports_model');
+ 
+    $start = $this->input->post('start_date') ?: $this->input->get('start_date');
+    $end   = $this->input->post('end_date')   ?: $this->input->get('end_date');
+ 
+    $filters = array();
+    if ($start) $filters['start'] = $start;
+    if ($end)   $filters['end']   = $end;
+ 
+    $result = $this->Reports_model->get_neir_report($filters);
+ 
+    $data = array(
+        'records'    => $result['data'],
+        'options'    => $result['options'],   // [ col_key => ['label'=>..., 'oids'=>[...]] ]
+        'start_date' => $start,
+        'end_date'   => $end,
+    );
+ 
+    $data['main_content'] = $this->load->view('reports/neir_report', $data, TRUE);
+    $this->load->view('layout/main', $data);
+}
 
 }

@@ -185,6 +185,20 @@ $default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
         </div>
     </div>
 
+    <!-- Data Mode Toggle -->
+    <div class="col-md-12 mt-1">
+        <label class="mr-3">Data Mode:</label>
+        <?php $data_mode = isset($filters['data_mode']) ? $filters['data_mode'] : 'unique'; ?>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="data_mode" id="mode_unique" value="unique" <?= $data_mode == 'unique' ? 'checked' : '' ?>>
+            <label class="form-check-label" for="mode_unique">Unique QR Only</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="data_mode" id="mode_all" value="all" <?= $data_mode == 'all' ? 'checked' : '' ?>>
+            <label class="form-check-label" for="mode_all">All Records</label>
+        </div>
+    </div>
+    
     <!-- Buttons -->
     <div class="col-md-12 mt-2 m-b-15 d-flex justify-content-end">
         <button type="submit" class="btn btn-success btn-sm">View Data</button>
