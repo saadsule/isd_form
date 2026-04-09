@@ -503,9 +503,7 @@ class Reports_model extends CI_Model {
         $this->db->group_end();
     }
 
-    $this->db->order_by('rv.module_name', 'ASC');
-    $this->db->order_by('rv.master_id',   'ASC');
-    $this->db->order_by('rv.created_at',  'ASC');
+    $this->db->order_by('rv.id',   'DESC');
 
     $records = $this->db->get()->result_array();
 
