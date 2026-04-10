@@ -77,7 +77,9 @@ public function get_child_master_ajax()
     
     // Fetch the record
     $record = $this->db
-        ->select('master_id, patient_name, guardian_name, dob, age_year, age_month, age_day, gender, marital_status, pregnancy_status, disability')
+        ->select('master_id, patient_name, guardian_name, dob, age_year, age_month, age_day, 
+                  gender, marital_status, pregnancy_status, disability,
+                  uc, village, play_learning_kit, nutrition_package')  // ← add these
         ->from('child_health_master')
         ->where('master_id', $master_id)
         ->get()
@@ -97,7 +99,11 @@ public function get_child_master_ajax()
                 'gender' => $record->gender,
                 'marital_status' => $record->marital_status,
                 'pregnancy_status' => $record->pregnancy_status,
-                'disability' => $record->disability
+                'disability' => $record->disability,
+                'uc'               => $record->uc,
+                'village'          => $record->village,   
+                'play_learning_kit'=> $record->play_learning_kit,
+                'nutrition_package'=> $record->nutrition_package, 
             ]
         ]);
     } else {
