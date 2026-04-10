@@ -41,6 +41,7 @@ public function check_qr_code()
         ->select('master_id, form_date, client_type, patient_name, guardian_name, dob, age_year, age_month, age_day, gender, district, uc, village, facility_id, vaccinator_name')
         ->from('child_health_master')
         ->where('qr_code', $qr_code)
+        ->group_by('patient_name')  // Shows only 1 record per patient
         ->order_by('form_date', 'DESC')
         ->get()
         ->result();
@@ -79,7 +80,7 @@ public function get_child_master_ajax()
     $record = $this->db
         ->select('master_id, patient_name, guardian_name, dob, age_year, age_month, age_day, 
                   gender, marital_status, pregnancy_status, disability,
-                  uc, village, play_learning_kit, nutrition_package')  // ← add these
+                  uc, village, play_learning_kit, nutrition_package, facility_id, visit_type')  // ← add these
         ->from('child_health_master')
         ->where('master_id', $master_id)
         ->get()
@@ -104,6 +105,8 @@ public function get_child_master_ajax()
                 'village'          => $record->village,   
                 'play_learning_kit'=> $record->play_learning_kit,
                 'nutrition_package'=> $record->nutrition_package, 
+                'facility_id' => $record->facility_id, 
+                'visit_type' => $record->visit_type,
             ]
         ]);
     } else {

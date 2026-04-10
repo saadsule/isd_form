@@ -783,7 +783,9 @@ $(document).ready(function () {
 
         /* Reset UC select and client_type */
         $('#uc').val('');
+        $('#facility').val('');
         $('[name="client_type"]').prop('checked', false);
+        $('[name="visit_type"]').prop('checked', false);
     }
 
     /* ─────────────────────────────────────────────
@@ -856,6 +858,13 @@ $(document).ready(function () {
 
                 var rec = resp.data;
 
+                /* Select visit type from database (keep selectable) */
+                if(rec.visit_type){
+                    $('input[name="visit_type"][value="'+esc(rec.visit_type)+'"]').prop('checked', true);
+                    /* Don't disable - user can still change it */
+                    toggleFacility();
+                }
+
                 /* Populate */
                 populateFields(rec);
                 autoSelectAgeGroup(rec.age_year);
@@ -902,25 +911,63 @@ $(document).ready(function () {
         if(rec.play_learning_kit) $('[name="play_learning_kit"][value="'+esc(rec.play_learning_kit)+'"]').prop('checked',true);
         if(rec.nutrition_package) $('[name="nutrition_package"][value="'+esc(rec.nutrition_package)+'"]').prop('checked',true);
 
-        /* UC: needs AJAX to load options first, then select the saved value */
+        /* UC + FACILITY: Load both and select saved values */
         if(rec.uc){
             var districtId = $('#district').val();
             $.ajax({
                 url: "<?= base_url('forms/get_uc_by_district') ?>",
-                type: 'POST', data: { district_id: districtId }, dataType: 'json',
+                type: 'POST', 
+                data: { district_id: districtId }, 
+                dataType: 'json',
                 success: function(data){
                     $('#uc').html('<option value="">Select UC</option>');
                     $.each(data, function(i,o){
                         $('#uc').append('<option value="'+o.pk_id+'">'+o.uc+'</option>');
                     });
                     $('#uc').val(rec.uc);
+
+                    /* After UC is set, load facilities with the facility ID */
+                    if(rec.uc){
+                        setTimeout(function(){
+                            loadFacilitiesForRecord(rec.uc, rec.facility_id);
+                        }, 100);
+                    }
                 }
             });
         }
     }
 
     /* ─────────────────────────────────────────────
-       Lock only fields that have a real value
+       Load facilities for a record
+       (Used when loading records via QR code)
+    ───────────────────────────────────────────── */
+    function loadFacilitiesForRecord(uc_id, sel_fac){
+        if(!uc_id){ 
+            $('#facility').html('<option value="">Select Facility</option>'); 
+            return; 
+        }
+
+        $.ajax({
+            url:'<?= base_url("forms/get_facilities_by_uc") ?>', 
+            type:'POST',
+            data:{ uc_id: uc_id }, 
+            dataType:'json',
+            success: function(data){
+                $('#facility').html('<option value="">Select Facility</option>');
+                $.each(data, function(i,f){
+                    $('#facility').append('<option value="'+f.id+'">'+f.facility_name+'</option>');
+                });
+
+                /* Set selected facility AFTER all options are loaded */
+                if(sel_fac){
+                    $('#facility').val(sel_fac);
+                }
+            }
+        });
+    }
+
+    /* ─────────────────────────────────────────────
+       Lock fields with special handling for facility
     ───────────────────────────────────────────── */
     function lockFieldsWithValues(rec){
         unlockAllLockedFields();
@@ -939,7 +986,7 @@ $(document).ready(function () {
             village       : rec.village
         };
 
-        /* ── TEXT / NUMBER fields: use readonly (disabled won't submit!) ── */
+        /* ── TEXT / NUMBER fields: use readonly ── */
         $.each(textMap, function(fname, fval){
             if(fval !== '' && fval !== null && fval !== undefined){
                 $('[name="'+fname+'"]')
@@ -949,7 +996,7 @@ $(document).ready(function () {
             }
         });
 
-        /* ── RADIO/SELECT groups: disabled won't submit, so we add a hidden input ── */
+        /* ── RADIO/SELECT groups ── */
         var radioMap = {
             age_group        : rec.age_group,
             gender           : rec.gender,
@@ -982,6 +1029,21 @@ $(document).ready(function () {
             }
         });
 
+        /* SPECIAL HANDLING FOR FACILITY:
+           Only lock if visit_type is "Fixed Site" */
+        if(rec.facility_id && rec.facility_id !== '' && rec.visit_type === 'Fixed Site'){
+            /* Record was saved with Fixed Site + Facility → Lock it */
+            $('[name="facility_id"]')
+                .prop('disabled', true)
+                .addClass('field-locked');
+            
+            $('<input>')
+                .attr({ type:'hidden', name: 'facility_id', value: rec.facility_id, id: 'hidden_lock_facility_id' })
+                .appendTo('#chf-form');
+            lockedCount++;
+        }
+        /* If visit_type is "Outreach", facility field will be hidden by toggleFacility() */
+
         if(lockedCount > 0){
             var indicator = $(
                 '<div id="lock-indicator" class="lock-indicator">' +
@@ -994,8 +1056,7 @@ $(document).ready(function () {
     }
 
     /* ─────────────────────────────────────────────
-       Unlock: remove readonly, re-enable radios,
-       and remove any injected hidden inputs
+       Unlock function
     ───────────────────────────────────────────── */
     function unlockAllLockedFields(){
         /* Text / number → remove readonly */
@@ -1006,7 +1067,7 @@ $(document).ready(function () {
 
         /* Radios/selects → re-enable and remove hidden mirrors */
         ['age_group','gender','marital_status','pregnancy_status','disability',
-         'play_learning_kit','nutrition_package','uc']
+         'play_learning_kit','nutrition_package','uc','facility_id']
             .forEach(function(fname){
                 $('[name="'+fname+'"]').prop('disabled', false).removeClass('field-locked');
                 $('#hidden_lock_'+fname).remove();
@@ -1054,65 +1115,105 @@ $(document).ready(function () {
     /* ─────────────────────────────────────────────
        District → UC → Facility chained dropdowns
     ───────────────────────────────────────────── */
-    var selected_facility = <?= isset($rec->facility_id) ? json_encode($rec->facility_id) : '""' ?>;
+    var selected_facility = <?= isset($rec->facility_id) ? json_encode($rec->facility_id) : 'null' ?>;
     var selected_uc       = "<?= isset($rec->uc) ? $rec->uc : '' ?>";
 
-    function loadUC(district_id, sel_uc){
+    function loadUC(district_id, sel_uc, sel_fac){
+        if(!district_id){ 
+            $('#uc').html('<option value="">Select UC</option>');
+            $('#facility').html('<option value="">Select Facility</option>');
+            return; 
+        }
+        
         $.ajax({
-            url:'<?= base_url("forms/get_uc_by_district") ?>', type:'POST',
-            data:{ district_id: district_id }, dataType:'json',
+            url:'<?= base_url("forms/get_uc_by_district") ?>', 
+            type:'POST',
+            data:{ district_id: district_id }, 
+            dataType:'json',
             success: function(data){
                 $('#uc').html('<option value="">Select UC</option>');
-                $.each(data, function(i,o){ $('#uc').append('<option value="'+o.pk_id+'">'+o.uc+'</option>'); });
-                if(sel_uc){ $('#uc').val(sel_uc); loadFacilities(sel_uc, selected_facility); }
+                $.each(data, function(i,o){ 
+                    $('#uc').append('<option value="'+o.pk_id+'">'+o.uc+'</option>'); 
+                });
+                
+                if(sel_uc){
+                    $('#uc').val(sel_uc);
+                    setTimeout(function(){
+                        loadFacilities(sel_uc, sel_fac);
+                    }, 100);
+                }
             }
         });
     }
 
     function loadFacilities(uc_id, sel_fac){
-        if(!uc_id){ $('#facility').html('<option value="">Select Facility</option>'); return; }
+        if(!uc_id){ 
+            $('#facility').html('<option value="">Select Facility</option>'); 
+            return; 
+        }
         $.ajax({
-            url:'<?= base_url("forms/get_facilities_by_uc") ?>', type:'POST',
-            data:{ uc_id: uc_id }, dataType:'json',
+            url:'<?= base_url("forms/get_facilities_by_uc") ?>', 
+            type:'POST',
+            data:{ uc_id: uc_id }, 
+            dataType:'json',
             success: function(data){
                 $('#facility').html('<option value="">Select Facility</option>');
                 $.each(data, function(i,f){
-                    $('#facility').append('<option value="'+f.id+'"'+(f.id==sel_fac?' selected':'')+'>'+f.facility_name+'</option>');
+                    $('#facility').append('<option value="'+f.id+'">'+f.facility_name+'</option>');
                 });
+                
+                if(sel_fac){
+                    $('#facility').val(sel_fac);
+                }
             }
         });
     }
 
     var init_district = $('#district').val();
-    if(init_district){ loadUC(init_district, selected_uc); }
+    if(init_district){ 
+        loadUC(init_district, selected_uc, selected_facility); 
+    }
 
-    $('#uc').on('change', function(){ loadFacilities($(this).val(), ''); });
+    $('#district').on('change', function(){ 
+        loadUC($(this).val(), '', null); 
+    });
+
+    $('#uc').on('change', function(){ 
+        loadFacilities($(this).val(), null); 
+    });
 
     /* ─────────────────────────────────────────────
-       Facility field visibility based on visit_type
+       Facility field visibility & edit logic
     ───────────────────────────────────────────── */
     function toggleFacility(){
-        $('input[name="visit_type"]:checked').val() === 'Fixed Site'
-            ? $('#facility-field').show()
-            : $('#facility-field').hide();
+        var visitType = $('input[name="visit_type"]:checked').val();
+        var facilityField = $('#facility-field');
+        var facilitySelect = $('[name="facility_id"]');
+        
+        if(visitType === 'Fixed Site'){
+            /* Show facility field */
+            facilityField.show();
+            
+            /* Check if facility was previously locked (from loaded record) */
+            var isLocked = facilitySelect.is(':disabled') && facilitySelect.hasClass('field-locked');
+            
+            if(!isLocked){
+                /* If not locked, make it fully editable */
+                facilitySelect.prop('disabled', false).removeClass('field-locked');
+            }
+            /* If it was locked, keep it locked (grey) */
+        } else {
+            /* Hide facility field for Outreach */
+            facilityField.hide();
+        }
     }
-    toggleFacility();
-    $('input[name="visit_type"]').on('change', toggleFacility);
 
-    /* ─────────────────────────────────────────────
-       DOB → auto-calculate age
-    ───────────────────────────────────────────── */
-    $('#dob').on('change', function(){
-        if(!this.value) return;
-        var dob   = new Date(this.value);
-        var today = new Date();
-        var y = today.getFullYear() - dob.getFullYear();
-        var m = today.getMonth()    - dob.getMonth();
-        var d = today.getDate()     - dob.getDate();
-        if(d < 0){ m--; d += new Date(today.getFullYear(), today.getMonth(), 0).getDate(); }
-        if(m < 0){ y--; m += 12; }
-        $('#age_year').val(y); $('#age_month').val(m); $('#age_day').val(d);
-        autoSelectAgeGroup(y);
+    /* Initialize on page load */
+    toggleFacility();
+
+    /* When user manually changes visit_type */
+    $('input[name="visit_type"]').on('change', function(){
+        toggleFacility();
     });
 
     /* ─────────────────────────────────────────────
