@@ -18,7 +18,7 @@ $unique_forms = isset($report['unique_forms'])   ? $report['unique_forms']   : 0
             <div class="card-body py-3 px-4">
                 <div class="row text-center">
                     <div class="col-4 border-right">
-                        <div style="font-size:11px; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">Total Forms</div>
+                        <div style="font-size:11px; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">Total Reviews</div>
                         <div style="font-size:24px; font-weight:700; color:#0f1c3f;"><?= $unique_forms ?></div>
                     </div>
                     <div class="col-4 border-right">
@@ -26,7 +26,7 @@ $unique_forms = isset($report['unique_forms'])   ? $report['unique_forms']   : 0
                         <div style="font-size:24px; font-weight:700; color:#28a745;"><?= $verified ?></div>
                     </div>
                     <div class="col-4">
-                        <div style="font-size:11px; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">Reported</div>
+                        <div style="font-size:11px; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">Reported Data Issue</div>
                         <div style="font-size:24px; font-weight:700; color:#dc3545;"><?= $reported ?></div>
                     </div>
                 </div>
@@ -44,11 +44,11 @@ $unique_forms = isset($report['unique_forms'])   ? $report['unique_forms']   : 0
                     <tr>
                         <th>#</th>
                         <th>Module</th>
-                        <th>Master ID</th>
-                        <th>Form Created By</th>
+                        <th>Tracking ID</th>
+                        <th>Data Entry By</th>
                         <th>Status</th>
                         <th>Remarks</th>
-                        <th>Verified By</th>
+                        <th>Reviewed By</th>
                         <th>Time</th>
                         <th>Action</th>
                     </tr>
