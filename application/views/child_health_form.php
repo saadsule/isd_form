@@ -819,17 +819,6 @@ $(document).ready(function () {
                 '</div>';
         });
 
-        /* "Start as new" option at the bottom */
-        html +=
-            '<div class="qr-hint-row" id="qr_new_row" style="background:#f8f9fa;border-top:2px solid #dee2e6;">' +
-            '  <span style="color:#28a745;font-weight:700;">＋</span>' +
-            '  <div>' +
-            '    <div style="font-weight:700;color:#28a745;">Start a new record with this QR</div>' +
-            '    <div style="font-size:12px;color:#6c757d;">All fields will be open for entry</div>' +
-            '  </div>' +
-            '  <span style="margin-left:auto;font-size:12px;color:#28a745;">Click to start →</span>' +
-            '</div>';
-
         $('#qr-records-body').html(html);
         $('#qr-list-title').text(records.length + ' previous record(s) found — click a row to load or start new:');
         $('#qr-records-list').slideDown(200);
