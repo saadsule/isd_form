@@ -122,10 +122,10 @@ public function get_child_master_ajax()
 
         // Get all questions for this form type
         $data['questions'] = $this->Questions_model->get_all_questions_by_form_type('chf');
-
+        
         // Load districts
         $data['districts'] = $this->Location_model->get_districts();
-
+        
         $data['facilities'] = [];
         // ================= EDIT MODE =================
         if ($id != null) 
@@ -133,18 +133,23 @@ public function get_child_master_ajax()
             $record = $this->Forms_model->get_child_master($id); 
 
             // SECURITY CHECK
-            if ($record->created_by != $this->session->userdata('user_id') &&
-                $this->session->userdata('role') != 'admin') {
+            // Allow: record owner, admin role, or role 5 (supervisor/manager)
+            $user_role = $this->session->userdata('role');
+            $user_id = $this->session->userdata('user_id');
+
+            if ($record->created_by != $user_id && 
+                $user_role != 'admin' && 
+                $user_role != 5) {
                 show_error('Unauthorized access', 403);
             }
 
             // Attach detail answers to the master record
             $record->question = $this->Forms_model->get_child_details($id);
-
+            
             $data['record'] = $record; // now $rec->question exists in view
             $data['is_edit'] = true;
             $data['page_title'] = "Edit Child Health Form";
-            
+
             // Load facilities for the saved UC
             if(isset($record->uc) && $record->uc != ''){
                 $data['facilities'] = $this->Location_model->get_facilities_by_uc($record->uc);
@@ -157,8 +162,7 @@ public function get_child_master_ajax()
             $data['is_edit'] = false;
             $data['page_title'] = "Child Health Form";
         }
-
-
+        
         // Load the view
         $data['main_content'] = $this->load->view('child_health_form', $data, TRUE);
         $this->load->view('layout/main', $data);
@@ -346,12 +350,21 @@ public function get_child_master_ajax()
     {
         $this->load->database();
 
-        // ✅ SECURITY CHECK: Only creator can update
+        // ✅ SECURITY CHECK: Creator, admin, or role 5 can update
+        $user_id = $this->session->userdata('user_id');
+        $user_role = $this->session->userdata('role');
+        
         $this->db->where('master_id', $master_id);
-        $this->db->where('created_by', $this->session->userdata('user_id'));
         $check = $this->db->get('child_health_master')->row();
 
         if (!$check) {
+            show_error('Record not found', 404);
+        }
+
+        // Allow: creator, admin, or role 5 (supervisor/manager)
+        if ($check->created_by != $user_id && 
+            $user_role != 'admin' && 
+            $user_role != 5) {
             show_error('Unauthorized access', 403);
         }
 
@@ -522,9 +535,9 @@ public function get_child_master_ajax()
         $this->load->model('Questions_model');
         $this->load->model('Location_model');
         $this->load->model('Forms_model');
-        
+
         $data['questions'] = $this->Questions_model->get_all_questions_by_form_type('opd');
-        
+
         // Load districts
         $data['districts'] = $this->Location_model->get_districts();
 
@@ -535,11 +548,16 @@ public function get_child_master_ajax()
             $record = $this->Forms_model->get_opd_master($id);
 
             // SECURITY CHECK
+            // Allow: record owner, admin role, or role 5 (supervisor/manager)
+            $user_role = $this->session->userdata('role');
+            $user_id = $this->session->userdata('user_id');
+
             if(
-                $record->created_by != $this->session->userdata('user_id')
-                && $this->session->userdata('role') != 'admin'
+                $record->created_by != $user_id
+                && $user_role != 'admin'
+                && $user_role != 5
             ){
-                show_error('Unauthorized access',403);
+                show_error('Unauthorized access', 403);
             }
 
             $data['record'] = $record;
@@ -547,7 +565,7 @@ public function get_child_master_ajax()
 
             $data['page_title'] = "Edit OPD MNCH Form";
             $data['is_edit'] = true;
-            
+
             // Load facilities for the saved UC
             if(isset($record->uc) && $record->uc != ''){
                 $data['facilities'] = $this->Location_model->get_facilities_by_uc($record->uc);
@@ -559,7 +577,7 @@ public function get_child_master_ajax()
             $data['is_edit'] = false;
             $data['page_title'] = "OPD MNCH Form";
         }
-        
+
         $data['page_title'] = "OPD MNCH Form";        
         $data['main_content'] = $this->load->view('opd_mnch_form', $data, TRUE);
         $this->load->view('layout/main', $data);
@@ -742,6 +760,24 @@ public function get_child_master_ajax()
     {
         $this->db->trans_start();
 
+        // ✅ SECURITY CHECK: Creator, admin, or role 5 can update
+        $user_id = $this->session->userdata('user_id');
+        $user_role = $this->session->userdata('role');
+
+        $this->db->where('id', $master_id);
+        $check = $this->db->get('opd_mnch_master')->row();
+
+        if(!$check){
+            show_error('Record not found', 404);
+        }
+
+        // Allow: creator, admin, or role 5 (supervisor/manager)
+        if($check->created_by != $user_id && 
+           $user_role != 'admin' && 
+           $user_role != 5){
+            show_error('Unauthorized access', 403);
+        }
+
         // ---------- MASTER UPDATE ----------
         $master = [
 
@@ -769,14 +805,6 @@ public function get_child_master_ajax()
 
             'notes' => $this->input->post('notes')
         ];
-
-        $this->db->where('id', $master_id);
-        $this->db->where('created_by', $this->session->userdata('user_id'));
-        $check = $this->db->get('opd_mnch_master')->row();
-
-        if(!$check){
-            show_error('Unauthorized access');
-        }
 
         $this->db->where('id', $master_id);
         $this->db->update('opd_mnch_master', $master);

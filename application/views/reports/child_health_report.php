@@ -219,10 +219,20 @@
             <a href="<?= base_url('forms/view_child_health/'.$r->master_id) ?>" class="btn btn-tone btn-success mr-1" title="View">
                 <i class="fa fa-eye"></i>
             </a>
-            <?php if($this->session->userdata('user_id') == $r->created_by): ?>
-            <a href="<?= base_url('forms/child_health/'.$r->master_id) ?>" class="btn btn-tone btn-primary" title="Edit">
-                <i class="fa fa-edit"></i>
-            </a>
+            
+            <?php 
+                $user_id = $this->session->userdata('user_id');
+                $user_role = $this->session->userdata('role');
+
+                $can_edit = ($user_id == $r->created_by) || 
+                            ($user_role == 'admin') || 
+                            ($user_role == 5);
+
+                if($can_edit): 
+            ?>
+                <a href="<?= base_url('forms/child_health/'.$r->master_id) ?>" class="btn btn-tone btn-primary" title="Edit">
+                    <i class="fa fa-edit"></i>
+                </a>
             <?php endif; ?>
             
             <div style="font-size: 9px; color: #555; margin-top: 2px;">

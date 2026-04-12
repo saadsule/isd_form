@@ -198,10 +198,19 @@
             <i class="fa fa-eye"></i>
         </a>
 
-        <?php if($this->session->userdata('user_id') == $r->created_by): ?>
-        <a href="<?= base_url('forms/opd_mnch/'.$r->id) ?>" class="btn btn-tone btn-primary" title="Edit">
-            <i class="fa fa-edit"></i>
-        </a>
+        <?php 
+            $user_id = $this->session->userdata('user_id');
+            $user_role = $this->session->userdata('role');
+
+            $can_edit = ($user_id == $r->created_by) || 
+                        ($user_role == 'admin') || 
+                        ($user_role == 5);
+
+            if($can_edit): 
+        ?>
+            <a href="<?= base_url('forms/opd_mnch/'.$r->id) ?>" class="btn btn-tone btn-primary" title="Edit">
+                <i class="fa fa-edit"></i>
+            </a>
         <?php endif; ?>
         
     </td>

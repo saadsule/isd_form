@@ -4,7 +4,7 @@
 
             <?php $role = $this->session->userdata('role'); ?>
 
-            <?php if(!in_array($role, [1,3])): ?>
+            <?php if(!in_array($role, [1,3,5])): ?>
             <li class="<?= ($this->uri->segment(2) == 'map_view') ? 'active' : '' ?>">
                 <a href="<?= base_url('dashboard/map_view'); ?>">
                     <span class="icon-holder">
@@ -45,7 +45,7 @@
             <?php endif; ?>
             
             <!-- Dashboard (exclude role 1) -->
-            <?php if(!in_array($role, [1,3])): ?>
+            <?php if(!in_array($role, [1,3,5])): ?>
             <li class="nav-item dropdown 
                 <?= ($this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'opd_mnch_health' || 
                     $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health' || $this->uri->segment(2) == 'view_health_data' || 
@@ -119,7 +119,7 @@
             <?php endif; ?>
 
             <!-- Data Entry & View Data (role 1 & role 3) -->
-            <?php if(in_array($role, [1])): ?>
+            <?php if(in_array($role, [1,5])): ?>
                 <!-- Data Entry -->
                 <li class="nav-item dropdown 
                     <?= ($this->uri->segment(2) == 'opd_mnch' || $this->uri->segment(2) == 'child_health') ? 'open' : '' ?>">
@@ -150,7 +150,7 @@
                 </li>
             <?php endif; ?>
 
-            <?php if(in_array($role, [1,2])): ?>
+            <?php if(in_array($role, [1,2,5])): ?>
                 <!-- View Data -->
                 <li class="nav-item dropdown 
                     <?= ($this->uri->segment(2) == 'opd_report' || $this->uri->segment(2) == 'child_health_report') ? 'open' : '' ?>">
