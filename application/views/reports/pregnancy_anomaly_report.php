@@ -1,39 +1,9 @@
 <?php
 $records = isset($records) ? $records : array();
 $summary = isset($summary) ? $summary : array();
-$filter  = isset($filter)  ? $filter  : null;
+$filter  = null; // force no filter
 $total   = isset($total)   ? $total   : 0;
 $view_base = rtrim(base_url(), '/') . '/forms/view_child_health/';
-
-$filter_cfg = array(
-    'male' => array(
-        'color'   => '#1a5276',
-        'border'  => '#2980b9',
-        'pill_bg' => '#d6eaf8',
-        'icon'    => 'fa-mars',
-        'label'   => 'Male + Pregnant',
-        'desc'    => 'Gender marked Male but Pregnant',
-        'key'     => 'male',
-    ),
-    'underage' => array(
-        'color'   => '#c0392b',
-        'border'  => '#e74c3c',
-        'pill_bg' => '#fde8e8',
-        'icon'    => 'fa-child',
-        'label'   => 'Under 18 + Pregnant',
-        'desc'    => 'Age below 18 but Pregnant',
-        'key'     => 'underage',
-    ),
-    'Un-Married' => array(
-        'color'   => '#b7770d',
-        'border'  => '#f39c12',
-        'pill_bg' => '#fef3cd',
-        'icon'    => 'fa-times-circle',
-        'label'   => 'Un-Married + Pregnant',
-        'desc'    => 'Marital status Un-Married but Pregnant',
-        'key'     => 'Un-Married',
-    ),
-);
 
 function getIssueReasons($row) {
     $issues = array();
@@ -94,23 +64,6 @@ function ageDisplayPA($row) {
     text-overflow: ellipsis;
     max-width: 115px;
 }
-.pa-stat-card {
-    display: block;
-    text-decoration: none;
-    border-radius: 10px;
-    transition: transform .2s, box-shadow .2s;
-    color: inherit;
-    border-left: 5px solid;
-}
-.pa-stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 18px rgba(0,0,0,.12) !important;
-    text-decoration: none;
-    color: inherit;
-}
-.pa-stat-card.is-active {
-    box-shadow: 0 0 0 3px rgba(0,0,0,.2), 0 4px 14px rgba(0,0,0,.1) !important;
-}
 .issue-tags-cell { line-height: 2; }
 .issue-tag-pa {
     display: inline-block;
@@ -136,65 +89,7 @@ function ageDisplayPA($row) {
                     Records marked as Pregnant but with conflicting demographic data
                 </p>
             </div>
-            <?php if ($filter): ?>
-                <a href="<?= base_url('reports/pregnancy_anomaly') ?>"
-                   class="btn btn-default btn-sm">
-                    <i class="fa fa-times"></i> Clear Filter
-                </a>
-            <?php endif; ?>
         </div>
-    </div>
-
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-
-        <!-- All -->
-        <div class="col-md-3 col-sm-6 mb-3">
-            <a href="<?= base_url('reports/pregnancy_anomaly') ?>"
-               class="pa-stat-card card <?= !$filter ? 'is-active' : '' ?>"
-               style="border-left-color:#c0392b;">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="mr-3" style="width:46px;height:46px;border-radius:50%;background:#fde8e8;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fa fa-list" style="color:#c0392b;font-size:1.2rem;"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted" style="font-size:.74rem;">All Anomalies</div>
-                            <div style="font-size:1.8rem;font-weight:800;color:#c0392b;line-height:1;">
-                                <?= isset($summary['total']) ? $summary['total'] : 0 ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <?php foreach ($filter_cfg as $fkey => $fcfg):
-            $fcount  = isset($summary[$fkey]) ? $summary[$fkey] : 0;
-            $is_active = ($filter === $fkey);
-        ?>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <a href="<?= base_url('reports/pregnancy_anomaly/' . $fkey) ?>"
-               class="pa-stat-card card <?= $is_active ? 'is-active' : '' ?>"
-               style="border-left-color:<?= $fcfg['border'] ?>;">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="mr-3" style="width:46px;height:46px;border-radius:50%;background:<?= $fcfg['pill_bg'] ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fa <?= $fcfg['icon'] ?>" style="color:<?= $fcfg['color'] ?>;font-size:1.2rem;"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted" style="font-size:.74rem;"><?= $fcfg['label'] ?></div>
-                            <div style="font-size:1.8rem;font-weight:800;color:<?= $fcfg['color'] ?>;line-height:1;">
-                                <?= $fcount ?>
-                            </div>
-                            <div style="font-size:.67rem;color:<?= $fcfg['color'] ?>;"><?= $fcfg['desc'] ?></div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <?php endforeach; ?>
-
     </div>
 
     <!-- Info -->
@@ -210,14 +105,7 @@ function ageDisplayPA($row) {
     <div class="card">
         <div class="card-header">
             <h5 class="card-title mb-0">
-                <?php if ($filter && isset($filter_cfg[$filter])): ?>
-                    <span style="color:<?= $filter_cfg[$filter]['color'] ?>;">
-                        <i class="fa <?= $filter_cfg[$filter]['icon'] ?>"></i>
-                        <?= $filter_cfg[$filter]['label'] ?> Records
-                    </span>
-                <?php else: ?>
-                    <i class="fa fa-table text-muted"></i> All Anomaly Records
-                <?php endif; ?>
+                <i class="fa fa-table text-muted"></i> All Anomaly Records
                 <span class="badge badge-danger ml-2"><?= $total ?></span>
             </h5>
         </div>
@@ -238,7 +126,6 @@ function ageDisplayPA($row) {
                             <th width="110">Entered By</th>
                             <th width="110">Vaccinator</th>
                             <th width="100">Village</th>
-                            <th width="85">Status</th>
                             <th width="60" class="text-center">View</th>
                         </tr>
                     </thead>
@@ -312,15 +199,6 @@ function ageDisplayPA($row) {
                             </td>
                             <td><?= htmlspecialchars($row['vaccinator_name'] ? $row['vaccinator_name'] : '—') ?></td>
                             <td><?= htmlspecialchars($row['village'] ? $row['village'] : '—') ?></td>
-                            <td>
-                                <?php if ($vs === 'verified'): ?>
-                                    <span class="badge badge-success"><i class="fa fa-check"></i> Verified</span>
-                                <?php elseif ($vs === 'rejected'): ?>
-                                    <span class="badge badge-danger"><i class="fa fa-times"></i> Rejected</span>
-                                <?php else: ?>
-                                    <span class="badge badge-warning"><i class="fa fa-clock-o"></i> Pending</span>
-                                <?php endif; ?>
-                            </td>
                             <td class="text-center">
                                 <a href="<?= $view_base . $row['master_id'] ?>" target="_blank"
                                    class="btn btn-sm btn-primary" title="View">
@@ -342,15 +220,12 @@ function ageDisplayPA($row) {
                 </table>
             </div>
         </div>
+
         <?php if ($total > 0): ?>
         <div class="card-footer text-muted text-right" style="font-size:.8rem;">
             Showing <?= $total ?> record<?= $total != 1 ? 's' : '' ?>
-            <?php if ($filter && isset($filter_cfg[$filter])): ?>
-                &mdash; filtered by: <?= $filter_cfg[$filter]['label'] ?>
-            <?php endif; ?>
         </div>
         <?php endif; ?>
     </div>
 
-</div>
 </div>

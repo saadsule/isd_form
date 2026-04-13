@@ -253,15 +253,18 @@
             <!-- Data Validation Reports -->
             <?php if(in_array($role, [2,5])): ?>
                 <li class="nav-item dropdown 
-                    <?= ($this->uri->segment(2) == 'age_antigens_mismatch_comprehensive' 
-                    || $this->uri->segment(2) == 'pregnancy_anomaly'
-                    || $this->uri->segment(2) == 'underage_married') ? 'open' : '' ?>">
+                    <?= (
+                        $this->uri->segment(2) == 'age_antigens_mismatch_comprehensive'
+                        || $this->uri->segment(2) == 'pregnancy_anomaly'
+                        || $this->uri->segment(2) == 'underage_married'
+                        || $this->uri->segment(2) == 'duplicate_qr_code'
+                    ) ? 'open' : '' ?>">
 
                     <a class="dropdown-toggle" href="javascript:void(0);">
                         <span class="icon-holder">
                             <i class="anticon anticon-file-text"></i>
                         </span>
-                        <span class="title">Data Validation</span>
+                        <span class="title">Data Anomalies</span>
                         <span class="arrow">
                             <i class="arrow-icon"></i>
                         </span>
@@ -269,12 +272,26 @@
 
                     <ul class="dropdown-menu">
 
-                        <li class="<?= ($this->uri->segment(2) == 'age_antigens_mismatch_comprehensive') ? 'active' : '' ?>">
-                            <a href="<?= base_url('reports/age_antigens_mismatch_comprehensive'); ?>">
-                                <span>Age Antigen Mismatch</span>
+                        <!-- AGE ANTIGEN (3 SEPARATE REPORT LINKS) -->
+                        <li class="<?= ($this->uri->segment(2) == 'age_antigens_mismatch_comprehensive' && $this->uri->segment(3) == '1') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/age_antigens_mismatch_comprehensive/1'); ?>">
+                                <span>Antigen <1 Year (Q18)</span>
                             </a>
                         </li>
 
+                        <li class="<?= ($this->uri->segment(2) == 'age_antigens_mismatch_comprehensive' && $this->uri->segment(3) == '2') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/age_antigens_mismatch_comprehensive/2'); ?>">
+                                <span>Antigen 1–2 Years (Q19)</span>
+                            </a>
+                        </li>
+
+                        <li class="<?= ($this->uri->segment(2) == 'age_antigens_mismatch_comprehensive' && $this->uri->segment(3) == '3') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/age_antigens_mismatch_comprehensive/3'); ?>">
+                                <span>Antigen 2–5 Years (Q20)</span>
+                            </a>
+                        </li>
+
+                        <!-- OTHER REPORTS -->
                         <li class="<?= ($this->uri->segment(2) == 'pregnancy_anomaly') ? 'active' : '' ?>">
                             <a href="<?= base_url('reports/pregnancy_anomaly'); ?>">
                                 <span>Pregnancy Anomaly</span>
@@ -284,6 +301,12 @@
                         <li class="<?= ($this->uri->segment(2) == 'underage_married') ? 'active' : '' ?>">
                             <a href="<?= base_url('reports/underage_married'); ?>">
                                 <span>Underage Married</span>
+                            </a>
+                        </li>
+
+                        <li class="<?= ($this->uri->segment(2) == 'duplicate_qr_code') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/duplicate_qr_code'); ?>">
+                                <span>Duplicate QR Code</span>
                             </a>
                         </li>
 

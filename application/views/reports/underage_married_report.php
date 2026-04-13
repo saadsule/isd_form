@@ -92,21 +92,6 @@ function ageDisplayUM($row) {
         </p>
     </div>
 
-    <!-- Stat Card -->
-    <div class="row mb-4">
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="stat-box-um">
-                <div class="stat-icon">
-                    <i class="fa fa-exclamation-triangle"></i>
-                </div>
-                <div>
-                    <div class="stat-num"><?= $total ?></div>
-                    <div class="stat-lbl">Underage Married Records Found</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Alert -->
     <div class="alert alert-danger mb-4">
         <strong><i class="fa fa-info-circle"></i> Issue:</strong>
@@ -140,7 +125,6 @@ function ageDisplayUM($row) {
                             <th width="110">Entered By</th>
                             <th width="110">Vaccinator</th>
                             <th width="100">Village</th>
-                            <th width="85">Status</th>
                             <th width="60" class="text-center">View</th>
                         </tr>
                     </thead>
@@ -194,15 +178,6 @@ function ageDisplayUM($row) {
                             </td>
                             <td><?= htmlspecialchars($row['vaccinator_name'] ? $row['vaccinator_name'] : '—') ?></td>
                             <td><?= htmlspecialchars($row['village'] ? $row['village'] : '—') ?></td>
-                            <td>
-                                <?php if ($vs === 'verified'): ?>
-                                    <span class="badge badge-success"><i class="fa fa-check"></i> Verified</span>
-                                <?php elseif ($vs === 'rejected'): ?>
-                                    <span class="badge badge-danger"><i class="fa fa-times"></i> Rejected</span>
-                                <?php else: ?>
-                                    <span class="badge badge-warning"><i class="fa fa-clock-o"></i> Pending</span>
-                                <?php endif; ?>
-                            </td>
                             <td class="text-center">
                                 <a href="<?= $view_base . $row['master_id'] ?>" target="_blank"
                                    class="btn btn-sm btn-primary" title="View">

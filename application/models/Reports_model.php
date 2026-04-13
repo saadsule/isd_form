@@ -789,7 +789,7 @@ public function get_age_antigens_mismatch_report($filter_type = null)
             chm.form_date,
             chm.created_at,
             chm.verification_status,
-            u.username AS data_entry_user,
+            u.full_name AS data_entry_user,
             CASE
                 WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5)
                      AND chm.age_group != '<1 year' THEN 'Type 1'
@@ -878,7 +878,7 @@ public function get_underage_married_records()
         chm.gender, chm.marital_status, chm.pregnancy_status,
         chm.vaccinator_name, chm.village, chm.form_date, chm.created_at,
         chm.verification_status,
-        u.username AS data_entry_user
+        u.full_name AS data_entry_user
     ');
     $this->db->from('child_health_master chm');
     $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
@@ -896,7 +896,7 @@ public function get_pregnancy_anomaly_records($filter = null)
         chm.gender, chm.marital_status, chm.pregnancy_status,
         chm.vaccinator_name, chm.village, chm.form_date, chm.created_at,
         chm.verification_status,
-        u.username AS data_entry_user
+        u.full_name AS data_entry_user
     ');
     $this->db->from('child_health_master chm');
     $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
