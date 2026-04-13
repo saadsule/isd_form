@@ -45,7 +45,7 @@
             <?php endif; ?>
             
             <!-- Dashboard (exclude role 1) -->
-            <?php if(!in_array($role, [1,3,5])): ?>
+            <?php if(!in_array($role, [3])): ?>
             <li class="nav-item dropdown 
                 <?= ($this->uri->segment(2) == 'export_health_data' || $this->uri->segment(2) == 'outreach' || $this->uri->segment(2) == 'opd_mnch_health' || 
                     $this->uri->segment(2) == 'fixedsite' || $this->uri->segment(2) == 'child_health' || $this->uri->segment(2) == 'view_health_data' || 
@@ -97,11 +97,13 @@
                         </a>
                     </li>-->
                     
-                    <li class="<?= ($this->uri->segment(2) == 'view_health_data') ? 'active' : '' ?>">
-                        <a href="<?= base_url('reports/view_health_data'); ?>">
-                            <span>View Raw Data</span>
-                        </a>
-                    </li>
+                    <?php if(!in_array($role, [1,5])){ ?>
+                        <li class="<?= ($this->uri->segment(2) == 'view_health_data') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/view_health_data'); ?>">
+                                <span>View Raw Data</span>
+                            </a>
+                        </li>
+                    <?php } ?>
                     
                     <li class="<?= ($this->uri->segment(2) == 'vaccination_simple') ? 'active' : '' ?>">
                         <a href="<?= base_url('reports/vaccination_simple'); ?>">
@@ -182,7 +184,7 @@
             <?php endif; ?>
 
             <!-- Reports -->
-            <?php if(in_array($role, [2,4])): ?>
+            <?php if(in_array($role, [1,2,4,5])): ?>
                 <li class="nav-item dropdown 
                     <?= ($this->uri->segment(2) == 'index' || $this->uri->segment(2) == 'validation_report'
                      || $this->uri->segment(2) == 'date_wise_progress'  || $this->uri->segment(2) == 'date_wise_form_progress' 
@@ -220,12 +222,14 @@
                                 </a>
                             </li>
                             
-                            <!-- role 2 & 3 see all reports -->
-                            <li class="<?= ($this->uri->segment(2) == 'date_wise_progress') ? 'active' : '' ?>">
-                                <a href="<?= base_url('reports/date_wise_progress'); ?>">
-                                    <span>Date Wise Progress</span>
-                                </a>
-                            </li>
+                            <!-- role 1 & 5 can not see this reports -->
+                            <?php if(!in_array($role, [1,5])){ ?>
+                                <li class="<?= ($this->uri->segment(2) == 'date_wise_progress') ? 'active' : '' ?>">
+                                    <a href="<?= base_url('reports/date_wise_progress'); ?>">
+                                        <span>Date Wise Progress</span>
+                                    </a>
+                                </li>
+                            <?php } ?>
                             
                         <?php endif; ?>
 
@@ -242,6 +246,47 @@
                                 <span>UC Wise Report</span>
                             </a>
                         </li>
+                    </ul>
+                </li>
+            <?php endif; ?>
+                
+            <!-- Data Validation Reports -->
+            <?php if(in_array($role, [2,5])): ?>
+                <li class="nav-item dropdown 
+                    <?= ($this->uri->segment(2) == 'age_antigens_mismatch_comprehensive' 
+                    || $this->uri->segment(2) == 'pregnancy_anomaly'
+                    || $this->uri->segment(2) == 'underage_married') ? 'open' : '' ?>">
+
+                    <a class="dropdown-toggle" href="javascript:void(0);">
+                        <span class="icon-holder">
+                            <i class="anticon anticon-file-text"></i>
+                        </span>
+                        <span class="title">Data Validation</span>
+                        <span class="arrow">
+                            <i class="arrow-icon"></i>
+                        </span>
+                    </a>
+
+                    <ul class="dropdown-menu">
+
+                        <li class="<?= ($this->uri->segment(2) == 'age_antigens_mismatch_comprehensive') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/age_antigens_mismatch_comprehensive'); ?>">
+                                <span>Age Antigen Mismatch</span>
+                            </a>
+                        </li>
+
+                        <li class="<?= ($this->uri->segment(2) == 'pregnancy_anomaly') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/pregnancy_anomaly'); ?>">
+                                <span>Pregnancy Anomaly</span>
+                            </a>
+                        </li>
+
+                        <li class="<?= ($this->uri->segment(2) == 'underage_married') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/underage_married'); ?>">
+                                <span>Underage Married</span>
+                            </a>
+                        </li>
+
                     </ul>
                 </li>
             <?php endif; ?>

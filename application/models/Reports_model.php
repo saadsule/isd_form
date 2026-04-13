@@ -772,4 +772,177 @@ class Reports_model extends CI_Model {
         );
     }
     
+public function get_age_antigens_mismatch_report($filter_type = null)
+{
+    $sql = "
+        SELECT
+            chm.master_id,
+            chm.qr_code,
+            chm.patient_name,
+            chm.guardian_name,
+            chm.dob,
+            chm.age_year,
+            chm.age_month,
+            chm.age_group,
+            chm.vaccinator_name,
+            chm.village,
+            chm.form_date,
+            chm.created_at,
+            chm.verification_status,
+            u.username AS data_entry_user,
+            CASE
+                WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5)
+                     AND chm.age_group != '<1 year' THEN 'Type 1'
+                WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 6)
+                     AND chm.age_group != '1-2 year' THEN 'Type 2'
+                WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 7)
+                     AND chm.age_group != '2-5 year' THEN 'Type 3'
+            END AS mismatch_type,
+            CASE
+                WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5)
+                     AND chm.age_group != '<1 year' THEN '<1 year'
+                WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 6)
+                     AND chm.age_group != '1-2 year' THEN '1-2 year'
+                WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 7)
+                     AND chm.age_group != '2-5 year' THEN '2-5 year'
+            END AS expected_age_group,
+            CASE
+                WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5)
+                     AND chm.age_group != '<1 year' THEN 'Q18'
+                WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 6)
+                     AND chm.age_group != '1-2 year' THEN 'Q19'
+                WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 7)
+                     AND chm.age_group != '2-5 year' THEN 'Q20'
+            END AS question_answered
+        FROM child_health_master chm
+        LEFT JOIN users u ON chm.created_by = u.user_id
+        WHERE
+            (
+                EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5)
+                AND chm.age_group != '<1 year'
+            )
+            OR (
+                EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 6)
+                AND chm.age_group != '1-2 year'
+            )
+            OR (
+                EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 7)
+                AND chm.age_group != '2-5 year'
+            )
+        ORDER BY chm.created_at DESC
+    ";
+
+    $all_records = $this->db->query($sql)->result_array();
+
+    $type1 = 0;
+    $type2 = 0;
+    $type3 = 0;
+
+    foreach ($all_records as $r) {
+        if ($r['mismatch_type'] === 'Type 1') {
+            $type1++;
+        } elseif ($r['mismatch_type'] === 'Type 2') {
+            $type2++;
+        } elseif ($r['mismatch_type'] === 'Type 3') {
+            $type3++;
+        }
+    }
+
+    if ($filter_type) {
+        $records = array();
+        foreach ($all_records as $r) {
+            if ($r['mismatch_type'] === $filter_type) {
+                $records[] = $r;
+            }
+        }
+    } else {
+        $records = $all_records;
+    }
+
+    return array(
+        'records' => $records,
+        'summary' => array(
+            'total_mismatches' => count($all_records),
+            'type_1_count'     => $type1,
+            'type_2_count'     => $type2,
+            'type_3_count'     => $type3,
+        )
+    );
+}
+
+public function get_underage_married_records()
+{
+    $this->db->select('
+        chm.master_id, chm.qr_code, chm.patient_name, chm.guardian_name,
+        chm.dob, chm.age_year, chm.age_month, chm.age_group,
+        chm.gender, chm.marital_status, chm.pregnancy_status,
+        chm.vaccinator_name, chm.village, chm.form_date, chm.created_at,
+        chm.verification_status,
+        u.username AS data_entry_user
+    ');
+    $this->db->from('child_health_master chm');
+    $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
+    $this->db->where('chm.age_year <', 18);
+    $this->db->where('chm.marital_status', 'Married');
+    $this->db->order_by('chm.created_at', 'DESC');
+    return $this->db->get()->result_array();
+}
+
+public function get_pregnancy_anomaly_records($filter = null)
+{
+    $this->db->select('
+        chm.master_id, chm.qr_code, chm.patient_name, chm.guardian_name,
+        chm.dob, chm.age_year, chm.age_month, chm.age_group,
+        chm.gender, chm.marital_status, chm.pregnancy_status,
+        chm.vaccinator_name, chm.village, chm.form_date, chm.created_at,
+        chm.verification_status,
+        u.username AS data_entry_user
+    ');
+    $this->db->from('child_health_master chm');
+    $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
+    $this->db->where('chm.pregnancy_status', 'Pregnant');
+
+    $this->db->group_start();
+    $this->db->where('chm.gender !=', 'Female');
+    $this->db->or_where('chm.age_year <', 18);
+    $this->db->or_where('chm.marital_status', 'Un-Married');
+    $this->db->group_end();
+
+    $this->db->order_by('chm.created_at', 'DESC');
+    $all = $this->db->get()->result_array();
+
+    $male_count      = 0;
+    $underage_count  = 0;
+    $unmarried_count = 0;
+
+    foreach ($all as $r) {
+        if ($r['gender'] !== 'Female')        { $male_count++; }
+        if ((int)$r['age_year'] < 18)          { $underage_count++; }
+        if ($r['marital_status'] === 'Un-Married') { $unmarried_count++; }
+    }
+
+    if ($filter) {
+        $records = array();
+        foreach ($all as $r) {
+            $match = false;
+            if ($filter === 'male'      && $r['gender'] !== 'Female')        { $match = true; }
+            if ($filter === 'underage'  && (int)$r['age_year'] < 18)         { $match = true; }
+            if ($filter === 'Un-Married' && $r['marital_status'] === 'Un-Married') { $match = true; }
+            if ($match) { $records[] = $r; }
+        }
+    } else {
+        $records = $all;
+    }
+
+    return array(
+        'records' => $records,
+        'summary' => array(
+            'total'     => count($all),
+            'male'      => $male_count,
+            'underage'  => $underage_count,
+            'Un-Married' => $unmarried_count,
+        )
+    );
+}
+    
 }
