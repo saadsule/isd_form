@@ -882,7 +882,7 @@ public function get_underage_married_records()
     ');
     $this->db->from('child_health_master chm');
     $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
-    $this->db->where('chm.age_year <', 18);
+    $this->db->where('chm.age_year <', 13);
     $this->db->where('chm.marital_status', 'Married');
     $this->db->order_by('chm.created_at', 'DESC');
     return $this->db->get()->result_array();
@@ -904,7 +904,7 @@ public function get_pregnancy_anomaly_records($filter = null)
 
     $this->db->group_start();
     $this->db->where('chm.gender !=', 'Female');
-    $this->db->or_where('chm.age_year <', 18);
+    $this->db->or_where('chm.age_year <', 13);
     $this->db->or_where('chm.marital_status', 'Un-Married');
     $this->db->group_end();
 
@@ -917,7 +917,7 @@ public function get_pregnancy_anomaly_records($filter = null)
 
     foreach ($all as $r) {
         if ($r['gender'] !== 'Female')        { $male_count++; }
-        if ((int)$r['age_year'] < 18)          { $underage_count++; }
+        if ((int)$r['age_year'] < 13)          { $underage_count++; }
         if ($r['marital_status'] === 'Un-Married') { $unmarried_count++; }
     }
 
@@ -926,7 +926,7 @@ public function get_pregnancy_anomaly_records($filter = null)
         foreach ($all as $r) {
             $match = false;
             if ($filter === 'male'      && $r['gender'] !== 'Female')        { $match = true; }
-            if ($filter === 'underage'  && (int)$r['age_year'] < 18)         { $match = true; }
+            if ($filter === 'underage'  && (int)$r['age_year'] < 13)         { $match = true; }
             if ($filter === 'Un-Married' && $r['marital_status'] === 'Un-Married') { $match = true; }
             if ($match) { $records[] = $r; }
         }
