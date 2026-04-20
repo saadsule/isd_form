@@ -881,6 +881,7 @@ public function get_age_antigens_mismatch_report($filter_type = null)
     );
 }
 
+<<<<<<< HEAD
     public function get_underage_married_records()
     {
         $current_user_id = $this->session->userdata('user_id');
@@ -907,6 +908,25 @@ public function get_age_antigens_mismatch_report($filter_type = null)
         $this->db->order_by('chm.created_at', 'DESC');
         return $this->db->get()->result_array();
     }
+=======
+public function get_underage_married_records()
+{
+    $this->db->select('
+        chm.master_id, chm.qr_code, chm.patient_name, chm.guardian_name,
+        chm.dob, chm.age_year, chm.age_month, chm.age_group,
+        chm.gender, chm.marital_status, chm.pregnancy_status,
+        chm.vaccinator_name, chm.village, chm.form_date, chm.created_at,
+        chm.verification_status,
+        u.full_name AS data_entry_user
+    ');
+    $this->db->from('child_health_master chm');
+    $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
+    $this->db->where('chm.age_year <', 13);
+    $this->db->where('chm.marital_status', 'Married');
+    $this->db->order_by('chm.created_at', 'DESC');
+    return $this->db->get()->result_array();
+}
+>>>>>>> 2dd5c67081bc8670c8e0b3b339a7a59fa126858e
 
 public function get_pregnancy_anomaly_records($filter = null)
 {
@@ -927,7 +947,7 @@ public function get_pregnancy_anomaly_records($filter = null)
     $this->db->where('chm.pregnancy_status', 'Pregnant');
     $this->db->group_start();
     $this->db->where('chm.gender !=', 'Female');
-    $this->db->or_where('chm.age_year <', 18);
+    $this->db->or_where('chm.age_year <', 13);
     $this->db->or_where('chm.marital_status', 'Un-Married');
     $this->db->group_end();
 
@@ -942,7 +962,7 @@ public function get_pregnancy_anomaly_records($filter = null)
     $unmarried_count = 0;
     foreach ($all as $r) {
         if ($r['gender'] !== 'Female')        { $male_count++; }
-        if ((int)$r['age_year'] < 18)          { $underage_count++; }
+        if ((int)$r['age_year'] < 13)          { $underage_count++; }
         if ($r['marital_status'] === 'Un-Married') { $unmarried_count++; }
     }
     if ($filter) {
@@ -950,7 +970,7 @@ public function get_pregnancy_anomaly_records($filter = null)
         foreach ($all as $r) {
             $match = false;
             if ($filter === 'male'      && $r['gender'] !== 'Female')        { $match = true; }
-            if ($filter === 'underage'  && (int)$r['age_year'] < 18)         { $match = true; }
+            if ($filter === 'underage'  && (int)$r['age_year'] < 13)         { $match = true; }
             if ($filter === 'Un-Married' && $r['marital_status'] === 'Un-Married') { $match = true; }
             if ($match) { $records[] = $r; }
         }
