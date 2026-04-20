@@ -113,7 +113,7 @@
                         <canvas class="chart m-h-auto" id="overall-progress-chart" width="150" height="150" style="display:block; width:150px; height:150px;"></canvas>
 
                         <!-- Center Number -->
-                        <h2 class="text-center text-large m-0 text-success font-weight-normal" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+                        <h2 class="text-center text-large m-0 text-success font-weight-normal" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);font-size:20px">
                             <?= $total_forms.'/'.$total_parcel_forms ?>
                         </h2>
                     </div>
@@ -127,6 +127,38 @@
             </div>
         </div>
         
+    </div>
+        
+        <!-- My Stats Row -->
+    <div class="row mt-3">
+        <!-- Total Forms by Me -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-start border-4 hover-shadow" style="border-color:#6f42c1 !important;">
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="icon-holder text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:60px; height:60px; font-size:26px; background:#6f42c1; flex-shrink:0;">
+                        <i class="anticon anticon-user"></i>
+                    </div>
+                    <div class="text-center">
+                        <h6 class="text-uppercase fw-bold mb-2">Total Forms Digitized by Me</h6>
+                        <h2 class="fw-bold mb-0"><?= $my_total_forms ?></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Today's Forms by Me -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-start border-4 hover-shadow" style="border-color:#fd7e14 !important;">
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="icon-holder text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width:60px; height:60px; font-size:26px; background:#fd7e14; flex-shrink:0;">
+                        <i class="anticon anticon-calendar"></i>
+                    </div>
+                    <div class="text-center">
+                        <h6 class="text-uppercase fw-bold mb-2">Forms Digitized by Me Today</h6>
+                        <h2 class="fw-bold mb-0"><?= $my_today_total ?></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    

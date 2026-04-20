@@ -655,6 +655,16 @@ $(document).ready(function(){
     setTimeout(function(){
         $('#flash-msg').fadeOut('slow');
     }, 3000); // 3000ms = 3 seconds
+    /* ── Allow radio buttons to be unchecked by clicking again ── */  // ← ADD HERE
+    $('input[type="radio"]').each(function () {
+        $(this).on('mousedown', function () {
+            this._wasChecked = this.checked;
+        }).on('click', function () {
+            if (this._wasChecked) {
+                this.checked = false;
+            }
+        });
+    });
 });
 
 $(document).ready(function(){

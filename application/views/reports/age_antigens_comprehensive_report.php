@@ -156,6 +156,7 @@ function getAgeDisplay($row) {
                     <tr>
                         <th width="40" class="pl-3">#</th>
                         <th width="125">QR Code</th>
+                        <th width="125">Form Date</th>
                         <th>Patient Name</th>
                         <th width="120">Guardian</th>
                         <th width="95">DOB / Age</th>
@@ -188,6 +189,10 @@ function getAgeDisplay($row) {
 
                         <td>
                             <span class="qr-pill"><?= $row['qr_code'] ?></span>
+                        </td>
+                        
+                        <td>
+                            <span class="qr-pill"><?= $row['form_date'] ?></span>
                         </td>
 
                         <td><strong><?= $row['patient_name'] ?></strong></td>
@@ -235,6 +240,22 @@ function getAgeDisplay($row) {
                                class="btn btn-sm btn-primary">
                                 <i class="fa fa-eye"></i>
                             </a>
+                            
+                            <?php 
+                                $user_id = $this->session->userdata('user_id');
+                                $user_role = $this->session->userdata('role');
+
+                                $can_edit = ($user_id == $row['created_by']) || 
+                                            ($user_role == 'admin') || 
+                                            ($user_role == 5);
+
+                                if($can_edit): 
+                            ?>
+                                <a href="<?= base_url('forms/child_health/'.$row['master_id']) ?>" class="btn btn-tone btn-sm btn-primary" title="Edit">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                            <?php endif; ?>
+                            
                         </td>
                     </tr>
                 <?php endforeach; else: ?>
@@ -251,5 +272,4 @@ function getAgeDisplay($row) {
     </div>
 </div>
 
-</div>
 </div>

@@ -115,6 +115,7 @@ function ageDisplayUM($row) {
                         <tr>
                             <th width="40" class="pl-3">#</th>
                             <th width="125">QR Code</th>
+                            <th width="125">Form Date</th>
                             <th>Patient Name</th>
                             <th width="120">Guardian</th>
                             <th width="90">DOB / Age</th>
@@ -144,6 +145,9 @@ function ageDisplayUM($row) {
                                 <span class="qr-pill-um" title="<?= htmlspecialchars($row['qr_code']) ?>">
                                     <?= htmlspecialchars($row['qr_code']) ?>
                                 </span>
+                            </td>
+                            <td>
+                                <span class="qr-pill"><?= $row['form_date'] ?></span>
                             </td>
                             <td><strong><?= htmlspecialchars($row['patient_name']) ?></strong></td>
                             <td><?= htmlspecialchars($row['guardian_name'] ? $row['guardian_name'] : '—') ?></td>
@@ -183,6 +187,22 @@ function ageDisplayUM($row) {
                                    class="btn btn-sm btn-primary" title="View">
                                     <i class="fa fa-eye"></i>
                                 </a>
+                                
+                                <?php 
+                                    $user_id = $this->session->userdata('user_id');
+                                    $user_role = $this->session->userdata('role');
+
+                                    $can_edit = ($user_id == $row['created_by']) || 
+                                                ($user_role == 'admin') || 
+                                                ($user_role == 5);
+
+                                    if($can_edit): 
+                                ?>
+                                    <a href="<?= base_url('forms/child_health/'.$row['master_id']) ?>" class="btn btn-tone btn-sm btn-primary" title="Edit">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                <?php endif; ?>
+                                
                             </td>
                         </tr>
                     <?php endforeach;

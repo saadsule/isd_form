@@ -30,7 +30,10 @@ class Reports extends CI_Controller {
     
     public function date_wise_progress()
     {
-        $data['report'] = $this->Reports_model->get_date_wise_progress();
+        $from_date = $this->input->get('from_date') ?: '2026-04-01';
+        $to_date   = $this->input->get('to_date')   ?: date('Y-m-d');
+
+        $data['report'] = $this->Reports_model->get_date_wise_progress($from_date, $to_date);
         $data['main_content'] = $this->load->view('reports/date_wise_progress', $data, TRUE);
         $this->load->view('layout/main', $data);
     }

@@ -223,7 +223,7 @@
                             </li>
                             
                             <!-- role 1 & 5 can not see this reports -->
-                            <?php if(!in_array($role, [1,5])){ ?>
+                            <?php if(!in_array($role, [1])){ ?>
                                 <li class="<?= ($this->uri->segment(2) == 'date_wise_progress') ? 'active' : '' ?>">
                                     <a href="<?= base_url('reports/date_wise_progress'); ?>">
                                         <span>Date Wise Progress</span>
@@ -251,7 +251,7 @@
             <?php endif; ?>
                 
             <!-- Data Validation Reports -->
-            <?php if(in_array($role, [2,5])): ?>
+            <?php if(in_array($role, [1,2,5])): ?>
                 <li class="nav-item dropdown 
                     <?= (
                         $this->uri->segment(2) == 'age_antigens_mismatch_comprehensive'

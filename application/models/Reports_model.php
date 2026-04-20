@@ -127,11 +127,11 @@ class Reports_model extends CI_Model {
         return $this->db->get()->result();
     }
     
-    public function get_date_wise_progress()
+    public function get_date_wise_progress($start_date = '2026-04-01', $end_date = null)
     {
-        // Fixed start date
-        $start_date = '2026-02-17';
-        $end_date = date('Y-m-d'); // today
+        if (!$end_date) {
+            $end_date = date('Y-m-d');
+        }
 
         // Child Health data
         $this->db->select('created_by, DATE(created_at) as entry_date, COUNT(*) as total_forms');
@@ -149,35 +149,41 @@ class Reports_model extends CI_Model {
         $this->db->group_by(['created_by', 'entry_date']);
         $opd = $this->db->get()->result_array();
 
-        // Merge both arrays into a single structure
+        // Merge both arrays
         $progress = [];
-        foreach(array_merge($child, $opd) as $row){
-            $progress[$row['created_by']][$row['entry_date']] = 
-                isset($progress[$row['created_by']][$row['entry_date']]) 
-                ? $progress[$row['created_by']][$row['entry_date']] + $row['total_forms'] 
+        foreach (array_merge($child, $opd) as $row) {
+            $uid  = $row['created_by'];
+            $date = $row['entry_date'];
+            $progress[$uid][$date] = isset($progress[$uid][$date])
+                ? $progress[$uid][$date] + $row['total_forms']
                 : $row['total_forms'];
         }
 
-        // Get all data entry users
+        // Get users
+        if ($this->session->userdata('role') != '2') {
+            $this->db->where('user_id >', 14);
+        }
         $users = $this->db->select('user_id, username, full_name')
                           ->from('users')
                           ->where('role', 1)
                           ->get()
                           ->result_array();
 
-        // Get all dates in range
-        $dates = [];
+        // Build date range array
+        $dates   = [];
         $current = strtotime($start_date);
-        $end = strtotime($end_date);
+        $end     = strtotime($end_date);
         while ($current <= $end) {
-            $dates[] = date('Y-m-d', $current);
-            $current = strtotime('+1 day', $current);
+            $dates[]  = date('Y-m-d', $current);
+            $current  = strtotime('+1 day', $current);
         }
 
         return [
-            'users' => $users,
-            'dates' => $dates,
-            'progress' => $progress
+            'users'     => $users,
+            'dates'     => $dates,
+            'progress'  => $progress,
+            'from_date' => $start_date,
+            'to_date'   => $end_date,
         ];
     }
     
@@ -774,6 +780,13 @@ class Reports_model extends CI_Model {
     
 public function get_age_antigens_mismatch_report($filter_type = null)
 {
+    // Get current user's role and ID from session
+    $current_user_id = $this->session->userdata('user_id');
+    $current_role    = $this->session->userdata('role');
+
+    // Build role-based WHERE clause addition
+    $role_filter = ($current_role == 1) ? "AND chm.created_by = {$current_user_id}" : "";
+
     $sql = "
         SELECT
             chm.master_id,
@@ -790,6 +803,7 @@ public function get_age_antigens_mismatch_report($filter_type = null)
             chm.created_at,
             chm.verification_status,
             u.full_name AS data_entry_user,
+            chm.created_by,
             CASE
                 WHEN EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5)
                      AND chm.age_group != '<1 year' THEN 'Type 1'
@@ -818,17 +832,20 @@ public function get_age_antigens_mismatch_report($filter_type = null)
         LEFT JOIN users u ON chm.created_by = u.user_id
         WHERE
             (
-                EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5)
-                AND chm.age_group != '<1 year'
+                (
+                    EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5)
+                    AND chm.age_group != '<1 year'
+                )
+                OR (
+                    EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 6)
+                    AND chm.age_group != '1-2 year'
+                )
+                OR (
+                    EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 7)
+                    AND chm.age_group != '2-5 year'
+                )
             )
-            OR (
-                EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 6)
-                AND chm.age_group != '1-2 year'
-            )
-            OR (
-                EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 7)
-                AND chm.age_group != '2-5 year'
-            )
+            {$role_filter}
         ORDER BY chm.created_at DESC
     ";
 
@@ -839,21 +856,15 @@ public function get_age_antigens_mismatch_report($filter_type = null)
     $type3 = 0;
 
     foreach ($all_records as $r) {
-        if ($r['mismatch_type'] === 'Type 1') {
-            $type1++;
-        } elseif ($r['mismatch_type'] === 'Type 2') {
-            $type2++;
-        } elseif ($r['mismatch_type'] === 'Type 3') {
-            $type3++;
-        }
+        if ($r['mismatch_type'] === 'Type 1') $type1++;
+        elseif ($r['mismatch_type'] === 'Type 2') $type2++;
+        elseif ($r['mismatch_type'] === 'Type 3') $type3++;
     }
 
     if ($filter_type) {
         $records = array();
         foreach ($all_records as $r) {
-            if ($r['mismatch_type'] === $filter_type) {
-                $records[] = $r;
-            }
+            if ($r['mismatch_type'] === $filter_type) $records[] = $r;
         }
     } else {
         $records = $all_records;
@@ -870,57 +881,70 @@ public function get_age_antigens_mismatch_report($filter_type = null)
     );
 }
 
-public function get_underage_married_records()
-{
-    $this->db->select('
-        chm.master_id, chm.qr_code, chm.patient_name, chm.guardian_name,
-        chm.dob, chm.age_year, chm.age_month, chm.age_group,
-        chm.gender, chm.marital_status, chm.pregnancy_status,
-        chm.vaccinator_name, chm.village, chm.form_date, chm.created_at,
-        chm.verification_status,
-        u.full_name AS data_entry_user
-    ');
-    $this->db->from('child_health_master chm');
-    $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
-    $this->db->where('chm.age_year <', 18);
-    $this->db->where('chm.marital_status', 'Married');
-    $this->db->order_by('chm.created_at', 'DESC');
-    return $this->db->get()->result_array();
-}
+    public function get_underage_married_records()
+    {
+        $current_user_id = $this->session->userdata('user_id');
+        $current_role    = $this->session->userdata('role');
+
+        $this->db->select('
+            chm.master_id, chm.qr_code, chm.patient_name, chm.guardian_name,
+            chm.dob, chm.age_year, chm.age_month, chm.age_group,
+            chm.gender, chm.marital_status, chm.pregnancy_status,
+            chm.vaccinator_name, chm.village, chm.form_date, chm.created_at,
+            chm.verification_status,
+            chm.created_by,
+            u.full_name AS data_entry_user
+        ');
+        $this->db->from('child_health_master chm');
+        $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
+        $this->db->where('chm.age_year <', 18);
+        $this->db->where('chm.marital_status', 'Married');
+
+        if ($current_role == 1) {
+            $this->db->where('chm.created_by', $current_user_id);
+        }
+
+        $this->db->order_by('chm.created_at', 'DESC');
+        return $this->db->get()->result_array();
+    }
 
 public function get_pregnancy_anomaly_records($filter = null)
 {
+    $current_user_id = $this->session->userdata('user_id');
+    $current_role    = $this->session->userdata('role');
+
     $this->db->select('
         chm.master_id, chm.qr_code, chm.patient_name, chm.guardian_name,
         chm.dob, chm.age_year, chm.age_month, chm.age_group,
         chm.gender, chm.marital_status, chm.pregnancy_status,
         chm.vaccinator_name, chm.village, chm.form_date, chm.created_at,
         chm.verification_status,
+        chm.created_by,
         u.full_name AS data_entry_user
     ');
     $this->db->from('child_health_master chm');
     $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
     $this->db->where('chm.pregnancy_status', 'Pregnant');
-
     $this->db->group_start();
     $this->db->where('chm.gender !=', 'Female');
     $this->db->or_where('chm.age_year <', 18);
     $this->db->or_where('chm.marital_status', 'Un-Married');
     $this->db->group_end();
 
+    if ($current_role == 1) {
+        $this->db->where('chm.created_by', $current_user_id);
+    }
+
     $this->db->order_by('chm.created_at', 'DESC');
     $all = $this->db->get()->result_array();
-
     $male_count      = 0;
     $underage_count  = 0;
     $unmarried_count = 0;
-
     foreach ($all as $r) {
         if ($r['gender'] !== 'Female')        { $male_count++; }
         if ((int)$r['age_year'] < 18)          { $underage_count++; }
         if ($r['marital_status'] === 'Un-Married') { $unmarried_count++; }
     }
-
     if ($filter) {
         $records = array();
         foreach ($all as $r) {
@@ -933,7 +957,6 @@ public function get_pregnancy_anomaly_records($filter = null)
     } else {
         $records = $all;
     }
-
     return array(
         'records' => $records,
         'summary' => array(

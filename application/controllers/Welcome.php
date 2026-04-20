@@ -40,6 +40,9 @@ class Welcome extends CI_Controller {
         $data['child_health_total'] = $this->Forms_model->get_child_health_total();
         $data['opd_total'] = $this->Forms_model->get_opd_total();
         $data['today_total'] = $this->Forms_model->get_today_total();
+        
+        $data['my_total_forms'] = $this->Forms_model->get_my_total_forms();
+        $data['my_today_total'] = $this->Forms_model->get_my_today_total();
 
         $data['page_title'] = "Welcome";        
         $data['main_content'] = $this->load->view('home', $data, TRUE);

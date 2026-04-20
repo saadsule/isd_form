@@ -104,7 +104,7 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
     <div class="d-flex align-items-center flex-wrap">
 
         <!-- Status Badge -->
-        <?php if($this->session->userdata('role') == 2 || $status != 'Pending'): ?>    
+        <?php if(in_array($this->session->userdata('role'), [2, 5]) || $status != 'Pending'): ?>    
             <span class="badge badge-<?php echo $badge_color; ?> mr-2" style="font-size:11px; padding: 4px 8px; border-radius: 20px; font-weight:500;">
                 <?php if($status == 'Verified'): ?>
                     <i class="fa fa-check-circle"></i>
@@ -123,7 +123,7 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
         </button>
 
         <!-- Unverify Button -->
-        <?php if($this->session->userdata('role') == 2 && $form->verification_status == 'Verified'): ?>
+        <?php if(in_array($this->session->userdata('role'), [2, 5]) && $form->verification_status == 'Verified'): ?>
             <form method="post" action="<?= base_url('forms/unverify/'.$form->master_id) ?>" style="display:inline;">
                 <button type="submit" class="btn btn-warning mr-2" style="padding: 0.375rem 0.75rem; height: 32px;">
                     <i class="fa fa-undo"></i> Unverify
@@ -132,7 +132,7 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
         <?php endif; ?>
         
         <!-- Verify & Report Buttons -->
-        <?php if($this->session->userdata('role') == 2 && ($form->verification_status == 'Pending' || $form->verification_status == 'Reported')): ?>
+        <?php if(in_array($this->session->userdata('role'), [2, 5]) && ($form->verification_status == 'Pending' || $form->verification_status == 'Reported')): ?>
             <form method="post" action="<?= base_url('forms/verify/'.$form->master_id) ?>" style="display:inline;">
                 <button type="submit" class="btn btn-success mr-2" style="padding: 0.375rem 0.75rem; height: 32px;">
                     <i class="fa fa-check"></i> Verify

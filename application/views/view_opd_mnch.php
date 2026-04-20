@@ -106,7 +106,7 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
     <div class="d-flex align-items-center flex-wrap">
 
         <!-- Unverify Button -->
-        <?php if($this->session->userdata('role') == 2 && $master->verification_status == 'Verified'): ?>
+        <?php if(in_array($this->session->userdata('role'), [2, 5]) && $master->verification_status == 'Verified'): ?>
             <form method="post" action="<?= base_url('forms/unverify_opd_mnch/'.$master->id) ?>" style="display:inline;">
                 <button type="submit" class="btn btn-warning mr-2 mb-1" style="padding: 0.375rem 0.75rem; height: 32px;">
                     <i class="fa fa-undo"></i> Unverify
@@ -115,7 +115,7 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
         <?php endif; ?>
 
         <!-- Verify & Report Buttons -->
-        <?php if($this->session->userdata('role') == 2 && ($master->verification_status == 'Pending' || $master->verification_status == 'Reported')): ?>
+        <?php if(in_array($this->session->userdata('role'), [2, 5]) && ($master->verification_status == 'Pending' || $master->verification_status == 'Reported')): ?>
             <form method="post" action="<?= base_url('forms/verify_opd_mnch/'.$master->id) ?>" style="display:inline;">
                 <button type="submit" class="btn btn-success mr-2 mb-1" style="padding: 0.375rem 0.75rem; height: 32px;">
                     <i class="fa fa-check"></i> Verify
@@ -128,7 +128,7 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
         <?php endif; ?>
 
         <!-- Status Badge -->
-        <?php if($this->session->userdata('role') == 2  || $status!='Pending'): ?> 
+        <?php if(in_array($this->session->userdata('role'), [2, 5]) || $status!='Pending'): ?> 
             <!-- Status Badge -->
             <span class="badge badge-<?php echo $badge_color; ?> mr-2 mb-1" style="font-size:11px; padding: 5px 10px; border-radius: 20px; font-weight:500;">
                 <?php if($status == 'Verified'): ?>

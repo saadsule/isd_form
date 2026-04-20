@@ -1099,7 +1099,7 @@ public function get_child_master_ajax()
     
     public function verify($id)
     {
-        if($this->session->userdata('role') != 2){
+        if (!in_array($this->session->userdata('role'), [2, 5])) {
             show_error('Unauthorized Access');
         }
 
@@ -1142,7 +1142,7 @@ public function get_child_master_ajax()
     
     public function report($id)
     {
-        if($this->session->userdata('role') != 2){
+        if (!in_array($this->session->userdata('role'), [2, 5])) {
             show_error('Unauthorized Access');
         }
 
@@ -1188,7 +1188,7 @@ public function get_child_master_ajax()
     
     public function unverify($id)
     {
-        if($this->session->userdata('role') != 2){
+        if (!in_array($this->session->userdata('role'), [2, 5])) {
             show_error('Unauthorized Access');
         }
         $form = $this->db->get_where('child_health_master', ['master_id' => $id])->row();
@@ -1222,7 +1222,7 @@ public function get_child_master_ajax()
     
     public function verify_opd_mnch($id)
     {
-        if($this->session->userdata('role') != 2){
+        if (!in_array($this->session->userdata('role'), [2, 5])) {
             show_error('Unauthorized Access');
         }
 
@@ -1264,7 +1264,7 @@ public function get_child_master_ajax()
     
     public function report_opd_mnch($id)
     {
-        if($this->session->userdata('role') != 2){
+        if (!in_array($this->session->userdata('role'), [2, 5])) {
             show_error('Unauthorized Access');
         }
 
@@ -1310,7 +1310,7 @@ public function get_child_master_ajax()
     
     public function unverify_opd_mnch($id)
     {
-        if($this->session->userdata('role') != 2){
+        if (!in_array($this->session->userdata('role'), [2, 5])) {
             show_error('Unauthorized Access');
         }
         $form = $this->db->get_where('opd_mnch_master', ['id' => $id])->row();

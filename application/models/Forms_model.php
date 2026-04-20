@@ -306,10 +306,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     {
         $this->db->select('COUNT(*) as total');
         $this->db->from('child_health_master');
+        $this->db->where('created_by <', 15);
         $total_ch = $this->db->get()->row()->total;
 
         $this->db->select('COUNT(*) as total');
         $this->db->from('opd_mnch_master');
+        $this->db->where('created_by <', 15);
         $total_opd = $this->db->get()->row()->total;
 
         return $total_ch + $total_opd;
@@ -350,6 +352,43 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         $query = $this->db->get('parcel_forms'); // your table name
         $row = $query->row();
         return $row ? $row->total_forms_in_parcel : 0;
+    }
+    
+    public function get_my_total_forms()
+    {
+        $user_id = $this->session->userdata('user_id');
+
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('child_health_master');
+        $this->db->where('created_by', $user_id);
+        $total_ch = $this->db->get()->row()->total;
+
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('opd_mnch_master');
+        $this->db->where('created_by', $user_id);
+        $total_opd = $this->db->get()->row()->total;
+
+        return $total_ch + $total_opd;
+    }
+
+    public function get_my_today_total()
+    {
+        $user_id = $this->session->userdata('user_id');
+        $today   = date('Y-m-d');
+
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('child_health_master');
+        $this->db->where('created_by', $user_id);
+        $this->db->where('DATE(created_at)', $today);
+        $total_ch = $this->db->get()->row()->total;
+
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('opd_mnch_master');
+        $this->db->where('created_by', $user_id);
+        $this->db->where('DATE(created_at)', $today);
+        $total_opd = $this->db->get()->row()->total;
+
+        return $total_ch + $total_opd;
     }
 
 }
