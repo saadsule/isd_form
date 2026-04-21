@@ -173,7 +173,10 @@ action="<?= isset($is_edit) && $is_edit
 
 <div class="card mb-4 form-section">
 <div class="card-body">
-
+<div class="alert alert-info py-2 px-3 mb-3" style="font-size:12px; border-left: 4px solid #0d6efd;">
+    <i class="fa fa-info-circle me-1 text-primary"></i>
+    Some sections are conditionally enabled based on <strong>Gender</strong>, <strong>Age Group</strong>, and responses to specific questions. Grayed sections are not applicable for current selection.
+</div>
 <h4 class="section-title">📋 Basic Information</h4>
 
 <!-- Visit Type -->

@@ -267,6 +267,10 @@ $details = isset($details) ? $details : array();
 <!-- ================= BASIC INFORMATION ================= -->
 <div class="card mb-4 form-section">
 <div class="card-body">
+<div class="alert alert-info py-2 px-3 mb-3" style="font-size:12px; border-left: 4px solid #0d6efd;">
+    <i class="fa fa-info-circle me-1 text-primary"></i>
+    Some sections are conditionally enabled based on <strong>Gender</strong>, <strong>Age Group</strong>, and responses to specific questions. Grayed sections are not applicable for current selection.
+</div>
 <h4 class="section-title">📋 Basic Information</h4>
 
 <!-- Visit Type -->
@@ -1315,6 +1319,82 @@ $(document).on('change', '[name^="question[12]"]', function () {
 /* ── Page load ── */
 applyQ25InternalRule();
 
+/* ── Q17.2 (ID:2) Yes/No → Q17.2 options (ID:3) and Q17.2.4 (ID:4) ── */
+function applyQ17Rule() {
+    var mainVal = $('[name^="question[2]"]:checked').val() || '';
+
+    var $q3 = $('[name^="question[3]"]');
+    var $q4 = $('[name^="question[4]"]');
+
+    if (mainVal === '') {
+        // Nothing selected — enable both
+        $q3.prop('disabled', false).removeClass('field-locked');
+        $q3.each(function(){
+            $(this).closest('.form-group').css({ 'background-color': '', 'opacity': '' });
+        });
+        $q4.prop('disabled', false).removeClass('field-locked');
+        $q4.each(function(){
+            $(this).closest('.form-group').css({ 'background-color': '', 'opacity': '' });
+        });
+        return;
+    }
+
+    if (mainVal === '3') {
+        // Yes (value=3) → disable Q3 and Q4 both
+        [$q3, $q4].forEach(function($el){
+            $el.prop('disabled', true).addClass('field-locked');
+            $el.filter(':radio, :checkbox').prop('checked', false);
+            $el.filter(':text').val('');
+            $el.each(function(){
+                $(this).closest('.form-group').css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+            });
+        });
+
+    } else if (mainVal === '4') {
+        // No (value=4) → enable Q3, Q4 depends on Refusal checkbox
+        $q3.prop('disabled', false).removeClass('field-locked');
+        $q3.each(function(){
+            $(this).closest('.form-group').css({ 'background-color': '', 'opacity': '' });
+        });
+
+        applyQ17SubRule();
+    }
+}
+
+/* ── Q3 Refusal (value=8) checked → enable Q4 ── */
+function applyQ17SubRule() {
+    var mainVal = $('[name^="question[2]"]:checked').val() || '';
+
+    if (mainVal !== '4') return;
+
+    var refusalChecked = $('[name^="question[3]"][value="8"]').is(':checked');
+    var $q4 = $('[name^="question[4]"]');
+
+    if (refusalChecked) {
+        $q4.prop('disabled', false).removeClass('field-locked');
+        $q4.each(function(){
+            $(this).closest('.form-group').css({ 'background-color': '', 'opacity': '' });
+        });
+    } else {
+        $q4.prop('disabled', true).addClass('field-locked');
+        $q4.filter(':radio, :checkbox').prop('checked', false);
+        $q4.filter(':text').val('');
+        $q4.each(function(){
+            $(this).closest('.form-group').css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+        });
+    }
+}
+
+/* ── Bindings ── */
+$(document).on('change', '[name^="question[2]"]', function(){
+    applyQ17Rule();
+});
+$(document).on('change', '[name^="question[3]"]', function(){
+    applyQ17SubRule();
+});
+
+/* ── Page Load ── */
+applyQ17Rule();
 
 /* ── Bindings ── */
 $('input[name="age_group"]').on('change', applyAgeGroupRules);
