@@ -304,11 +304,13 @@
                             </a>
                         </li>
 
-                        <li class="<?= ($this->uri->segment(2) == 'duplicate_qr_code') ? 'active' : '' ?>">
-                            <a href="<?= base_url('reports/duplicate_qr_code'); ?>">
-                                <span>Duplicate QR Code</span>
-                            </a>
-                        </li>
+                        <?php if(!in_array($role, [1])){ ?>
+                            <li class="<?= ($this->uri->segment(2) == 'duplicate_qr_code') ? 'active' : '' ?>">
+                                <a href="<?= base_url('reports/duplicate_qr_code'); ?>">
+                                    <span>Duplicate QR Code</span>
+                                </a>
+                            </li>
+                        <?php } ?>
 
                     </ul>
                 </li>

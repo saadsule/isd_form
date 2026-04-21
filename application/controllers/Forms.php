@@ -399,7 +399,6 @@ public function get_child_master_ajax()
             'disability' => $this->input->post('disability'),
             'play_learning_kit' => $this->input->post('play_learning_kit'),
             'nutrition_package' => $this->input->post('nutrition_package'),
-            'created_by' => $this->session->userdata('user_id'),
             'facility_id' => $this->input->post('facility_id')
         );
 
@@ -799,7 +798,6 @@ public function get_child_master_ajax()
             'marital_status' => $this->input->post('marital_status'),
             'pregnancy_status' => $this->input->post('pregnancy_status'),
             'gender' => $this->input->post('gender'),
-            'created_by' => $this->session->userdata('user_id'),
             'facility_id' => $this->input->post('facility_id'),
             'qr_code' => $this->input->post('qr_code'),
 

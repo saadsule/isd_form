@@ -1113,117 +1113,217 @@ $(document).ready(function () {
     setTimeout(function(){ $('#flash-msg').fadeOut('slow'); }, 3000);
 
     /* ─────────────────────────────────────────────
-        AGE GROUP ↔ Question 18/19/20 Locking
-        GENDER → Pregnancy locking
-        AGE < 15 → Marital Status locking
+        AGE GROUP + GENDER BASED RULES (FINAL)
      ───────────────────────────────────────────── */
 
-     // Question IDs mapping
-     // Q18 = question_id 5 (<1 year)
-     // Q19 = question_id 6 (1-2 year)
-     // Q20 = question_id 7 (2-5 year)
-     // Q_15-49 = question for 15-49 year group (find by section)
+function applyAgeGroupRules() {
 
-     function applyAgeGroupRules() {
-         var ageGroup = $('input[name="age_group"]:checked').val() || '';
+    var ageGroup = $('input[name="age_group"]:checked').val() || '';
+    var gender   = $('input[name="gender"]:checked').val() || '';
 
-         // Map age group → which question_id should be ENABLED
-         var ageGroupMap = {
-             '<1 Year'    : 5,
-             '1-2 Year'   : 6,
-             '2-5 Year'   : 7
-         };
+    var ageGroupMap = {
+        '<1 Year'  : 5,
+        '1-2 Year' : 6,
+        '2-5 Year' : 7
+    };
 
-         // Lock/unlock Q18(5), Q19(6), Q20(7) based on age group
-         $.each(ageGroupMap, function(group, qid) {
-             var $inputs = $('[name^="question['+qid+']"]');
-             if (ageGroup === group) {
-                 // Enable this question's inputs
-                 $inputs.prop('disabled', false).removeClass('field-locked');
-             } else {
-                 // Disable & uncheck/clear this question's inputs
-                 $inputs.prop('disabled', true).addClass('field-locked');
-                 $inputs.filter('input[type="checkbox"]').prop('checked', false);
-                 $inputs.filter('input[type="radio"]').prop('checked', false);
-                 $inputs.filter('input[type="text"]').val('');
-             }
-         });
+    /* ── Q5 / Q6 / Q7 ── */
+    $.each(ageGroupMap, function(group, qid) {
+        var $inputs = $('[name^="question['+qid+']"]');
+        var $card   = $inputs.first().closest('.card');
 
-         // 15-49 Year question: find all questions NOT in ids 5,6,7
-         // Lock them unless age group is 15-49 Year
-         // We handle this by targeting the specific section visually
-         // (Add question_id of the 15-49 question below if known, e.g. question_id=8)
-         // For now we lock the wrapper row
-         $('[name^="question["]').each(function() {
-             var nameAttr = $(this).attr('name') || '';
-             var match = nameAttr.match(/question\[(\d+)\]/);
-             if (!match) return;
-             var qid = parseInt(match[1]);
-             if ([5, 6, 7].indexOf(qid) !== -1) return; // already handled above
+        if (ageGroup === group) {
+            $inputs.prop('disabled', false).removeClass('field-locked');
+            $card.css({ 'background-color': '', 'opacity': '' });
+        } else {
+            $inputs.prop('disabled', true).addClass('field-locked');
+            $inputs.filter(':checkbox, :radio').prop('checked', false);
+            $inputs.filter(':text').val('');
+            $card.css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+        }
+    });
 
-             // Check if this question belongs to 15-49 section
-             // We lock it if age group is NOT 15-49 Year
-             var $row = $(this).closest('.form-group.row');
-             var sectionTitle = $row.closest('.card').find('.section-title').text() || '';
+    /* ── 15-49 Section Lock ── */
+    $('[name^="question["]').each(function () {
 
-             if (sectionTitle.indexOf('15') !== -1 || sectionTitle.indexOf('49') !== -1) {
-                 if (ageGroup === '15-49 Year') {
-                     $(this).prop('disabled', false).removeClass('field-locked');
-                 } else {
-                     $(this).prop('disabled', true).addClass('field-locked');
-                     $(this).filter('input[type="checkbox"]').prop('checked', false);
-                     $(this).filter('input[type="radio"]').prop('checked', false);
-                     $(this).filter('input[type="text"]').val('');
-                 }
-             }
-         });
-     }
+        var match = ($(this).attr('name') || '').match(/question\[(\d+)\]/);
+        if (!match) return;
 
-     function applyGenderRules() {
-         var gender = $('input[name="gender"]:checked').val() || '';
+        var qid = parseInt(match[1]);
 
-         if (gender === 'Male') {
-             // Disable pregnancy status
-             $('input[name="pregnancy_status"]')
-                 .prop('disabled', true)
-                 .prop('checked', false)
-                 .addClass('field-locked');
-             $('#hidden_lock_pregnancy_status').remove();
-             $('<input>').attr({ type:'hidden', name:'pregnancy_status', value:'', id:'hidden_lock_pregnancy_status' }).appendTo('#chf-form');
-         } else {
-             // Re-enable pregnancy status
-             $('input[name="pregnancy_status"]')
-                 .prop('disabled', false)
-                 .removeClass('field-locked');
-             $('#hidden_lock_pregnancy_status').remove();
-         }
-     }
+        // skip special questions (including Q25 = 12,13)
+        if ([5, 6, 7, 12, 13].indexOf(qid) !== -1) return;
 
-     function applyAgeMartialRule() {
-         var ageYear = parseInt($('[name="age_year"]').val()) || 0;
+        var $card        = $(this).closest('.card');
+        var sectionTitle = $card.find('.section-title').text() || '';
 
-         if (ageYear > 0 && ageYear < 15) {
-             // Disable married option — force Un-Married only
-             $('input[name="marital_status"][value="Married"]')
-                 .prop('disabled', true)
-                 .prop('checked', false)
-                 .addClass('field-locked');
-         } else {
-             $('input[name="marital_status"][value="Married"]')
-                 .prop('disabled', false)
-                 .removeClass('field-locked');
-         }
-     }
+        if (sectionTitle.indexOf('15') === -1 && sectionTitle.indexOf('49') === -1) return;
 
-     // Bind events
-     $('input[name="age_group"]').on('change', applyAgeGroupRules);
-     $('input[name="gender"]').on('change', applyGenderRules);
-     $('[name="age_year"]').on('input change', applyAgeMartialRule);
+        if (ageGroup === '15-49 Year') {
+            $(this).prop('disabled', false).removeClass('field-locked');
+            $card.css({ 'background-color': '', 'opacity': '' });
+        } else {
+            $(this).prop('disabled', true).addClass('field-locked');
+            $(this).filter(':checkbox, :radio').prop('checked', false);
+            $(this).filter(':text').val('');
+            $card.css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+        }
+    });
 
-     // Run on page load (for edit mode pre-filled values)
-     applyAgeGroupRules();
-     applyGenderRules();
-     applyAgeMartialRule();
+    /* ── ✅ Q25 (IDs: 12,13) SAME STYLE AS OTHERS ── */
+    var $q25inputs = $('[name^="question[12]"], [name^="question[13]"]');
+
+    if ($q25inputs.length > 0) {
+
+        var $card = $q25inputs.first().closest('.card');
+
+        if (ageGroup === '15-49 Year' && gender === 'Female') {
+
+            $q25inputs.prop('disabled', false).removeClass('field-locked');
+            $card.css({ 'background-color': '', 'opacity': '' });
+
+        } else {
+
+            $q25inputs.prop('disabled', true).addClass('field-locked');
+            $q25inputs.filter(':checkbox, :radio').prop('checked', false);
+            $q25inputs.filter(':text').val('');
+            $card.css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+        }
+    }
+
+    applyAgeMartialRule();
+}
+
+
+/* ── Gender Rule ── */
+function applyGenderRules() {
+
+    var gender = $('input[name="gender"]:checked').val() || '';
+
+    if (gender === 'Male') {
+        $('input[name="pregnancy_status"]')
+            .prop('disabled', true)
+            .prop('checked', false)
+            .addClass('field-locked');
+
+        $('#hidden_lock_pregnancy_status').remove();
+
+        $('<input>').attr({
+            type:'hidden',
+            name:'pregnancy_status',
+            value:'',
+            id:'hidden_lock_pregnancy_status'
+        }).appendTo('#chf-form');
+
+    } else {
+        $('input[name="pregnancy_status"]')
+            .prop('disabled', false)
+            .removeClass('field-locked');
+
+        $('#hidden_lock_pregnancy_status').remove();
+    }
+
+    // important: re-evaluate Q25
+    applyAgeGroupRules();
+}
+
+
+/* ── Age < 15 → Marital Lock ── */
+function applyAgeMartialRule() {
+
+    var ageGroup = $('input[name="age_group"]:checked').val() || '';
+
+    var under15Groups = ['<1 Year', '1-2 Year', '2-5 Year', '5-15 Year'];
+
+    if (under15Groups.indexOf(ageGroup) !== -1) {
+
+        $('input[name="marital_status"]')
+            .prop('disabled', true)
+            .prop('checked', false)
+            .addClass('field-locked');
+
+    } else {
+
+        $('input[name="marital_status"]')
+            .prop('disabled', false)
+            .removeClass('field-locked');
+    }
+}
+
+/* ── Q25.1 (ID:12) Yes/No → Q25.2.1/2.2/2.3 (ID:15,16,17) ── */
+function applyQ25InternalRule() {
+    var mainVal = $('[name^="question[12]"]:checked').val() || '';
+
+    var $q13 = $('[name^="question[13]"]');
+    var $q15 = $('[name^="question[15]"]');
+    var $q16 = $('[name^="question[16]"]');
+    var $q17 = $('[name^="question[17]"]');
+
+    if (mainVal === '66') {
+        /* Yes → Q13 enable, Q15/16/17 disable */
+        $q13.prop('disabled', false).removeClass('field-locked');
+        $q13.each(function(){
+            $(this).closest('.form-group.row')
+                   .css({ 'background-color': '', 'opacity': '' });
+        });
+
+        [$q15, $q16, $q17].forEach(function($el){
+            $el.prop('disabled', true).addClass('field-locked');
+            $el.filter(':radio, :checkbox').prop('checked', false);
+            $el.filter(':text').val('');
+            $el.each(function(){
+                $(this).closest('.form-group.row')
+                       .css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+            });
+        });
+
+    } else if (mainVal === '67') {
+        /* No → Q13 disable, Q15/16/17 enable */
+        $q13.prop('disabled', true).addClass('field-locked');
+        $q13.filter(':radio, :checkbox').prop('checked', false);
+        $q13.filter(':text').val('');
+        $q13.each(function(){
+            $(this).closest('.form-group.row')
+                   .css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+        });
+
+        [$q15, $q16, $q17].forEach(function($el){
+            $el.prop('disabled', false).removeClass('field-locked');
+            $el.each(function(){
+                $(this).closest('.form-group.row')
+                       .css({ 'background-color': '', 'opacity': '' });
+            });
+        });
+
+    } else {
+        /* Kuch select nahi → sab enable */
+        [$q13, $q15, $q16, $q17].forEach(function($el){
+            $el.prop('disabled', false).removeClass('field-locked');
+            $el.each(function(){
+                $(this).closest('.form-group.row')
+                       .css({ 'background-color': '', 'opacity': '' });
+            });
+        });
+    }
+}
+
+/* ── Binding ── */
+$(document).on('change', '[name^="question[12]"]', function () {
+    applyQ25InternalRule();
+});
+
+/* ── Page load ── */
+applyQ25InternalRule();
+
+
+/* ── Bindings ── */
+$('input[name="age_group"]').on('change', applyAgeGroupRules);
+$('input[name="gender"]').on('change', applyGenderRules);
+
+
+/* ── Page Load ── */
+applyAgeGroupRules();
+applyGenderRules();
 
     /* ── Allow radio buttons to be unchecked by clicking again ── */    // ← ADD HERE
     $('input[type="radio"]').each(function () {

@@ -699,6 +699,154 @@ $(document).ready(function(){
         loadFacilities($(this).val());
     });
 
+    /* ═══════════════════════════════════════════════
+   OPD FORM — AGE/GENDER/Q19 RULES
+═══════════════════════════════════════════════ */
+
+function getQ19Card() {
+    var $found = null;
+    $('.section-title').each(function () {
+        if ($(this).text().indexOf('15-49') !== -1) {
+            $found = $(this).closest('.card');
+            return false;
+        }
+    });
+    return $found;
+}
+
+function applyQ19CardRule() {
+    var ageGroup = $('input[name="age_group"]:checked').val() || '';
+    var gender   = $('input[name="gender"]:checked').val()   || '';
+    var $card    = getQ19Card();
+    if (!$card || !$card.length) return;
+
+    var enable = (ageGroup === '15-49 Y' && gender === 'Female');
+
+    if (enable) {
+        $card.css({ 'background-color': '', 'opacity': '' });
+        $card.find('input').prop('disabled', false).removeClass('field-locked');
+        applyQ19InternalRules(); /* اندرونی rules بھی reset */
+    } else {
+        $card.css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+        $card.find('input').prop('disabled', true).addClass('field-locked');
+        $card.find('input[type="radio"], input[type="checkbox"]').prop('checked', false);
+        $card.find('input[type="text"]').val('');
+    }
+}
+
+function applyQ19InternalRules() {
+    var ageGroup = $('input[name="age_group"]:checked').val() || '';
+    var gender   = $('input[name="gender"]:checked').val()   || '';
+    if (ageGroup !== '15-49 Y' || gender !== 'Female') return;
+
+    var mainVal = $('[name^="question[24]"]:checked').val() || '';
+
+    var $q25 = $('[name^="question[25]"]');
+    var $q27 = $('[name^="question[27]"]');
+    var $q28 = $('[name^="question[28]"]');
+    var $q29 = $('[name^="question[29]"]');
+
+    if (mainVal === '102') {
+        /* Yes → Q25 enable, Q27/28/29 disable */
+        $q25.prop('disabled', false).removeClass('field-locked');
+        $q25.each(function(){
+            $(this).closest('.form-group.row')
+                   .css({ 'background-color': '', 'opacity': '' });
+        });
+
+        [$q27, $q28, $q29].forEach(function($el){
+            $el.prop('disabled', true).addClass('field-locked');
+            $el.filter(':radio, :checkbox').prop('checked', false);
+            $el.filter(':text').val('');
+            $el.each(function(){
+                $(this).closest('.form-group.row')
+                       .css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+            });
+        });
+
+    } else if (mainVal === '103') {
+        /* No → Q25 disable, Q27/28/29 enable */
+        $q25.prop('disabled', true).addClass('field-locked');
+        $q25.filter(':radio, :checkbox').prop('checked', false);
+        $q25.filter(':text').val('');
+        $q25.each(function(){
+            $(this).closest('.form-group.row')
+                   .css({ 'background-color': '#e4e6ea', 'opacity': '0.75' });
+        });
+
+        [$q27, $q28, $q29].forEach(function($el){
+            $el.prop('disabled', false).removeClass('field-locked');
+            $el.each(function(){
+                $(this).closest('.form-group.row')
+                       .css({ 'background-color': '', 'opacity': '' });
+            });
+        });
+
+    } else {
+        /* Kuch select nahi → sab enable */
+        [$q25, $q27, $q28, $q29].forEach(function($el){
+            $el.prop('disabled', false).removeClass('field-locked');
+            $el.each(function(){
+                $(this).closest('.form-group.row')
+                       .css({ 'background-color': '', 'opacity': '' });
+            });
+        });
+    }
+}
+
+function enableQRow($row) {
+    $row.css({ 'background-color': '', 'opacity': '', 'border-radius': '' });
+    $row.find('input').prop('disabled', false).removeClass('field-locked');
+}
+
+function disableQRow($row) {
+    $row.css({ 'background-color': '#e4e6ea', 'opacity': '0.75', 'border-radius': '8px' });
+    $row.find('input').prop('disabled', true).addClass('field-locked');
+    $row.find('input[type="radio"], input[type="checkbox"]').prop('checked', false);
+    $row.find('input[type="text"]').val('');
+}
+
+function applyOPDMaritalRule() {
+    var ageGroup = $('input[name="age_group"]:checked').val() || '';
+    if (ageGroup === '0-14 Y') {
+        $('input[name="marital_status"]')
+            .prop('disabled', true).prop('checked', false).addClass('field-locked');
+    } else {
+        $('input[name="marital_status"]')
+            .prop('disabled', false).removeClass('field-locked');
+    }
+}
+
+/* ── Rule 4: Gender Male → Pregnancy Status disable ── */
+function applyOPDGenderRule() {
+    var gender = $('input[name="gender"]:checked').val() || '';
+    if (gender === 'Male') {
+        $('input[name="pregnancy_status"]')
+            .prop('disabled', true).prop('checked', false).addClass('field-locked');
+    } else {
+        $('input[name="pregnancy_status"]')
+            .prop('disabled', false).removeClass('field-locked');
+    }
+    applyQ19CardRule(); 
+}
+
+/* ── Bindings ── */
+$('input[name="age_group"]').on('change', function () {
+    applyQ19CardRule();
+    applyOPDMaritalRule();
+});
+$('input[name="gender"]').on('change', applyOPDGenderRule);
+
+/* Q24 change par internal rules trigger */
+$(document).on('change', '[name^="question[24]"]', function () {
+    applyQ19InternalRules();
+});
+
+/* ── Page load ── */
+applyQ19CardRule();
+applyOPDMaritalRule();
+applyOPDGenderRule();
+
 });
 
 //For QR code
