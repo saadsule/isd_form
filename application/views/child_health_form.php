@@ -877,6 +877,13 @@ $(document).ready(function () {
                 /* Lock ONLY fields that have a value */
                 lockFieldsWithValues(rec);
 
+                /* Re-apply age/gender rules AFTER locking so the correct
+                    age-group section gets unlocked based on the selected value */
+                 applyAgeGroupRules();
+                 applyGenderRules();
+                 applyQ17Rule();
+                 applyQ25InternalRule();
+
                 /* Mirror QR into hidden field */
                 $('#qr_code_hidden').val(state.currentQR);
                 generateQRPreview(state.currentQR);
@@ -1002,7 +1009,6 @@ $(document).ready(function () {
 
         /* ── RADIO/SELECT groups ── */
         var radioMap = {
-            age_group        : rec.age_group,
             gender           : rec.gender,
             marital_status   : rec.marital_status,
             pregnancy_status : rec.pregnancy_status,
@@ -1011,11 +1017,6 @@ $(document).ready(function () {
             nutrition_package: rec.nutrition_package,
             uc               : rec.uc
         };
-
-        /* age_group can be derived from age_year if not stored */
-        if(!rec.age_group && rec.age_year !== '' && rec.age_year !== null){
-            radioMap.age_group = getAgeGroupFromYear(parseInt(rec.age_year));
-        }
 
         $.each(radioMap, function(fname, fval){
             if(fval && fval !== ''){
