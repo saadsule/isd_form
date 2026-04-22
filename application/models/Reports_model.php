@@ -692,23 +692,19 @@ class Reports_model extends CI_Model {
             ->get('questions')
             ->result_array();
 
-        // 2. Build unique vaccine columns by option_text
+        // 2. Build unique vaccine columns by option_text from DB
         $unique_vaccines = array();
-
         foreach ($questions as $q) {
-            $qid = (int) $q['question_id'];
-
+            $qid     = (int) $q['question_id'];
             $options = $this->db
                 ->where('question_id', $qid)
                 ->order_by('option_order', 'ASC')
                 ->get('question_options')
                 ->result_array();
-
             foreach ($options as $opt) {
                 $oid   = (int) $opt['option_id'];
                 $label = trim($opt['option_text']);
                 $key   = 'vac_' . preg_replace('/[^a-z0-9_]/', '', strtolower(str_replace(' ', '_', $label)));
-
                 if (!isset($unique_vaccines[$key])) {
                     $unique_vaccines[$key] = array('label' => $label, 'oids' => array());
                 }
@@ -716,24 +712,106 @@ class Reports_model extends CI_Model {
             }
         }
 
-        // 3. Build SELECT snippets
-        $vaccine_selects = array();
+        //
+        $db_to_display = array(
+            'bcg'       => 'BCG',
+            'hep'       => 'Hepatitis B0',
+            'opv 0'     => 'OPV 0',
+            'opv i'     => 'OPV 1',
+            'opv ii'    => 'OPV 2',
+            'opv iii'   => 'OPV 3',
+            'pcv i'     => 'PCV 1',
+            'pcv ii'    => 'PCV 2',
+            'pcv iii'   => 'PCV 3',
+            'pcv'       => 'PCV',
+            'penta i'   => 'Penta 1',
+            'penta ii'  => 'Penta 2',
+            'penta iii' => 'Penta 3',
+            'rota i'    => 'Rota 1',
+            'rota ii'   => 'Rota 2',
+            'ipv i'     => 'IPV',
+            'ipv ii'    => 'IPV 2',
+            'mr i'      => 'MR 1',
+            'mr ii'     => 'MR 2',
+            'tcv'       => 'TCV',
+        );
+
+        // normalize: lowercase + trim only (keep spaces for exact matching)
+        $normalize = function($str) {
+            return strtolower(trim($str));
+        };
+
+        // 4. Merge DB vaccines into display-label buckets
+        $merged_vaccines = array();
         foreach ($unique_vaccines as $col => $info) {
-            $oid_list          = implode(',', $info['oids']);
-            $vaccine_selects[] = "
-                COUNT(DISTINCT CASE WHEN chd.option_id IN ({$oid_list}) THEN chm.master_id END) AS `{$col}`
-            ";
+            $norm          = $normalize($info['label']);
+            $display_label = isset($db_to_display[$norm]) ? $db_to_display[$norm] : $info['label'];
+            $display_key   = 'vac_' . preg_replace('/[^a-z0-9_]/', '', strtolower(str_replace(' ', '_', $display_label)));
+
+            if (!isset($merged_vaccines[$display_key])) {
+                $merged_vaccines[$display_key] = array('label' => $display_label, 'oids' => array());
+            }
+            $merged_vaccines[$display_key]['oids'] = array_unique(array_merge(
+                $merged_vaccines[$display_key]['oids'],
+                $info['oids']
+            ));
         }
 
+        // 5. Hardcoded display order
+        //    Hepatitis B0 — not in DB => 0
+        //    DTP Booster  — not in DB => 0
+        //    PCV (plain)  — in DB     => real data, shown after DTP Booster
+        $antigen_order = array(
+            'BCG',
+            'Hepatitis B0',
+            'OPV 0',   'OPV 1',   'OPV 2',   'OPV 3',
+            'PCV 1',   'PCV 2',   'PCV 3',
+            'Penta 1', 'Penta 2', 'Penta 3',
+            'Rota 1',  'Rota 2',
+            'IPV',     'IPV 2',
+            'MR 1',    'MR 2',
+            'TCV',
+            'DTP Booster',
+            'PCV',
+        );
+
+        $order_map = array();
+        foreach ($antigen_order as $i => $display_label) {
+            $display_key             = 'vac_' . preg_replace('/[^a-z0-9_]/', '', strtolower(str_replace(' ', '_', $display_label)));
+            $order_map[$display_key] = $i;
+
+            // Inject if completely missing from DB — column shows 0
+            if (!isset($merged_vaccines[$display_key])) {
+                $merged_vaccines[$display_key] = array('label' => $display_label, 'oids' => array());
+            }
+        }
+
+        // 6. Sort: hardcoded order first, unrecognized DB antigens at end
+        uksort($merged_vaccines, function($a, $b) use ($order_map) {
+            $pos_a = isset($order_map[$a]) ? $order_map[$a] : 999;
+            $pos_b = isset($order_map[$b]) ? $order_map[$b] : 999;
+            return $pos_a - $pos_b;
+        });
+
+        // 7. Build SELECT snippets
+        $vaccine_selects = array();
+        foreach ($merged_vaccines as $col => $info) {
+            if (!empty($info['oids'])) {
+                $oid_list          = implode(',', $info['oids']);
+                $vaccine_selects[] = "COUNT(DISTINCT CASE WHEN chd.option_id IN ({$oid_list}) THEN chm.master_id END) AS `{$col}`";
+            } else {
+                $vaccine_selects[] = "0 AS `{$col}`";
+            }
+        }
         $vaccine_sql = !empty($vaccine_selects) ? ', ' . implode(', ', $vaccine_selects) : '';
 
-        // 4. Main query — grouped by UC + age_group only
+        // 8. Main query
         $sql = "
             SELECT
-                IFNULL(u.uc, '')                                                                    AS uc,
-                IFNULL(chm.age_group, '')                                                           AS age_group,
-                COUNT(DISTINCT chm.master_id)                                                       AS children_enrolled,
-                COUNT(DISTINCT CASE WHEN chd.question_id IN (5,6,7) THEN chm.master_id END)        AS children_vaccinated
+                IFNULL(u.uc, '')                                                                 AS uc,
+                IFNULL(chm.age_group, '')                                                        AS age_group,
+                COUNT(DISTINCT chm.master_id)                                                    AS children_enrolled,
+                COUNT(DISTINCT CASE WHEN chd.question_id IN (5,6,7) THEN chm.master_id END)     AS children_vaccinated
                 {$vaccine_sql}
             FROM child_health_master chm
             LEFT JOIN child_health_detail chd ON chd.master_id = chm.master_id
@@ -742,7 +820,6 @@ class Reports_model extends CI_Model {
         ";
 
         $binds = array();
-
         if (!empty($filters['start']) && !empty($filters['end'])) {
             $sql    .= " AND chm.form_date >= ?";
             $binds[] = $filters['start'];
@@ -762,10 +839,10 @@ class Reports_model extends CI_Model {
         $query  = $this->db->query($sql, $binds);
         $result = $query->result_array();
 
-        // 5. Grand Total per row
+        // 9. Grand Total per row
         foreach ($result as &$row) {
             $grand = 0;
-            foreach (array_keys($unique_vaccines) as $col) {
+            foreach ($merged_vaccines as $col => $info) {
                 $grand += (int) (isset($row[$col]) ? $row[$col] : 0);
             }
             $row['grand_total'] = $grand;
@@ -774,7 +851,7 @@ class Reports_model extends CI_Model {
 
         return array(
             'data'    => $result,
-            'options' => $unique_vaccines,
+            'options' => $merged_vaccines,
         );
     }
     
