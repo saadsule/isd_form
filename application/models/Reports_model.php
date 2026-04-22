@@ -712,7 +712,7 @@ class Reports_model extends CI_Model {
             }
         }
 
-        //
+        // 3. DB label => Display label mapping
         $db_to_display = array(
             'bcg'       => 'BCG',
             'hep'       => 'Hepatitis B0',
@@ -723,7 +723,7 @@ class Reports_model extends CI_Model {
             'pcv i'     => 'PCV 1',
             'pcv ii'    => 'PCV 2',
             'pcv iii'   => 'PCV 3',
-            'pcv'       => 'PCV 1',
+            'pcv'       => 'PCV 1',   // merged into PCV 1
             'penta i'   => 'Penta 1',
             'penta ii'  => 'Penta 2',
             'penta iii' => 'Penta 3',
@@ -736,7 +736,6 @@ class Reports_model extends CI_Model {
             'tcv'       => 'TCV',
         );
 
-        // normalize: lowercase + trim only (keep spaces for exact matching)
         $normalize = function($str) {
             return strtolower(trim($str));
         };
@@ -758,9 +757,6 @@ class Reports_model extends CI_Model {
         }
 
         // 5. Hardcoded display order
-        //    Hepatitis B0 — not in DB => 0
-        //    DTP Booster  — not in DB => 0
-        //    PCV (plain)  — in DB     => real data, shown after DTP Booster
         $antigen_order = array(
             'BCG',
             'Hepatitis B0',
@@ -779,7 +775,6 @@ class Reports_model extends CI_Model {
             $display_key             = 'vac_' . preg_replace('/[^a-z0-9_]/', '', strtolower(str_replace(' ', '_', $display_label)));
             $order_map[$display_key] = $i;
 
-            // Inject if completely missing from DB — column shows 0
             if (!isset($merged_vaccines[$display_key])) {
                 $merged_vaccines[$display_key] = array('label' => $display_label, 'oids' => array());
             }
@@ -807,10 +802,10 @@ class Reports_model extends CI_Model {
         // 8. Main query
         $sql = "
             SELECT
-                IFNULL(u.uc, '')                                                                 AS uc,
-                IFNULL(chm.age_group, '')                                                        AS age_group,
-                COUNT(DISTINCT chm.master_id)                                                    AS children_enrolled,
-                COUNT(DISTINCT CASE WHEN chd.question_id IN (5,6,7) THEN chm.master_id END)     AS children_vaccinated
+                IFNULL(u.uc, '')                                                                                        AS uc,
+                IFNULL(chm.age_group, '')                                                                               AS age_group,
+                COUNT(DISTINCT CASE WHEN chd.question_id = 2 AND chd.option_id = 3 THEN chm.master_id END)             AS children_enrolled,
+                COUNT(DISTINCT CASE WHEN chd.question_id = 2 AND chd.option_id = 3 THEN chm.master_id END)             AS children_vaccinated
                 {$vaccine_sql}
             FROM child_health_master chm
             LEFT JOIN child_health_detail chd ON chd.master_id = chm.master_id
