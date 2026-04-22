@@ -257,6 +257,7 @@
                         $this->uri->segment(2) == 'age_antigens_mismatch_comprehensive'
                         || $this->uri->segment(2) == 'pregnancy_anomaly'
                         || $this->uri->segment(2) == 'underage_married'
+                        || $this->uri->segment(2) == 'possible_duplicates'
                         || $this->uri->segment(2) == 'duplicate_qr_code'
                     ) ? 'open' : '' ?>">
 
@@ -301,6 +302,12 @@
                         <li class="<?= ($this->uri->segment(2) == 'underage_married') ? 'active' : '' ?>">
                             <a href="<?= base_url('reports/underage_married'); ?>">
                                 <span>Underage Married</span>
+                            </a>
+                        </li>
+                        
+                        <li class="<?= ($this->uri->segment(2) == 'possible_duplicates') ? 'active' : '' ?>">
+                            <a href="<?= base_url('reports/possible_duplicates'); ?>">
+                                <span>Possible Duplicate Data</span>
                             </a>
                         </li>
 

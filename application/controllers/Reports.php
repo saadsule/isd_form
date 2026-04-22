@@ -746,4 +746,16 @@ public function pregnancy_anomaly($filter = null)
     $this->load->view('layout/main', $data);
 }
 
+public function possible_duplicates()
+{
+    if (!$this->session->userdata('user_id')) { redirect('login'); }
+    $this->load->model('Reports_model');
+    $records             = $this->Reports_model->get_possible_duplicates();
+    $data['records']     = $records;
+    $data['total']       = count($records);
+    $data['page_title']  = 'Possible Duplicate Data';
+    $data['main_content'] = $this->load->view('reports/possible_duplicates_report', $data, TRUE);
+    $this->load->view('layout/main', $data);
+}
+
 }
