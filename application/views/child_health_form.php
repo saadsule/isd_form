@@ -637,6 +637,56 @@ foreach($questions as $q){
 </div><!-- /card main -->
 
 </form>
+    
+<!-- ── Duplicate Date Modal ── -->
+<div id="dupDateModal" style="
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,.45); z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:14px; padding:28px 32px; max-width:460px; width:90%;
+                box-shadow:0 10px 40px rgba(0,0,0,.2); position:relative; animation:formReveal .3s ease-out;">
+
+        <!-- Icon + Title (NO × close button) -->
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+            <span style="font-size:32px;">⚠️</span>
+            <div>
+                <div style="font-weight:800; font-size:16px; color:#c0392b;">Duplicate Entry Detected</div>
+                <div style="font-size:13px; color:#6c757d; margin-top:2px;">
+                    A record for this patient already exists on the selected date.<br>
+                    <strong>Please review the existing record or start a new session.</strong>
+                </div>
+            </div>
+        </div>
+
+        <hr style="margin:12px 0;">
+
+        <!-- Record info -->
+        <div id="dupDateModalBody" style="font-size:13px; color:#2c3e50; margin-bottom:18px; line-height:1.8;
+             background:#fff8f0; border-left:4px solid #e67e22; padding:10px 14px; border-radius:6px;"></div>
+
+        <!-- Buttons -->
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button id="dupDateReloadBtn"
+                style="padding:8px 20px; border-radius:8px; border:1px solid #dc3545;
+                       background:#fff5f5; color:#dc3545; font-weight:600;
+                       cursor:pointer; font-size:13px; display:inline-flex; align-items:center; gap:6px;">
+                🔄 Start a New Entry
+            </button>
+            <a id="dupDateViewBtn" href="#" target="_blank"
+                style="padding:8px 20px; border-radius:8px; border:none;
+                       background:#007bff; color:#fff; font-weight:600;
+                       cursor:pointer; font-size:13px; text-decoration:none;
+                       display:inline-flex; align-items:center; gap:6px;">
+                👁 View Existing Record
+            </a>
+        </div>
+
+        <!-- Warning note -->
+        <div style="margin-top:14px; font-size:11px; color:#999; text-align:center;">
+            ⓘ You cannot submit a duplicate entry for the same patient on the same date.
+        </div>
+    </div>
+</div>
+    
 </div><!-- /#main-form-wrapper -->
 
 <!-- =========================================================== -->
@@ -1537,6 +1587,61 @@ applyGenderRules();
             else if(v > maxD) this.value = fd.max;
         });
     }
+
+    /* ─────────────────────────────────────────────
+        Duplicate Date Check
+        Fires when user changes the form date AND
+        a QR code record is already loaded
+     ───────────────────────────────────────────── */
+    $(document).on('change', '#form_date_2', function () {
+        var selectedDate = $(this).val();
+        var masterId     = '<?= isset($rec->master_id) ? $rec->master_id : "" ?>';
+        var qrLoaded     = $('#qr_code_hidden').val().trim();
+
+        if (!qrLoaded || !selectedDate) return;
+
+        $.ajax({
+            url     : '<?= base_url("forms/check_duplicate_date") ?>',
+            type    : 'POST',
+            data    : {
+                qr_code           : qrLoaded,
+                form_date         : selectedDate,
+                exclude_master_id : masterId
+            },
+            dataType: 'json',
+            success : function (resp) {
+                if (resp.found) {
+                    $('#dupDateModalBody').html(
+                        '<b>Patient:</b> '   + esc(resp.patient_name)  + '<br>' +
+                        '<b>QR Code:</b> '   + esc(resp.qr_code)       + '<br>' +
+                        '<b>Date:</b> '      + esc(resp.form_date)      + '<br>' +
+                        '<b>Guardian:</b> '  + esc(resp.guardian_name)  + '<br>' +
+                        '<b>Age Group:</b> ' + esc(resp.age_group)
+                    );
+                    $('#dupDateViewBtn').attr(
+                        'href',
+                        '<?= base_url("forms/view_child_health/") ?>' + resp.master_id
+                    );
+                    $('#dupDateModal').css('display', 'flex');
+                }
+            }
+        });
+    });
+
+    /* ── Start New Session → reload page ── */
+    $('#dupDateReloadBtn').on('click', function () {
+        location.reload();
+    });
+
+    /* ── Block form submit while duplicate modal is visible ── */
+    $('#chf-form').on('submit', function (e) {
+        if ($('#dupDateModal').css('display') === 'flex') {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    /* ── Backdrop click DISABLED — user must pick an action ── */
 
 });
 </script>

@@ -1339,5 +1339,48 @@ public function get_child_master_ajax()
 
         redirect('forms/view_opd_mnch/'.$id);
     }
+    
+    public function check_duplicate_date()
+    {
+        $qr_code           = $this->input->post('qr_code');
+        $form_date         = $this->input->post('form_date');
+        $exclude_master_id = (int) $this->input->post('exclude_master_id');
+
+        if (!$qr_code || !$form_date) {
+            echo json_encode(array('found' => false));
+            return;
+        }
+
+        $this->db->where('qr_code', $qr_code);
+        $this->db->where('form_date', $form_date);
+
+        if ($exclude_master_id) {
+            $this->db->where('master_id !=', $exclude_master_id);
+        }
+
+        $query = $this->db
+            ->select('master_id, qr_code, form_date, patient_name, guardian_name, age_group')
+            ->get('child_health_master');
+
+        // 👉 Print the query
+    //    echo $this->db->last_query();
+    //    exit;
+
+        $row = $query->row_array();
+
+        if ($row) {
+            echo json_encode(array(
+                'found'        => true,
+                'master_id'    => $row['master_id'],
+                'qr_code'      => $row['qr_code'],
+                'form_date'    => $row['form_date'],
+                'patient_name' => $row['patient_name'],
+                'guardian_name'=> $row['guardian_name'],
+                'age_group'    => $row['age_group'],
+            ));
+        } else {
+            echo json_encode(array('found' => false));
+        }
+    }
 
 }

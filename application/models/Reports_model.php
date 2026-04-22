@@ -723,7 +723,7 @@ class Reports_model extends CI_Model {
             'pcv i'     => 'PCV 1',
             'pcv ii'    => 'PCV 2',
             'pcv iii'   => 'PCV 3',
-            'pcv'       => 'PCV',
+            'pcv'       => 'PCV 1',
             'penta i'   => 'Penta 1',
             'penta ii'  => 'Penta 2',
             'penta iii' => 'Penta 3',
@@ -772,7 +772,6 @@ class Reports_model extends CI_Model {
             'MR 1',    'MR 2',
             'TCV',
             'DTP Booster',
-            'PCV',
         );
 
         $order_map = array();
