@@ -972,7 +972,7 @@ class Reports_model extends CI_Model {
     {
         $current_user_id = $this->session->userdata('user_id');
         $current_role    = $this->session->userdata('role');
-
+        
         $this->db->select('
             chm.master_id, chm.qr_code, chm.form_date, chm.patient_name,
             chm.guardian_name, chm.dob, chm.age_year, chm.age_month, chm.age_day,
@@ -983,20 +983,35 @@ class Reports_model extends CI_Model {
         $this->db->from('child_health_master chm');
         $this->db->join('users u', 'chm.created_by = u.user_id', 'left');
 
+        // ── Exclude non-duplicate-eligible QR codes ──
+        $this->db->where('chm.qr_code NOT LIKE', '%Supplementary%');
+        $this->db->where('chm.qr_code NOT LIKE', '%NA%');
+        $this->db->where('chm.qr_code NOT LIKE', '%N/A%');
+
         if ($current_role == 1) {
             $this->db->where('chm.created_by', $current_user_id);
         }
-
+        
         $this->db->order_by('chm.qr_code', 'ASC');
         $this->db->order_by('chm.patient_name', 'ASC');
         $this->db->order_by('chm.form_date', 'ASC');
-
+        
         $all = $this->db->get()->result_array();
 
         /* ── Group by qr_code + patient_name + form_date ── */
         $groups = array();
         foreach ($all as $row) {
-            $key = strtolower(trim($row['qr_code']))
+            // ── PHP-level safety net: skip excluded QR codes ──
+            $qr = trim($row['qr_code']);
+            if (
+                stripos($qr, 'Supplementary') !== false ||
+                stripos($qr, 'NA')            !== false ||
+                stripos($qr, 'N/A')           !== false
+            ) {
+                continue;
+            }
+
+            $key = strtolower($qr)
                  . '||' . strtolower(trim($row['patient_name']))
                  . '||' . $row['form_date'];
             $groups[$key][] = $row;
@@ -1011,7 +1026,7 @@ class Reports_model extends CI_Model {
                 }
             }
         }
-
+        
         return $duplicates;
     }
     
