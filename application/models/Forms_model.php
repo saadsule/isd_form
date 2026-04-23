@@ -390,5 +390,88 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
         return $total_ch + $total_opd;
     }
+    
+    public function get_last_7_days_total()
+    {
+        $date_7 = date('Y-m-d', strtotime('-6 days'));
+        $today  = date('Y-m-d');
+
+        $this->db->where('DATE(created_at) >=', $date_7);
+        $ch = $this->db->count_all_results('child_health_master');
+
+        $this->db->where('DATE(created_at) >=', $date_7);
+        $opd = $this->db->count_all_results('opd_mnch_master');
+
+        return $ch + $opd;
+    }
+
+    public function get_this_month_total()
+    {
+        $start = date('Y-m-01');
+        $this->db->where('DATE(created_at) >=', $start);
+        $ch = $this->db->count_all_results('child_health_master');
+        $this->db->where('DATE(created_at) >=', $start);
+        $opd = $this->db->count_all_results('opd_mnch_master');
+        return $ch + $opd;
+    }
+
+    public function get_daily_avg_last_30()
+    {
+        $date_30 = date('Y-m-d', strtotime('-29 days'));
+        $this->db->where('DATE(created_at) >=', $date_30);
+        $ch = $this->db->count_all_results('child_health_master');
+        $this->db->where('DATE(created_at) >=', $date_30);
+        $opd = $this->db->count_all_results('opd_mnch_master');
+        return round(($ch + $opd) / 30);
+    }
+
+    public function get_my_last_7_days()
+    {
+        $user_id = $this->session->userdata('user_id');
+        $date_7  = date('Y-m-d', strtotime('-6 days'));
+
+        $this->db->where('created_by', $user_id)->where('DATE(created_at) >=', $date_7);
+        $ch = $this->db->count_all_results('child_health_master');
+        $this->db->where('created_by', $user_id)->where('DATE(created_at) >=', $date_7);
+        $opd = $this->db->count_all_results('opd_mnch_master');
+        return $ch + $opd;
+    }
+
+    public function get_top_operators_today($limit = 5)
+    {
+        $today = date('Y-m-d');
+
+        // Combined subquery approach using UNION
+        $sql = "
+            SELECT u.full_name AS name, COUNT(*) AS count
+            FROM (
+                SELECT created_by, created_at FROM child_health_master WHERE DATE(created_at) = ?
+                UNION ALL
+                SELECT created_by, created_at FROM opd_mnch_master WHERE DATE(created_at) = ?
+            ) AS combined
+            JOIN users u ON u.user_id = combined.created_by
+            GROUP BY combined.created_by
+            ORDER BY count DESC
+            LIMIT ?
+        ";
+        $query = $this->db->query($sql, [$today, $today, $limit]);
+        return $query->result_array();
+    }
+
+    public function get_last_7_days_trend()
+    {
+        $result = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-$i days"));
+
+            $this->db->where('DATE(created_at)', $date);
+            $ch = $this->db->count_all_results('child_health_master');
+            $this->db->where('DATE(created_at)', $date);
+            $opd = $this->db->count_all_results('opd_mnch_master');
+
+            $result[] = ['date' => $date, 'count' => $ch + $opd];
+        }
+        return $result;
+    }
 
 }
