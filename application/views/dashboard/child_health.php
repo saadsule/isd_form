@@ -1243,7 +1243,8 @@ window.onload = function() {
             uc: $('[name="uc[]"]').val(),
             start: $('[name="start"]').val(),
             end: $('[name="end"]').val(),
-            visit_type: $('[name="visit_type[]"]').val()
+            visit_type: $('[name="visit_type[]"]').val(),
+            age_group: $('[name="age_group[]"]').val() 
         };
 
         // Optional: check if all filters empty

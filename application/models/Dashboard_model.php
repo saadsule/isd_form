@@ -1436,28 +1436,14 @@ class Dashboard_model extends CI_Model {
             ? $filters['age_group'] 
             : ['<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year'];
 
-        // Initialize data with 0 for all combinations
         $gender_age_data = [
             'Male'   => array_fill(0, count($age_groups), 0),
             'Female' => array_fill(0, count($age_groups), 0)
         ];
 
-        // Get raw counts from DB
-        $this->db->select("
-            CASE
-                WHEN age_year < 1 THEN '<1 Year'
-                WHEN age_year >= 1 AND age_year < 2 THEN '1-2 Year'
-                WHEN age_year >= 2 AND age_year < 5 THEN '2-5 Year'
-                WHEN age_year >= 5 AND age_year < 15 THEN '5-15 Year'
-                WHEN age_year >= 15 AND age_year <= 49 THEN '15-49 Year'
-                ELSE 'Other'
-            END AS age_group,
-            gender,
-            COUNT(*) AS total
-        ");
+        $this->db->select("m.age_group, m.gender, COUNT(*) AS total", false);
         $this->db->from('child_health_master m');
 
-        // Apply filters
         if (!empty($filters['uc'])) {
             $this->db->where_in('m.uc', $filters['uc']);
         }
@@ -1474,20 +1460,20 @@ class Dashboard_model extends CI_Model {
             $this->db->where_in('m.age_group', $filters['age_group']);
         }
 
-        $this->db->group_by(['age_group', 'gender']);
-        $this->db->order_by("FIELD(age_group, '<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year')");
-        $query = $this->db->get();
-        $result = $query->result_array();
+        $this->db->group_by(['m.age_group', 'm.gender']);
+        $this->db->order_by("FIELD(m.age_group, '<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year')");
 
-        // Fill data into 0-initialized array
+        $result = $this->db->get()->result_array();
+
         foreach ($result as $row) {
             if (in_array($row['age_group'], $age_groups)) {
                 $index = array_search($row['age_group'], $age_groups);
-                $gender_age_data[$row['gender']][$index] = (int)$row['total'];
+                if (isset($gender_age_data[$row['gender']][$index])) {
+                    $gender_age_data[$row['gender']][$index] = (int)$row['total'];
+                }
             }
         }
 
-        // Return both age_groups and series ready for Highcharts
         return [
             'age_groups' => $age_groups,
             'series'     => $gender_age_data
