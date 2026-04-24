@@ -65,6 +65,26 @@ $default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
                         </select>
                         <small class="text-danger error-message" data-for="visit_type[]"></small>
                     </div>
+                    
+                    <!-- Age Group -->
+                    <div class="col-md-4">
+                        <label>Select Age Group *</label>
+                        <div class="m-b-15">
+                            <select class="select2" name="age_group[]" multiple="multiple" style="width:100%">
+                                <?php
+                                $age_groups = ['<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year'];
+                                $selected_age_groups = isset($filters['age_group'])
+                                    ? (is_array($filters['age_group']) ? $filters['age_group'] : [$filters['age_group']])
+                                    : ['<1 Year','1-2 Year','2-5 Year']; // only first 3 by default
+                                foreach($age_groups as $ag): ?>
+                                    <option value="<?= $ag ?>" <?= in_array($ag, $selected_age_groups) ? 'selected' : '' ?>>
+                                        <?= $ag ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="text-danger error-message" data-for="age_group[]"></small>
+                        </div>
+                    </div>
 
                     <!-- Buttons -->
                     <div class="col-md-12 mt-2 m-b-15 d-flex justify-content-end">
@@ -364,13 +384,7 @@ window.onload = function() {
                 });
 
                 // Age Group Column Chart
-                var ageGroupData = response.age_group || {
-                    '<1 Year':0,
-                    '1-2 Year':0,
-                    '2-5 Year':0,
-                    '5-15 Year':0,
-                    '15-49 Year':0
-                };
+                var ageGroupData = response.age_group || {};
 
                 Highcharts.chart('ageGroupColumnChart', {
                     chart: { type: 'column' },
@@ -1180,7 +1194,8 @@ window.onload = function() {
             uc: $('[name="uc[]"]').val(),
             start: $('[name="start"]').val(),
             end: $('[name="end"]').val(),
-            visit_type: $('[name="visit_type[]"]').val()
+            visit_type: $('[name="visit_type[]"]').val(),
+            age_group: $('[name="age_group[]"]').val()
         };
     }
 
@@ -1191,7 +1206,7 @@ window.onload = function() {
     $('#filterForm').on('submit', function(e){
         e.preventDefault();
 
-        let requiredFields = ["uc[]", "visit_type[]"];
+        let requiredFields = ["uc[]", "visit_type[]", "age_group[]"];
         let valid = true;
 
         // Clear old errors and borders

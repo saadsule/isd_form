@@ -209,6 +209,7 @@ class Dashboard extends CI_Controller {
             'start'     => $this->input->get('start'),
             'end'       => $this->input->get('end'),
             'visit_type'=> $this->input->get('visit_type'),
+            'age_group' => $this->input->get('age_group'),
         ];
         $data['filters'] = $filters;
 

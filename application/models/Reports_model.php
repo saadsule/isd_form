@@ -803,6 +803,8 @@ class Reports_model extends CI_Model {
         $sql = "
             SELECT
                 IFNULL(u.uc, '')                                                                                        AS uc,
+                IFNULL(f.facility_name, '')  AS facility_name,
+                IFNULL(chm.vaccinator_name, '') AS vaccinator_name,
                 IFNULL(chm.age_group, '')                                                                               AS age_group,
                 COUNT(DISTINCT CASE WHEN chd.question_id = 2 AND chd.option_id = 3 THEN chm.master_id END)             AS children_enrolled,
                 COUNT(DISTINCT CASE WHEN chd.question_id = 2 AND chd.option_id = 3 THEN chm.master_id END)             AS children_vaccinated
@@ -810,6 +812,7 @@ class Reports_model extends CI_Model {
             FROM child_health_master chm
             LEFT JOIN child_health_detail chd ON chd.master_id = chm.master_id
             LEFT JOIN uc u                    ON u.pk_id       = chm.uc
+            LEFT JOIN facilities f ON f.id = chm.facility_id
             WHERE 1=1
         ";
 
@@ -824,7 +827,9 @@ class Reports_model extends CI_Model {
         $sql .= "
             GROUP BY
                 u.uc,
-                chm.age_group
+                chm.age_group,
+                f.facility_name,
+                chm.vaccinator_name
             ORDER BY
                 u.uc          ASC,
                 chm.age_group ASC

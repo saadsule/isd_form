@@ -657,6 +657,10 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('visit_type', $filters['visit_type']);
         }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('age_group', $filters['age_group']);
+        }
 
         $this->db->group_by('client_type');
         $result = $this->db->get()->result();
@@ -696,6 +700,10 @@ class Dashboard_model extends CI_Model {
 
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('visit_type', $filters['visit_type']);
+        }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('age_group', $filters['age_group']);
         }
 
         $this->db->group_by('gender');
@@ -738,18 +746,29 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('visit_type', $filters['visit_type']);
         }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('age_group', $filters['age_group']);
+        }
 
         $this->db->group_by('age_group');
         $result = $this->db->get()->result();
 
         // Initialize default age groups with 0
-        $ageGroups = [
-            '<1 Year'    => 0,
-            '1-2 Year'   => 0,
-            '2-5 Year'   => 0,
-            '5-15 Year'  => 0,
-            '15-49 Year' => 0
-        ];
+        $ageGroups = [];
+        if (!empty($filters['age_group'])) {
+            foreach ($filters['age_group'] as $ag) {
+                $ageGroups[$ag] = 0;
+            }
+        } else {
+            $ageGroups = [
+                '<1 Year'    => 0,
+                '1-2 Year'   => 0,
+                '2-5 Year'   => 0,
+                '5-15 Year'  => 0,
+                '15-49 Year' => 0
+            ];
+        }
 
         foreach ($result as $row) {
             if (isset($ageGroups[$row->age_group])) {
@@ -778,7 +797,10 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
         }
-
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
+        
         // Select Yes / No / None counts
         $this->db->select("
             SUM(CASE WHEN d.answer = 'Yes' THEN 1 ELSE 0 END) AS Yes,
@@ -806,6 +828,9 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['start'])) $this->db->where('DATE(m.form_date) >=', $filters['start']);
         if (!empty($filters['end'])) $this->db->where('DATE(m.form_date) <=', $filters['end']);
         if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
 
         $this->db->select("
             SUM(CASE WHEN d.question_id=2 AND d.answer='Yes' THEN 1 ELSE 0 END) AS yes_count,
@@ -972,6 +997,9 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
         }
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
         $this->db->select("
             d.question_id,
             d.answer AS antigen,
@@ -1051,6 +1079,10 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
         }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
 
         $this->db->select("
             d.answer,
@@ -1096,6 +1128,10 @@ class Dashboard_model extends CI_Model {
 
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
         }
 
         $totalForms = $this->db->count_all_results();
@@ -1137,6 +1173,10 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
         }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
 
         $this->db->select("
             d.answer,
@@ -1182,6 +1222,10 @@ class Dashboard_model extends CI_Model {
 
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
         }
 
         $totalForms = $this->db->count_all_results();
@@ -1223,6 +1267,10 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
         }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
 
         $this->db->select("
             d.answer,
@@ -1268,6 +1316,10 @@ class Dashboard_model extends CI_Model {
 
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
         }
 
         $totalForms = $this->db->count_all_results();
@@ -1309,6 +1361,10 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
         }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
 
         $this->db->select("
             d.answer,
@@ -1355,6 +1411,10 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
         }
+        
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
 
         $totalForms = $this->db->count_all_results();
 
@@ -1372,7 +1432,9 @@ class Dashboard_model extends CI_Model {
     
     public function get_gender_age_data($filters = [])
     {
-        $age_groups = ['<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year'];
+        $age_groups = !empty($filters['age_group']) 
+            ? $filters['age_group'] 
+            : ['<1 Year','1-2 Year','2-5 Year','5-15 Year','15-49 Year'];
 
         // Initialize data with 0 for all combinations
         $gender_age_data = [
@@ -1407,6 +1469,9 @@ class Dashboard_model extends CI_Model {
         }
         if (!empty($filters['visit_type'])) {
             $this->db->where_in('m.visit_type', $filters['visit_type']);
+        }
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
         }
 
         $this->db->group_by(['age_group', 'gender']);
@@ -1443,6 +1508,9 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['start'])) $this->db->where('DATE(m.form_date) >=', $filters['start']);
         if (!empty($filters['end'])) $this->db->where('DATE(m.form_date) <=', $filters['end']);
         if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
 
         $totalForms = $this->db->count_all_results();
 
@@ -1464,6 +1532,9 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['start'])) $this->db->where('DATE(m.form_date) >=', $filters['start']);
         if (!empty($filters['end'])) $this->db->where('DATE(m.form_date) <=', $filters['end']);
         if (!empty($filters['visit_type'])) $this->db->where_in('m.visit_type', $filters['visit_type']);
+        if (!empty($filters['age_group'])) {
+            $this->db->where_in('m.age_group', $filters['age_group']);
+        }
 
         $this->db->select("
             SUM(CASE WHEN d.question_id = 12 AND d.answer = 'Yes' THEN 1 ELSE 0 END) AS q121_Yes,

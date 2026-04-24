@@ -80,6 +80,8 @@ $records    = isset($records)    ? $records    : array();
                     <tr>
                         <th style="width:35px;">#</th>
                         <th style="width:120px;">UC</th>
+                        <th style="width:120px;">Facility</th>
+                        <th style="width:120px;">Vaccinator Name</th>
                         <th style="width:80px;">Age Group</th>
                         <th style="width:90px;">Children Enrolled</th>
                         <th style="width:90px;">Children Vaccinated</th>
@@ -96,6 +98,8 @@ $records    = isset($records)    ? $records    : array();
                         <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#1a3c5e;color:#fff;border-radius:4px;font-size:10px;font-weight:700;"><?= $serial ?></span>
                     </td>
                     <td><?= htmlspecialchars(isset($row['uc'])         ? $row['uc']         : '') ?></td>
+                    <td><?= htmlspecialchars(isset($row['facility_name']) ? $row['facility_name'] : '') ?></td>
+                    <td><?= htmlspecialchars(isset($row['vaccinator_name']) ? $row['vaccinator_name'] : '') ?></td>
                     <td class="text-center"><?= htmlspecialchars(isset($row['age_group']) ? $row['age_group'] : '') ?></td>
                     <td class="text-center"><?= (int) $row['children_enrolled'] ?></td>
                     <td class="text-center"><?= (int) $row['children_vaccinated'] ?></td>
