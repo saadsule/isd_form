@@ -157,6 +157,18 @@
 .r-tv  { font-size: 10px; color: #9ca3af; }
 .r-td  { font-size: 10px; color: #9ca3af; }
 .r-td.today { color: #2563eb; font-weight: 700; }
+
+.r-kpi-value {
+    font-size: 30px; font-weight: 800;
+    color: #111827; letter-spacing: -1px; line-height: 1;
+    text-align: right;  /* ✅ add this */
+}
+
+.r-snap-value {
+    font-size: 26px; font-weight: 800;
+    color: #111827; line-height: 1; letter-spacing: -0.5px;
+    text-align: right;  /* ✅ add this */
+}
 </style>
 
 <div class="page-container">
@@ -178,7 +190,7 @@
                         <div class="r-icon lg ri-blue"><i class="anticon anticon-file-text"></i></div>
                         <div>
                             <div class="r-kpi-label">Total Forms Digitized</div>
-                            <div class="r-kpi-value"><?= $total_forms ?></div>
+                            <div class="r-kpi-value"><?= number_format($total_forms) ?></div>
                         </div>
                     </div>
                 </div>
@@ -192,7 +204,7 @@
                         <div class="r-icon lg ri-green"><i class="anticon anticon-user"></i></div>
                         <div>
                             <div class="r-kpi-label">Child Health Forms</div>
-                            <div class="r-kpi-value"><?= $child_health_total ?></div>
+                            <div class="r-kpi-value"><?= number_format($child_health_total) ?></div>
                         </div>
                     </div>
                 </div>
@@ -206,7 +218,7 @@
                         <div class="r-icon lg ri-amber"><i class="anticon anticon-team"></i></div>
                         <div>
                             <div class="r-kpi-label">OPD / MNCH Forms</div>
-                            <div class="r-kpi-value"><?= $opd_total ?></div>
+                            <div class="r-kpi-value"><?= number_format($opd_total) ?></div>
                         </div>
                     </div>
                 </div>
@@ -226,7 +238,7 @@
                         <div class="r-icon sm ri-cyan"><i class="anticon anticon-calendar"></i></div>
                         <div>
                             <div class="r-snap-label">Today</div>
-                            <div class="r-snap-value"><?= $today_total ?></div>
+                            <div class="r-snap-value"><?= number_format($today_total) ?></div>
                         </div>
                     </div>
                 </div>
@@ -240,7 +252,7 @@
                         <div class="r-icon sm ri-violet"><i class="anticon anticon-bar-chart"></i></div>
                         <div>
                             <div class="r-snap-label">Last 7 Days</div>
-                            <div class="r-snap-value"><?= $last_7_days_total ?></div>
+                            <div class="r-snap-value"><?= number_format($last_7_days_total) ?></div>
                         </div>
                     </div>
                 </div>
@@ -254,7 +266,7 @@
                         <div class="r-icon sm ri-teal"><i class="anticon anticon-calendar"></i></div>
                         <div>
                             <div class="r-snap-label">This Month</div>
-                            <div class="r-snap-value"><?= $this_month_total ?></div>
+                            <div class="r-snap-value"><?= number_format($this_month_total) ?></div>
                         </div>
                     </div>
                 </div>
@@ -268,7 +280,7 @@
                         <div class="r-icon sm ri-rose"><i class="anticon anticon-rise"></i></div>
                         <div>
                             <div class="r-snap-label">Daily Average</div>
-                            <div class="r-snap-value"><?= $daily_avg ?></div>
+                            <div class="r-snap-value"><?= number_format($daily_avg) ?></div>
                             <div class="r-snap-sub">last 30 days</div>
                         </div>
                     </div>
@@ -293,14 +305,14 @@
                     ?>
                     <div class="r-prog-row">
                         <span class="r-prog-name"><span class="r-prog-dot" style="background:#2563eb;"></span>Child Health</span>
-                        <span class="r-prog-num"><?= $child_health_total ?></span>
+                        <span class="r-prog-num"><?= number_format($child_health_total) ?></span>
                     </div>
                     <div class="r-prog-track">
                         <div class="r-prog-fill" style="width:<?= $ch_pct ?>%; background:#2563eb;"></div>
                     </div>
                     <div class="r-prog-row">
                         <span class="r-prog-name"><span class="r-prog-dot" style="background:#d97706;"></span>OPD / MNCH</span>
-                        <span class="r-prog-num"><?= $opd_total ?></span>
+                        <span class="r-prog-num"><?= number_format($opd_total) ?></span>
                     </div>
                     <div class="r-prog-track">
                         <div class="r-prog-fill" style="width:<?= $opd_pct ?>%; background:#d97706;"></div>
@@ -334,15 +346,15 @@
                     <div class="r-cg">
                         <div class="r-cg-cell">
                             <span class="r-cg-label">All Time</span>
-                            <div class="r-cg-val"><?= $my_total_forms ?></div>
+                            <div class="r-cg-val"><?= number_format($my_total_forms) ?></div>
                         </div>
                         <div class="r-cg-cell">
                             <span class="r-cg-label">Today</span>
-                            <div class="r-cg-val"><?= $my_today_total ?></div>
+                            <div class="r-cg-val"><?= number_format($my_today_total) ?></div>
                         </div>
                         <div class="r-cg-cell">
                             <span class="r-cg-label">Last 7 Days</span>
-                            <div class="r-cg-val"><?= $my_last_7_days ?></div>
+                            <div class="r-cg-val"><?= number_format($my_last_7_days) ?></div>
                         </div>
                     </div>
 
@@ -377,7 +389,7 @@
                             <div class="r-lb-track">
                                 <div class="r-lb-fill" style="width:<?= round($op['count']/$max_c*100) ?>%;"></div>
                             </div>
-                            <span class="r-lb-num"><?= $op['count'] ?></span>
+                            <span class="r-lb-num"><?= number_format($op['count']) ?></span>
                         </div>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -405,7 +417,7 @@
                             $it = ($d['date'] === date('Y-m-d'));
                         ?>
                         <div class="trend-bar-col">
-                            <span class="r-tv"><?= $d['count'] ?></span>
+                            <span class="r-tv"><?= number_format($d['count']) ?></span>
                             <div class="trend-bar-block" style="height:<?= $bh ?>px; background:<?= $it ? '#2563eb' : '#bfdbfe' ?>;"></div>
                             <span class="r-td <?= $it ? 'today' : '' ?>"><?= date('D', strtotime($d['date'])) ?></span>
                         </div>

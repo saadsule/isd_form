@@ -112,7 +112,7 @@ $records    = isset($records)    ? $records    : array();
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3">TOTAL</td>
+                        <td colspan="5">TOTAL</td>
                         <td><?= $tot_enrolled ?></td>
                         <td><?= $tot_vaccinated ?></td>
                         <?php foreach (array_keys($options) as $col): ?>

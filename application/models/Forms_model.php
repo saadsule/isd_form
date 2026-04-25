@@ -306,12 +306,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     {
         $this->db->select('COUNT(*) as total');
         $this->db->from('child_health_master');
-        $this->db->where('created_by <', 15);
         $total_ch = $this->db->get()->row()->total;
 
         $this->db->select('COUNT(*) as total');
         $this->db->from('opd_mnch_master');
-        $this->db->where('created_by <', 15);
         $total_opd = $this->db->get()->row()->total;
 
         return $total_ch + $total_opd;
@@ -440,8 +438,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     public function get_top_operators_today($limit = 5)
     {
         $today = date('Y-m-d');
-
-        // Combined subquery approach using UNION
         $sql = "
             SELECT u.full_name AS name, COUNT(*) AS count
             FROM (
@@ -450,6 +446,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 SELECT created_by, created_at FROM opd_mnch_master WHERE DATE(created_at) = ?
             ) AS combined
             JOIN users u ON u.user_id = combined.created_by
+            WHERE u.user_id > 14
             GROUP BY combined.created_by
             ORDER BY count DESC
             LIMIT ?

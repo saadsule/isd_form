@@ -101,7 +101,12 @@ $default_end   = isset($filters['end']) ? $filters['end'] : date('Y-m-d');
             Please select filter(s) to view data.
         </div>
 
-        <!-- SUMMARY CARDS -->
+        <!-- Overlay Loader -->
+        <div id="dashboardLoader" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.80); backdrop-filter:blur(3px); z-index:999; align-items:center; justify-content:center; flex-direction:column;">
+            <div class="spinner-border text-primary" role="status" style="width:55px; height:55px;"></div>
+            <p style="margin-top:15px; color:#333; font-size:15px; font-weight:500;">Loading dashboard data, please wait...</p>
+        </div>
+        
         <!-- SUMMARY CARDS -->
         <div class="row mb-3" id="summaryCards" style="display:none;">
             <div class="col-md-6 col-lg-4">
@@ -298,13 +303,19 @@ window.onload = function() {
 
     function loadDashboard(filters){
 
+         // Show loader
+        $('#chartsSection').hide();
+        $('#summaryCards').hide();
+        $('#defaultMessage').hide();
+        $('#dashboardLoader').css('display', 'flex');
+    
         $.ajax({
             url: "<?= base_url('dashboard/get_child_health_ajax') ?>",
             type: "POST",
             data: filters,
             dataType: "json",
             success: function(response){
-
+                $('#dashboardLoader').hide();
                 $('#defaultMessage').hide();
                 $('#summaryCards').show();
                 $('#chartsSection').show();
@@ -1184,6 +1195,11 @@ window.onload = function() {
 
                 })();
 
+            },
+            error: function(){
+                $('#dashboardLoader').hide();
+                $('#defaultMessage').show();
+                alert('Failed to load dashboard data. Please try again.');
             }
         });
     }
