@@ -470,5 +470,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         }
         return $result;
     }
+    
+    public function get_distinct_vaccinators()
+{
+    $this->db->select('vaccinator_name');
+    $this->db->from('child_health_master');
+    $this->db->where('vaccinator_name !=', '');
+    $this->db->group_by('vaccinator_name');
+    $this->db->order_by('vaccinator_name', 'ASC');
+    return $this->db->get()->result();
+}
 
 }

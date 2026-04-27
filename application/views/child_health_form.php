@@ -186,6 +186,20 @@ input[type="checkbox"].field-locked { cursor: not-allowed !important; pointer-ev
     from { opacity:0; transform:translateY(16px); }
     to   { opacity:1; transform:translateY(0);    }
 }
+
+#vaccinator_select + .select2-container .select2-selection--single {
+    height: 45px !important;
+    line-height: 45px !important;
+    border-radius: 10px !important;
+}
+
+#vaccinator_select + .select2-container .select2-selection__rendered {
+    line-height: 45px !important;
+}
+
+#vaccinator_select + .select2-container .select2-selection__arrow {
+    height: 45px !important;
+}
 </style>
 
 <div class="page-container">
@@ -379,8 +393,20 @@ $details = isset($details) ? $details : array();
     </div>
     <label class="col-sm-2 col-form-label">6. Vaccinator name *</label>
     <div class="col-sm-4">
-        <input type="text" name="vaccinator_name" class="form-control"
-               value="<?= isset($rec->vaccinator_name) ? $rec->vaccinator_name : '' ?>" required>
+        <select id="vaccinator_select" class="select2">
+            <option value="">-- Select Vaccinator --</option>
+            <?php foreach($vaccinators as $v): ?>
+                <option value="<?= htmlspecialchars($v->vaccinator_name) ?>"
+                    <?= (isset($rec->vaccinator_name) && $rec->vaccinator_name == $v->vaccinator_name) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($v->vaccinator_name) ?>
+                </option>
+            <?php endforeach; ?>
+            <option value="Other">Other</option>
+        </select>
+        <input type="text" name="vaccinator_name" id="vaccinator_name_input" class="form-control mt-2"
+               placeholder="Enter vaccinator name"
+               value="<?= isset($rec->vaccinator_name) ? $rec->vaccinator_name : '' ?>"
+               style="display:none;">
     </div>
 </div>
 
@@ -1166,7 +1192,47 @@ $(document).ready(function () {
        Flash message auto-hide
     ───────────────────────────────────────────── */
     setTimeout(function(){ $('#flash-msg').fadeOut('slow'); }, 3000);
+    $('#qr_external_input').focus();
+    
+    // Vaccinator dropdown logic
+var savedVaccinator = "<?= isset($rec->vaccinator_name) ? addslashes($rec->vaccinator_name) : '' ?>";
 
+// On page load — if saved value exists but not in list, show as Other
+if(savedVaccinator !== ''){
+    var found = false;
+    $('#vaccinator_select option').each(function(){
+        if($(this).val() === savedVaccinator) found = true;
+    });
+    if(!found){
+        $('#vaccinator_select').val('Other');
+        $('#vaccinator_name_input').show().val(savedVaccinator);
+    } else {
+        $('#vaccinator_select').val(savedVaccinator);
+        $('#vaccinator_name_input').hide();
+        $('[name="vaccinator_name"]').val(savedVaccinator);
+    }
+}
+
+$('#vaccinator_select').on('change', function(){
+    var val = $(this).val();
+    if(val === 'Other'){
+        $('#vaccinator_name_input').show().val('').focus();
+        $('[name="vaccinator_name"]').val('');
+    } else {
+        $('#vaccinator_name_input').hide();
+        $('[name="vaccinator_name"]').val(val);
+    }
+});
+
+$('#vaccinator_name_input').on('input', function(){
+    $('[name="vaccinator_name"]').val($(this).val());
+});
+
+$('#vaccinator_select').select2({
+    width: '100%',
+    placeholder: '-- Select Vaccinator --',
+    allowClear: true
+});
     /* ─────────────────────────────────────────────
         AGE GROUP + GENDER BASED RULES (FINAL)
      ───────────────────────────────────────────── */
@@ -1638,6 +1704,24 @@ applyGenderRules();
         if ($('#dupDateModal').css('display') === 'flex') {
             e.preventDefault();
             return false;
+        }
+
+        // Vaccinator validation
+        var vaccinatorVal = $('[name="vaccinator_name"]').val().trim();
+        if(vaccinatorVal === ''){
+            e.preventDefault();
+            $('#vaccinator_select').next('.select2-container').find('.select2-selection').css({
+                'border': '1px solid #dc3545',
+                'border-radius': '10px'
+            });
+            $('#vaccinator-error').remove();
+            $('<small id="vaccinator-error" class="text-danger">Please select or enter a vaccinator name.</small>')
+                .insertAfter('#vaccinator_name_input');
+            $('html,body').animate({ scrollTop: $('#vaccinator_select').closest('.form-group').offset().top - 200 }, 400);
+            return false;
+        } else {
+            $('#vaccinator_select').next('.select2-container').find('.select2-selection').css('border', '');
+            $('#vaccinator-error').remove();
         }
     });
 

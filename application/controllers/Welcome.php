@@ -29,28 +29,6 @@ class Welcome extends CI_Controller {
      */
     public function index()
     {
-        // Load model if needed
-        $this->load->model('Forms_model');
-
-        // Totals
-        $data['total_forms'] = $this->Forms_model->get_total_forms();
-        
-        $data['total_parcel_forms'] = $this->Forms_model->get_total_parcel_forms();
-        
-        $data['child_health_total'] = $this->Forms_model->get_child_health_total();
-        $data['opd_total'] = $this->Forms_model->get_opd_total();
-        $data['today_total'] = $this->Forms_model->get_today_total();
-        
-        $data['my_total_forms'] = $this->Forms_model->get_my_total_forms();
-        $data['my_today_total'] = $this->Forms_model->get_my_today_total();
-
-        $data['page_title'] = "Welcome";        
-        $data['main_content'] = $this->load->view('home', $data, TRUE);
-        $this->load->view('layout/main', $data);
-    }
-    
-    public function reporting()
-    {
         $this->load->model('Forms_model');
 
         $role = $this->session->userdata('role'); // adjust key to match your session
@@ -83,7 +61,8 @@ class Welcome extends CI_Controller {
         }
 
         $data['page_title']   = 'Reporting Overview';
-        $data['main_content'] = $this->load->view('home_v2', $data, TRUE);
+        $data['main_content'] = $this->load->view('home', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
 }

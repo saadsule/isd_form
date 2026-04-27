@@ -123,6 +123,7 @@ public function get_child_master_ajax()
         // Get all questions for this form type
         $data['questions'] = $this->Questions_model->get_all_questions_by_form_type('chf');
         
+        $data['vaccinators'] = $this->Forms_model->get_distinct_vaccinators();
         // Load districts
         $data['districts'] = $this->Location_model->get_districts();
         
