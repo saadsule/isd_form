@@ -689,73 +689,106 @@ class Reports extends CI_Controller {
         $this->load->view('layout/main', $data);
     }
     
-public function age_antigens_mismatch_comprehensive($filter_type = null)
-{
-    if (!$this->session->userdata('user_id')) {
-        redirect('login');
+    public function age_antigens_mismatch_comprehensive($filter_type = null)
+    {
+        if (!$this->session->userdata('user_id')) {
+            redirect('login');
+        }
+
+        // Convert numeric url segment to type string
+        $type_map = array('1' => 'Type 1', '2' => 'Type 2', '3' => 'Type 3');
+        if ($filter_type !== null && isset($type_map[$filter_type])) {
+            $filter_type = $type_map[$filter_type];
+        } elseif ($filter_type !== null && !in_array($filter_type, array('Type 1','Type 2','Type 3'))) {
+            $filter_type = null;
+        }
+
+        $this->load->model('Reports_model');
+        $mismatch_data = $this->Reports_model->get_age_antigens_mismatch_report($filter_type);
+
+        $data['records']     = $mismatch_data['records'];
+        $data['summary']     = $mismatch_data['summary'];
+        $data['filter_type'] = $filter_type;
+        $data['page_title']  = 'Age & Antigens Mismatch Report';
+
+        $data['main_content'] = $this->load->view('reports/age_antigens_comprehensive_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
     }
 
-    // Convert numeric url segment to type string
-    $type_map = array('1' => 'Type 1', '2' => 'Type 2', '3' => 'Type 3');
-    if ($filter_type !== null && isset($type_map[$filter_type])) {
-        $filter_type = $type_map[$filter_type];
-    } elseif ($filter_type !== null && !in_array($filter_type, array('Type 1','Type 2','Type 3'))) {
-        $filter_type = null;
+    public function underage_married($filter = null)
+    {
+        if (!$this->session->userdata('user_id')) { redirect('login'); }
+        $this->load->model('Reports_model');
+        $data['records']    = $this->Reports_model->get_underage_married_records();
+        $data['total']      = count($data['records']);
+        $data['page_title'] = 'Underage Married Report';
+        $data['main_content'] = $this->load->view('reports/underage_married_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
     }
 
-    $this->load->model('Reports_model');
-    $mismatch_data = $this->Reports_model->get_age_antigens_mismatch_report($filter_type);
+    public function pregnancy_anomaly($filter = null)
+    {
+        if (!$this->session->userdata('user_id')) { redirect('login'); }
 
-    $data['records']     = $mismatch_data['records'];
-    $data['summary']     = $mismatch_data['summary'];
-    $data['filter_type'] = $filter_type;
-    $data['page_title']  = 'Age & Antigens Mismatch Report';
+        $allowed = array('male', 'underage', 'unmarried');
+        if ($filter !== null && !in_array($filter, $allowed)) {
+            $filter = null;
+        }
 
-    $data['main_content'] = $this->load->view('reports/age_antigens_comprehensive_report', $data, TRUE);
-    $this->load->view('layout/main', $data);
-}
-
-public function underage_married($filter = null)
-{
-    if (!$this->session->userdata('user_id')) { redirect('login'); }
-    $this->load->model('Reports_model');
-    $data['records']    = $this->Reports_model->get_underage_married_records();
-    $data['total']      = count($data['records']);
-    $data['page_title'] = 'Underage Married Report';
-    $data['main_content'] = $this->load->view('reports/underage_married_report', $data, TRUE);
-    $this->load->view('layout/main', $data);
-}
-
-public function pregnancy_anomaly($filter = null)
-{
-    if (!$this->session->userdata('user_id')) { redirect('login'); }
-
-    $allowed = array('male', 'underage', 'unmarried');
-    if ($filter !== null && !in_array($filter, $allowed)) {
-        $filter = null;
+        $this->load->model('Reports_model');
+        $result             = $this->Reports_model->get_pregnancy_anomaly_records($filter);
+        $data['records']    = $result['records'];
+        $data['summary']    = $result['summary'];
+        $data['filter']     = $filter;
+        $data['total']      = count($data['records']);
+        $data['page_title'] = 'Pregnancy Anomaly Report';
+        $data['main_content'] = $this->load->view('reports/pregnancy_anomaly_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
     }
 
-    $this->load->model('Reports_model');
-    $result             = $this->Reports_model->get_pregnancy_anomaly_records($filter);
-    $data['records']    = $result['records'];
-    $data['summary']    = $result['summary'];
-    $data['filter']     = $filter;
-    $data['total']      = count($data['records']);
-    $data['page_title'] = 'Pregnancy Anomaly Report';
-    $data['main_content'] = $this->load->view('reports/pregnancy_anomaly_report', $data, TRUE);
-    $this->load->view('layout/main', $data);
-}
+    public function possible_duplicates()
+    {
+        if (!$this->session->userdata('user_id')) { redirect('login'); }
+        $this->load->model('Reports_model');
+        $records             = $this->Reports_model->get_possible_duplicates();
+        $data['records']     = $records;
+        $data['total']       = count($records);
+        $data['page_title']  = 'Possible Duplicate Data';
+        $data['main_content'] = $this->load->view('reports/possible_duplicates_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
 
-public function possible_duplicates()
-{
-    if (!$this->session->userdata('user_id')) { redirect('login'); }
-    $this->load->model('Reports_model');
-    $records             = $this->Reports_model->get_possible_duplicates();
-    $data['records']     = $records;
-    $data['total']       = count($records);
-    $data['page_title']  = 'Possible Duplicate Data';
-    $data['main_content'] = $this->load->view('reports/possible_duplicates_report', $data, TRUE);
-    $this->load->view('layout/main', $data);
-}
+    public function follow_up_status()
+    {
+        if (!$this->session->userdata('user_id')) {
+            redirect('login');
+        }
+        $this->load->model('Reports_model');
+        $data = $this->Reports_model->get_follow_up_status_report();
+        $data['page_title']   = 'Follow Up Status Report';
+        $data['main_content'] = $this->load->view('reports/follow_up_status_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
+    public function qr_history_search()
+    {
+        if (!$this->session->userdata('user_id')) {
+            redirect('login');
+        }
+        $this->load->model('Reports_model');
+        $qr_code = $this->input->get('qr_code');
+        $data['records']  = array();
+        $data['qr_code']  = $qr_code;
+        $data['searched'] = false;
+
+        if (!empty($qr_code)) {
+            $data['records']  = $this->Reports_model->get_qr_history($qr_code);
+            $data['searched'] = true;
+        }
+
+        $data['page_title']   = 'QR Code History Search';
+        $data['main_content'] = $this->load->view('reports/qr_history_search', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
 
 }
