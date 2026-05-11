@@ -758,7 +758,7 @@ class Reports extends CI_Controller {
         $this->load->view('layout/main', $data);
     }
 
-    public function follow_up_status()
+        public function follow_up_status()
     {
         if (!$this->session->userdata('user_id')) {
             redirect('login');
@@ -769,23 +769,56 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/follow_up_status_report', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
-    
+ 
+    // ── NEW: drill-down page ──────────────────────────────────────────────
+    public function drill_down()
+    {
+        if (!$this->session->userdata('user_id')) redirect('login');
+        $this->load->model('Reports_model');
+ 
+        $type    = $this->input->get('type');    // 'reg' or 'fu'
+        $uc_id   = (int) $this->input->get('uc_id');
+        $month   = $this->input->get('month');   // 'Y-m' e.g. 2026-01
+        $uc_name = $this->input->get('uc_name');
+ 
+        if (!in_array($type, array('reg', 'fu')) || !$uc_id || !$month) {
+            show_404();
+        }
+ 
+        $data['records']  = $this->Reports_model->get_drill_down_list($type, $uc_id, $month);
+
+        // Add vaccinations
+        $master_ids = array_column($data['records'], 'master_id');
+        $vac_map    = $this->Reports_model->get_vaccinations_for_masters($master_ids);
+        foreach ($data['records'] as &$rec) {
+            $rec['vaccinations'] = isset($vac_map[$rec['master_id']]) ? $vac_map[$rec['master_id']] : array();
+        }
+        unset($rec);
+        
+        $data['type']     = $type;
+        $data['uc_id']    = $uc_id;
+        $data['uc_name']  = $uc_name;
+        $data['month']    = $month;
+        $data['page_title']   = ($type === 'reg' ? 'Registrations' : 'Follow-Ups')
+                                . ' — ' . $uc_name . ' — ' . $month;
+        $data['main_content'] = $this->load->view('reports/drill_down_list', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+ 
+    // ── UPDATED: qr_history_search ────────────────────────────────────────
     public function qr_history_search()
     {
-        if (!$this->session->userdata('user_id')) {
-            redirect('login');
-        }
+        if (!$this->session->userdata('user_id')) redirect('login');
         $this->load->model('Reports_model');
+ 
         $qr_code = $this->input->get('qr_code');
         $data['records']  = array();
         $data['qr_code']  = $qr_code;
         $data['searched'] = false;
-
         if (!empty($qr_code)) {
             $data['records']  = $this->Reports_model->get_qr_history($qr_code);
             $data['searched'] = true;
         }
-
         $data['page_title']   = 'QR Code History Search';
         $data['main_content'] = $this->load->view('reports/qr_history_search', $data, TRUE);
         $this->load->view('layout/main', $data);

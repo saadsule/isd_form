@@ -1111,8 +1111,8 @@ class Reports_model extends CI_Model {
         $current_user_id = $this->session->userdata('user_id');
         $current_role    = $this->session->userdata('role');
         $role_filter     = ($current_role == 1) ? "AND u.user_id = {$current_user_id}" : "";
-
-        // ── Generate months Dec-2025 → current month ──────────────────────────
+ 
+        // ── Generate months Dec-2025 → current month ───────────────────────
         $months = array();
         $start  = new DateTime('2025-12-01');
         $end    = new DateTime(date('Y-m-01'));
@@ -1122,24 +1122,24 @@ class Reports_model extends CI_Model {
         foreach ($period as $dt) {
             $months[] = $dt->format('Y-m');
         }
-
-        // ── 1. Total visits (all rows) ─────────────────────────────────────────
+ 
+        // ── 1. Total visits ────────────────────────────────────────────────
         $total_visits = $this->db->query("
             SELECT COUNT(*) as cnt
             FROM child_health_master chm
             LEFT JOIN users u ON u.user_id = chm.created_by
             WHERE 1=1 {$role_filter}
         ")->row()->cnt;
-
-        // ── 2. Total unique children (unique QR codes) ─────────────────────────
+ 
+        // ── 2. Total unique children ───────────────────────────────────────
         $total_children = $this->db->query("
             SELECT COUNT(DISTINCT chm.qr_code) as cnt
             FROM child_health_master chm
             LEFT JOIN users u ON u.user_id = chm.created_by
             WHERE 1=1 {$role_filter}
         ")->row()->cnt;
-
-        // ── 3. Children with NO follow-up (QR appears exactly once) ───────────
+ 
+        // ── 3. No follow-up ────────────────────────────────────────────────
         $no_followup = $this->db->query("
             SELECT COUNT(*) as cnt FROM (
                 SELECT chm.qr_code
@@ -1150,16 +1150,14 @@ class Reports_model extends CI_Model {
                 HAVING COUNT(*) = 1
             ) t
         ")->row()->cnt;
-
-        // ── 4. FU stats — total FU visits + per-bucket child counts ───────────
-        // visit_count per QR: 2 = 1 FU, 3 = 2 FUs, 4+ = 3+ FUs
+ 
+        // ── 4. FU stats ────────────────────────────────────────────────────
         $fu_stats = $this->db->query("
             SELECT
-                SUM(CASE WHEN visit_count = 2 THEN 1 ELSE 0 END)  AS fu_1,
-                SUM(CASE WHEN visit_count = 3 THEN 1 ELSE 0 END)  AS fu_2,
-                SUM(CASE WHEN visit_count > 3  THEN 1 ELSE 0 END) AS fu_3plus,
-                SUM(visit_count - 1)                               AS total_fu_visits,
-                COUNT(*)                                           AS children_with_fu
+                SUM(CASE WHEN visit_count = 2 THEN 1 ELSE 0 END) AS fu_1,
+                SUM(CASE WHEN visit_count = 3 THEN 1 ELSE 0 END) AS fu_2,
+                SUM(CASE WHEN visit_count > 3 THEN 1 ELSE 0 END) AS fu_3plus,
+                COUNT(*)                                          AS children_with_fu
             FROM (
                 SELECT chm.qr_code, COUNT(*) AS visit_count
                 FROM child_health_master chm
@@ -1169,70 +1167,103 @@ class Reports_model extends CI_Model {
                 HAVING COUNT(*) > 1
             ) t
         ")->row();
-
+ 
         $fu_1             = (int) $fu_stats->fu_1;
         $fu_2             = (int) $fu_stats->fu_2;
         $fu_3plus         = (int) $fu_stats->fu_3plus;
-        $total_fu_visits  = (int) $fu_stats->total_fu_visits;   // matches table grand total FU
-        $children_with_fu = (int) $fu_stats->children_with_fu;  // unique children who have ≥1 FU
-
-        // ── UC list ───────────────────────────────────────────────────────────
+        $children_with_fu = (int) $fu_stats->children_with_fu;
+ 
+        // ── UC list ────────────────────────────────────────────────────────
         $uc_list = $this->db->query("SELECT pk_id, uc FROM uc ORDER BY uc ASC")->result_array();
-
-        // ── Matrix: init all cells to zero ────────────────────────────────────
+ 
+        // ── Init matrix ────────────────────────────────────────────────────
+        // matrix[uc_id]['months'][Y-m] = ['reg'=>0,'fu'=>0]
+        // matrix[uc_id]['total_reg']   = unique registrations in this UC
+        // matrix[uc_id]['total_fu']    = UNIQUE children with any FU in this UC
         $matrix = array();
         foreach ($uc_list as $uc) {
-            $matrix[$uc['pk_id']] = array();
-            foreach ($months as $m) {
-                $matrix[$uc['pk_id']][$m] = array('reg' => 0, 'fu' => 0);
-            }
+            $matrix[$uc['pk_id']] = array(
+                'months'    => array_fill_keys($months, array('reg' => 0, 'fu' => 0)),
+                'total_reg' => 0,
+                'total_fu'  => 0,
+            );
         }
-
-        // ── Step A: first visit per QR → registrations ────────────────────────
-        // Use MIN(master_id) to reliably identify the registration row per QR
+ 
+        // ── Step A: Registrations (first visit per QR) ─────────────────────
         $first_visits = $this->db->query("
-            SELECT chm.uc, chm.qr_code,
+            SELECT chm.uc,
                    DATE_FORMAT(chm.form_date, '%Y-%m') AS first_month
             FROM child_health_master chm
             LEFT JOIN users u ON u.user_id = chm.created_by
             WHERE 1=1 {$role_filter}
               AND chm.master_id IN (
-                  SELECT MIN(master_id)
-                  FROM child_health_master
-                  GROUP BY qr_code
+                  SELECT MIN(master_id) FROM child_health_master GROUP BY qr_code
               )
         ")->result_array();
-
+ 
         foreach ($first_visits as $row) {
             $uid = $row['uc'];
             $mon = $row['first_month'];
-            if (isset($matrix[$uid][$mon])) {
-                $matrix[$uid][$mon]['reg']++;
+            if (isset($matrix[$uid]['months'][$mon])) {
+                $matrix[$uid]['months'][$mon]['reg']++;
+                $matrix[$uid]['total_reg']++;
             }
         }
-
-        // ── Step B: all non-first visits → follow-ups ─────────────────────────
-        $followup_visits = $this->db->query("
-            SELECT chm.uc, chm.qr_code,
-                   DATE_FORMAT(chm.form_date, '%Y-%m') AS visit_month
+ 
+        // ── Step B: Monthly FU — unique children per UC+month ──────────────
+        $followup_monthly = $this->db->query("
+            SELECT chm.uc,
+                   DATE_FORMAT(chm.form_date, '%Y-%m') AS visit_month,
+                   COUNT(*) AS fu_children
             FROM child_health_master chm
             LEFT JOIN users u ON u.user_id = chm.created_by
             WHERE 1=1 {$role_filter}
-              AND chm.master_id NOT IN (
-                  SELECT MIN(master_id)
-                  FROM child_health_master
-                  GROUP BY qr_code
+              AND chm.master_id IN (
+                  SELECT MIN(i.master_id)
+                  FROM child_health_master i
+                  WHERE i.master_id NOT IN (
+                      SELECT MIN(master_id) FROM child_health_master GROUP BY qr_code
+                  )
+                  GROUP BY i.qr_code
               )
+            GROUP BY chm.uc, visit_month
         ")->result_array();
-
-        foreach ($followup_visits as $row) {
+ 
+        foreach ($followup_monthly as $row) {
             $uid = $row['uc'];
             $mon = $row['visit_month'];
-            if (isset($matrix[$uid][$mon])) {
-                $matrix[$uid][$mon]['fu']++;
+            if (isset($matrix[$uid]['months'][$mon])) {
+                $matrix[$uid]['months'][$mon]['fu'] = (int) $row['fu_children'];
             }
         }
-
+ 
+        // ── Step C: Row Total FU — DISTINCT children per UC (not sum of months)
+        // A child who had FU in Jan AND Feb counts as 1, not 2.
+        // Grand sum of these = children_with_fu = matches Card 4.
+        $followup_uc = $this->db->query("
+            SELECT chm.uc,
+                   COUNT(*) AS fu_total
+            FROM child_health_master chm
+            LEFT JOIN users u ON u.user_id = chm.created_by
+            WHERE 1=1 {$role_filter}
+              AND chm.master_id IN (
+                  SELECT MIN(i.master_id)
+                  FROM child_health_master i
+                  WHERE i.master_id NOT IN (
+                      SELECT MIN(master_id) FROM child_health_master GROUP BY qr_code
+                  )
+                  GROUP BY i.qr_code
+              )
+            GROUP BY chm.uc
+        ")->result_array();
+ 
+        foreach ($followup_uc as $row) {
+            $uid = $row['uc'];
+            if (isset($matrix[$uid])) {
+                $matrix[$uid]['total_fu'] = (int) $row['fu_total'];
+            }
+        }
+ 
         return array(
             'months'           => $months,
             'uc_list'          => $uc_list,
@@ -1240,43 +1271,88 @@ class Reports_model extends CI_Model {
             'total_visits'     => $total_visits,
             'total_children'   => $total_children,
             'no_followup'      => $no_followup,
-            'total_fu_visits'  => $total_fu_visits,   // card 4 number — matches table
-            'children_with_fu' => $children_with_fu,  // shown as sub-label in card 4
+            'children_with_fu' => $children_with_fu,
             'fu_1'             => $fu_1,
             'fu_2'             => $fu_2,
             'fu_3plus'         => $fu_3plus,
         );
     }
-    
+ 
+    // ─────────────────────────────────────────────────────────────────────
+    //  Drill-down list for clicked matrix cell
+    // ─────────────────────────────────────────────────────────────────────
+    public function get_drill_down_list($type, $uc_id, $month)
+    {
+        $uc_id = (int) $uc_id;
+        $month = $this->db->escape_str(trim($month));
+ 
+        $common_cols = "
+            chm.master_id,
+            chm.qr_code,
+            chm.patient_name,
+            chm.guardian_name,
+            chm.village,
+            chm.vaccinator_name,
+            chm.form_date,
+            chm.age_group,
+            chm.age_year, chm.age_month, chm.age_day,
+            chm.gender,
+            chm.visit_type,
+            chm.play_learning_kit,
+            chm.nutrition_package,
+            chm.verification_status,
+            uc_tbl.uc AS uc_name
+        ";
+ 
+        if ($type === 'reg') {
+            $sql = "
+                SELECT {$common_cols}
+                FROM child_health_master chm
+                LEFT JOIN uc uc_tbl ON uc_tbl.pk_id = chm.uc
+                WHERE chm.master_id IN (
+                    SELECT MIN(master_id) FROM child_health_master GROUP BY qr_code
+                )
+                  AND chm.uc = {$uc_id}
+                  AND DATE_FORMAT(chm.form_date, '%Y-%m') = '{$month}'
+                ORDER BY chm.patient_name ASC
+            ";
+        } else {
+            // Only children whose FIRST EVER FU visit was in this UC+month
+            // Exactly matches the matrix green (+) count
+            $sql = "
+                SELECT {$common_cols}
+                FROM child_health_master chm
+                LEFT JOIN uc uc_tbl ON uc_tbl.pk_id = chm.uc
+                WHERE chm.master_id IN (
+                    SELECT MIN(i.master_id)
+                    FROM child_health_master i
+                    WHERE i.master_id NOT IN (
+                        SELECT MIN(master_id) FROM child_health_master GROUP BY qr_code
+                    )
+                    GROUP BY i.qr_code
+                )
+                  AND chm.uc = {$uc_id}
+                  AND DATE_FORMAT(chm.form_date, '%Y-%m') = '{$month}'
+                ORDER BY chm.patient_name ASC
+            ";
+        }
+ 
+        return $this->db->query($sql)->result_array();
+    }
+ 
+    // ─────────────────────────────────────────────────────────────────────
+    //  QR History
+    // ─────────────────────────────────────────────────────────────────────
     public function get_qr_history($qr_code)
-    {   
+    {
         $qr_code = $this->db->escape_str(trim($qr_code));
 
         $sql = "
-            SELECT
-                chm.master_id,
-                chm.form_date,
-                chm.qr_code,
-                chm.patient_name,
-                chm.guardian_name,
-                chm.dob,
-                chm.age_year,
-                chm.age_month,
-                chm.age_day,
-                chm.gender,
-                chm.age_group,
-                chm.village,
-                chm.uc,
-                chm.vaccinator_name,
-                chm.visit_type,
-                chm.verification_status,
-                chm.play_learning_kit,
-                chm.nutrition_package,
-                chm.created_at,
-                u.full_name AS entered_by,
-                uc_tbl.uc AS uc_name
+            SELECT chm.*,
+                   u.full_name  AS entered_by,
+                   uc_tbl.uc   AS uc_name
             FROM child_health_master chm
-            LEFT JOIN users u ON u.user_id = chm.created_by
+            LEFT JOIN users u    ON u.user_id   = chm.created_by
             LEFT JOIN uc uc_tbl ON uc_tbl.pk_id = chm.uc
             WHERE chm.qr_code = '{$qr_code}'
             ORDER BY chm.form_date ASC, chm.master_id ASC
@@ -1284,13 +1360,64 @@ class Reports_model extends CI_Model {
 
         $rows = $this->db->query($sql)->result_array();
 
-        // Add visit_number in PHP instead of ROW_NUMBER()
         $visit_number = 1;
         foreach ($rows as &$row) {
             $row['visit_number'] = $visit_number++;
         }
         unset($row);
 
+        // ── Fetch vaccinations from child_health_detail (question_id 5,6,7) ──
+        if (!empty($rows)) {
+            $ids_str = implode(',', array_map('intval', array_column($rows, 'master_id')));
+
+            $vac_rows = $this->db->query("
+                SELECT chd.master_id, qo.option_text
+                FROM child_health_detail chd
+                JOIN question_options qo
+                    ON qo.question_id = chd.question_id
+                   AND qo.option_id   = chd.option_id
+                WHERE chd.master_id   IN ({$ids_str})
+                  AND chd.question_id IN (5, 6, 7)
+                ORDER BY chd.question_id ASC, qo.option_order ASC
+            ")->result_array();
+
+            // Map by master_id
+            $vac_map = array();
+            foreach ($vac_rows as $vr) {
+                $vac_map[$vr['master_id']][] = $vr['option_text'];
+            }
+
+            foreach ($rows as &$row) {
+                $row['vaccinations'] = isset($vac_map[$row['master_id']])
+                                       ? $vac_map[$row['master_id']]
+                                       : array();
+            }
+            unset($row);
+        }
+
         return $rows;
+    }
+
+    public function get_vaccinations_for_masters($master_ids)
+    {
+        if (empty($master_ids)) return array();
+        $ids_str = implode(',', array_map('intval', $master_ids));
+
+        $rows = $this->db->query("
+            SELECT chd.master_id, qo.option_text
+            FROM child_health_detail chd
+            JOIN question_options qo
+                ON qo.question_id = chd.question_id
+               AND qo.option_id   = chd.option_id
+            WHERE chd.master_id   IN ({$ids_str})
+              AND chd.question_id IN (5, 6, 7)
+            ORDER BY chd.question_id ASC, qo.option_order ASC
+        ")->result_array();
+
+        $map = array();
+        foreach ($rows as $r) {
+            $map[$r['master_id']][] = $r['option_text'];
+        }
+        return $map;
     }
 }
