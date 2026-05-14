@@ -758,7 +758,7 @@ class Reports extends CI_Controller {
         $this->load->view('layout/main', $data);
     }
 
-        public function follow_up_status()
+    public function follow_up_status()
     {
         if (!$this->session->userdata('user_id')) {
             redirect('login');
