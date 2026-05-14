@@ -1479,4 +1479,173 @@ class Reports_model extends CI_Model {
         }
         return $map;
     }
+    
+    public function get_vaccine_age_groups()
+    {
+        return $this->db->query("
+            SELECT DISTINCT visit_label, age_label, min_age_days
+            FROM vaccine_schedule
+            ORDER BY min_age_days ASC
+        ")->result_array();
+    }
+
+    public function get_due_vaccines_for_age($min_age_days)
+    {
+        return $this->db->query("
+            SELECT vaccine_name, question_option_text
+            FROM vaccine_schedule
+            WHERE min_age_days = " . (int)$min_age_days . "
+        ")->result_array();
+    }
+
+    public function get_missed_vaccine_report($uc_id, $min_age_days)
+    {
+        $uc_id       = (int) $uc_id;
+        $min_age_days = (int) $min_age_days;
+
+        // Get vaccines due at this age
+        $due_vaccines = $this->get_due_vaccines_for_age($min_age_days);
+        if (empty($due_vaccines)) return array();
+
+        $option_texts = array_map(function($v) {
+            return "'" . $this->db->escape_str($v['question_option_text']) . "'";
+        }, $due_vaccines);
+        $option_texts_str = implode(',', $option_texts);
+
+        // Get children who are old enough (age in days >= min_age_days)
+        // and registered in this UC
+        // whose first registration record does NOT have all due vaccines
+        $uc_filter = $uc_id > 0 ? "AND chm.uc = {$uc_id}" : "";
+
+        $sql = "
+            SELECT
+                chm.master_id,
+                chm.qr_code,
+                chm.patient_name,
+                chm.guardian_name,
+                chm.village,
+                chm.vaccinator_name,
+                chm.form_date,
+                chm.age_group,
+                chm.age_year,
+                chm.age_month,
+                chm.age_day,
+                chm.gender,
+                chm.dob,
+                uc_tbl.uc AS uc_name
+            FROM child_health_master chm
+            LEFT JOIN uc uc_tbl ON uc_tbl.pk_id = chm.uc
+            WHERE chm.qr_code NOT LIKE '%Supplementary%'
+              AND chm.qr_code NOT LIKE '%NA%'
+              AND chm.qr_code NOT LIKE '%N/A%'
+              {$uc_filter}
+              AND (
+                  DATEDIFF(CURDATE(), chm.dob) >= {$min_age_days}
+                  OR (
+                      (chm.age_year * 365 + chm.age_month * 30 + chm.age_day) >= {$min_age_days}
+                  )
+              )
+              AND chm.master_id IN (
+                  SELECT MIN(master_id)
+                  FROM child_health_master
+                  WHERE qr_code NOT LIKE '%Supplementary%'
+                    AND qr_code NOT LIKE '%NA%'
+                    AND qr_code NOT LIKE '%N/A%'
+                  GROUP BY qr_code
+              )
+            ORDER BY chm.patient_name ASC
+        ";
+
+        $children = $this->db->query($sql)->result_array();
+
+        if (empty($children)) return array();
+
+        // For each child get ALL vaccinations ever given across ALL visits
+        $master_ids = array_column($children, 'master_id');
+
+        // Get all qr_codes for these children to fetch all their visit master_ids
+        $qr_codes = array_unique(array_column($children, 'qr_code'));
+        $qr_escaped = array_map(function($q) {
+            return "'" . $this->db->escape_str($q) . "'";
+        }, $qr_codes);
+        $qr_str = implode(',', $qr_escaped);
+
+        // Get all master_ids for these children across all visits
+        $all_visits = $this->db->query("
+            SELECT master_id, qr_code
+            FROM child_health_master
+            WHERE qr_code IN ({$qr_str})
+        ")->result_array();
+
+        $all_master_ids = array_column($all_visits, 'master_id');
+
+        // Map qr_code => [master_ids]
+        $qr_to_masters = array();
+        foreach ($all_visits as $v) {
+            $qr_to_masters[$v['qr_code']][] = $v['master_id'];
+        }
+
+        $all_ids_str = implode(',', array_map('intval', $all_master_ids));
+
+        // Get all vaccinations given to these children across all visits
+        $vac_rows = $this->db->query("
+            SELECT chd.master_id, qo.option_text
+            FROM child_health_detail chd
+            JOIN question_options qo
+                ON qo.question_id = chd.question_id
+               AND qo.option_id   = chd.option_id
+            WHERE chd.master_id IN ({$all_ids_str})
+              AND chd.question_id IN (5, 6, 7)
+              AND qo.option_text IN ({$option_texts_str})
+        ")->result_array();
+
+        // Map master_id => vaccines given
+        $master_vac_map = array();
+        foreach ($vac_rows as $vr) {
+            $master_vac_map[$vr['master_id']][] = $vr['option_text'];
+        }
+
+        // Build qr_code => all vaccines given across all visits
+        $qr_vac_map = array();
+        foreach ($qr_to_masters as $qr => $mids) {
+            $qr_vac_map[$qr] = array();
+            foreach ($mids as $mid) {
+                if (isset($master_vac_map[$mid])) {
+                    $qr_vac_map[$qr] = array_merge($qr_vac_map[$qr], $master_vac_map[$mid]);
+                }
+            }
+            $qr_vac_map[$qr] = array_unique($qr_vac_map[$qr]);
+        }
+
+        // Filter: only children missing at least one due vaccine
+        $due_option_texts = array_column($due_vaccines, 'question_option_text');
+        $result = array();
+
+        foreach ($children as $child) {
+            $qr           = $child['qr_code'];
+            $given        = isset($qr_vac_map[$qr]) ? $qr_vac_map[$qr] : array();
+            $missing      = array();
+            $given_due    = array();
+
+            foreach ($due_option_texts as $due) {
+                if (in_array($due, $given)) {
+                    $given_due[] = $due;
+                } else {
+                    $missing[] = $due;
+                }
+            }
+
+            if (!empty($missing)) {
+                $child['vaccines_given']   = $given_due;
+                $child['vaccines_missing'] = $missing;
+                $result[] = $child;
+            }
+        }
+
+        return array(
+            'children'       => $result,
+            'due_vaccines'   => $due_vaccines,
+            'total_due'      => count($due_option_texts),
+        );
+    }
 }

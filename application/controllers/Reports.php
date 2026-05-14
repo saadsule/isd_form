@@ -823,5 +823,38 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/qr_history_search', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function missed_vaccines()
+    {
+        if (!$this->session->userdata('user_id')) redirect('login');
+        $this->load->model('Reports_model');
+
+        $uc_id        = (int) $this->input->get('uc_id');
+        $min_age_days = (int) $this->input->get('min_age_days');
+
+        $age_groups = $this->Reports_model->get_vaccine_age_groups();
+        $uc_list    = $this->db->query("SELECT pk_id, uc FROM uc ORDER BY uc ASC")->result_array();
+
+        $report_data = array();
+        $due_vaccines = array();
+        $searched = false;
+
+        if ($min_age_days > 0) {
+            $searched    = true;
+            $report_data = $this->Reports_model->get_missed_vaccine_report($uc_id, $min_age_days);
+            $due_vaccines = isset($report_data['due_vaccines']) ? $report_data['due_vaccines'] : array();
+        }
+
+        $data['age_groups']   = $age_groups;
+        $data['uc_list']      = $uc_list;
+        $data['report_data']  = $report_data;
+        $data['due_vaccines'] = $due_vaccines;
+        $data['uc_id']        = $uc_id;
+        $data['min_age_days'] = $min_age_days;
+        $data['searched']     = $searched;
+        $data['page_title']   = 'Missed Vaccine Report';
+        $data['main_content'] = $this->load->view('reports/missed_vaccines', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
 
 }
