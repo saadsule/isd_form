@@ -231,7 +231,9 @@ input[type="checkbox"].field-locked { cursor: not-allowed !important; pointer-ev
                 </div>
             </div>
             <div id="qr_status_area"></div>
-        </div>
+            <small class="text-muted" style="font-size:12px; margin-top:4px; display:block;">
+                <i class="anticon anticon-info-circle"></i> QR Code must be exactly 14 digits.
+            </small>
     </div>
 
     <!-- Inline records hint -->
@@ -777,6 +779,11 @@ $(document).ready(function () {
 
         if(qrValue === ''){
             setStatus('<span class="qr-status-badge qr-status-error">⚠ Please enter a QR code first</span>');
+            return;
+        }
+
+        if(!/^\d{14}$/.test(qrValue)){
+            setStatus('<span class="qr-status-badge qr-status-error">⚠ QR Code must be exactly 14 digits (numbers only)</span>');
             return;
         }
 

@@ -973,18 +973,63 @@ class Dashboard_model extends CI_Model {
     
     public function get_antigen_heatmap($filters)
     {
+        // ── Step 1: Load ALL options for Q5, Q6, Q7 in correct order ─────────
+        $all_options = $this->db->query("
+            SELECT question_id, option_id, option_text, option_order
+            FROM question_options
+            WHERE question_id IN (5, 6, 7)
+            ORDER BY question_id ASC, option_order ASC
+        ")->result_array();
+
+        // Question labels
+        $questions = array(
+            5 => 'Antigens < 1 Year',
+            6 => 'Antigens 1-2 Year',
+            7 => 'Antigens 2-5 Year',
+        );
+        $questionList = array_values($questions);
+
+        // first order Q5 then Q6 then Q7
+        $antigenOrder = array();
+        $sortKey = 1;
+        foreach ([5, 6, 7] as $qid) {
+            foreach ($all_options as $opt) {
+                if ((int)$opt['question_id'] !== $qid) continue;
+                $name = trim($opt['option_text']);
+                if ($name === '' || isset($antigenOrder[$name])) continue;
+                $antigenOrder[$name] = $sortKey++;
+            }
+        }
+        asort($antigenOrder);
+        $antigenList = array_keys($antigenOrder);
+
+        // ── Step 2: Build dataMap — initialize all cells to 0 ────────────────
+        $dataMap = array();
+        foreach ($questions as $qLabel) {
+            $dataMap[$qLabel] = array();
+            foreach ($antigenList as $antigen) {
+                $dataMap[$qLabel][$antigen] = 0;
+            }
+        }
+
+        // ── Step 3: Query actual counts using option_text ─────────────────────
+        $this->db->select("
+            d.question_id,
+            qo.option_text AS antigen,
+            COUNT(*) AS total
+        ", false);
         $this->db->from('child_health_master m');
         $this->db->join(
             'child_health_detail d',
             'm.master_id = d.master_id AND d.question_id IN (5,6,7)',
             'left'
         );
-        // Join question_options to get option_order for proper sorting
         $this->db->join(
             'question_options qo',
             'qo.option_id = d.option_id AND qo.question_id = d.question_id',
             'left'
         );
+
         if (!empty($filters['uc'])) {
             $this->db->where_in('m.uc', $filters['uc']);
         }
@@ -1000,60 +1045,42 @@ class Dashboard_model extends CI_Model {
         if (!empty($filters['age_group'])) {
             $this->db->where_in('m.age_group', $filters['age_group']);
         }
-        $this->db->select("
-            d.question_id,
-            d.answer AS antigen,
-            d.option_id,
-            MIN(qo.option_order) AS option_order,
-            COUNT(*) AS total
-        ", false);
 
-        $this->db->group_by(['d.question_id', 'd.answer', 'd.option_id']);
-        $this->db->order_by('qo.option_order', 'ASC'); // Sort by option_order from DB
+        $this->db->where('d.option_id IS NOT NULL');
+        $this->db->group_by(array('d.question_id', 'qo.option_text'));
+
         $result = $this->db->get()->result_array();
 
-        // Question labels
-        $questions = [
-            5 => 'Antigens < 1 Year',
-            6 => 'Antigens 1–2 Year',
-            7 => 'Antigens 2–5 Year'
-        ];
-        $questionList = array_values($questions);
-        $antigenList = [];
-        $dataMap = [];
-
+        // ── Step 4: Fill dataMap with actual counts ───────────────────────────
         foreach ($result as $row) {
-            if (!$row['antigen']) continue;
-            $qLabel = $questions[$row['question_id']];
-            $antigen = $row['antigen'];
+            $qid    = (int)$row['question_id'];
+            $antigen = trim($row['antigen']);
+            $total   = (int)$row['total'];
 
-            // Use option_order as key for correct ordering
-            if (!isset($antigenList[$row['option_order']])) {
-                $antigenList[$row['option_order']] = $antigen;
+            if (!isset($questions[$qid])) continue;
+            $qLabel = $questions[$qid];
+
+            if (isset($dataMap[$qLabel][$antigen])) {
+                $dataMap[$qLabel][$antigen] = $total;
             }
-
-            $dataMap[$qLabel][$antigen] = (int)$row['total'];
         }
 
-        // Sort by option_order (already ordered from DB, ksort ensures PHP side too)
-        ksort($antigenList);
-        $antigenList = array_values($antigenList);
-
-        $data = [];
+        // ── Step 5: Build Highcharts data array ──────────────────────────────
+        $data = array();
         foreach ($questionList as $y => $q) {
             foreach ($antigenList as $x => $antigen) {
                 $value = isset($dataMap[$q][$antigen]) ? $dataMap[$q][$antigen] : 0;
-                $data[] = [$x, $y, $value];
+                $data[] = array($x, $y, $value);
             }
         }
 
-        return [
+        return array(
             'categoriesX' => $antigenList,
             'categoriesY' => $questionList,
-            'data' => $data
-        ];
+            'data'        => $data,
+        );
     }
-    
+
     public function get_q21_counts($filters)
     {
         $this->db->from('child_health_master m');

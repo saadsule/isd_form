@@ -3,14 +3,15 @@ $months           = isset($months)           ? $months           : array();
 $uc_list          = isset($uc_list)          ? $uc_list          : array();
 $matrix           = isset($matrix)           ? $matrix           : array();
 $total_visits     = isset($total_visits)     ? $total_visits     : 0;
-$total_children   = isset($total_children)   ? $total_children   : 0;
+$total_new        = isset($total_new)        ? $total_new        : 0;
+$total_fu         = isset($total_fu)         ? $total_fu         : 0;
 $no_followup      = isset($no_followup)      ? $no_followup      : 0;
 $children_with_fu = isset($children_with_fu) ? $children_with_fu : 0;
 $fu_1             = isset($fu_1)             ? $fu_1             : 0;
 $fu_2             = isset($fu_2)             ? $fu_2             : 0;
 $fu_3plus         = isset($fu_3plus)         ? $fu_3plus         : 0;
 
-function fmt_month_fu($ym) {
+function fmt_month_fu_f($ym) {
     return DateTime::createFromFormat('Y-m', $ym)->format('M Y');
 }
 ?>
@@ -31,7 +32,7 @@ function fmt_month_fu($ym) {
 .fu-stat-card .fu-label  { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #8a9ab0; font-weight: 600; }
 .fu-stat-card .fu-sub    { font-size: 11px; color: #8a9ab0; margin-top: 6px; }
 
-.fu-table thead tr { background: linear-gradient(135deg, #2c3e50 0%, #3d5a80 100%); }
+.fu-table thead tr { background: linear-gradient(135deg, #1a3a5c 0%, #2e6da4 100%); }
 .fu-table thead th {
     color: #fff !important; font-size: .70rem; font-weight: 600;
     text-transform: uppercase; letter-spacing: .6px; padding: 11px 8px;
@@ -44,7 +45,6 @@ function fmt_month_fu($ym) {
 
 .month-cell { text-align: center; line-height: 1.8; }
 
-/* Clickable value links */
 a.val-reg, a.val-fu {
     display: block; font-weight: 700; border-radius: 4px;
     padding: 1px 6px; transition: background .15s; text-decoration: none;
@@ -65,6 +65,8 @@ a.val-fu:hover  { background: #d5f5e3; color: #1e8449; text-decoration: none; }
     border-top: 1px solid #edf0f4; border-radius: 0 0 8px 8px;
 }
 .fu-legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; }
+
+/* Report Notice Banner */
 .report-notice {
     border-radius: 10px;
     padding: 14px 20px;
@@ -73,11 +75,12 @@ a.val-fu:hover  { background: #d5f5e3; color: #1e8449; text-decoration: none; }
     line-height: 1.7;
     border-left: 5px solid;
 }
-.report-notice-qr {
-    background: #eaf0fb;
-    border-color: #2980b9;
-    color: #1a2f4a;
+.report-notice-forms {
+    background: #eaf4ee;
+    border-color: #27ae60;
+    color: #1a4a2a;
 }
+.report-notice strong { font-weight: 700; }
 .report-compare-note {
     background: #fff8e6;
     border: 1px dashed #f0ad4e;
@@ -92,35 +95,33 @@ a.val-fu:hover  { background: #d5f5e3; color: #1e8449; text-decoration: none; }
 <div class="page-container">
 <div class="main-content">
 
-
 <div class="page-header">
     <div class="d-flex align-items-center justify-content-between flex-wrap">
         <div>
-            <h2><i class="fa fa-qrcode text-primary"></i> Follow-up Report <small class="text-muted">(Based on QR)</small></h2>
+            <h2><i class="fa fa-wpforms text-success"></i> Follow-up Report <small class="text-muted">(Based on Forms)</small></h2>
             <p class="text-muted mb-0">
-                UC-wise registration &amp; follow-up tracking — December 2025 to <?= fmt_month_fu(end($months)) ?>
+                UC-wise registration &amp; follow-up tracking — December 2025 to <?= fmt_month_fu_f(end($months)) ?>
             </p>
         </div>
         <div>
-            <a href="<?= base_url('reports/follow_up_forms') ?>" class="btn btn-sm btn-outline-success">
-                <i class="fa fa-wpforms"></i> Switch to Forms-based Report
+            <a href="<?= base_url('reports/follow_up_status') ?>" class="btn btn-sm btn-outline-primary">
+                <i class="fa fa-qrcode"></i> Switch to QR-based Report
             </a>
         </div>
     </div>
 </div>
- 
-<!-- ── Report Notice  ── -->
-<div class="report-notice report-notice-qr">
+
+<!-- ── Report Notice ── -->
+<div class="report-notice report-notice-forms">
     <strong><i class="fa fa-info-circle"></i> About this report:</strong>
-    This report calculates number of registrations and follow-ups based on <strong>unique QR codes</strong>
-    and it does not take into account the data marked as New / Follow-up on hard forms.
+    This report calculates number of registrations and follow-ups based on the <strong>New / Follow-up values marked on forms</strong>
+    and does not use QR code based calculations.
     <div class="report-compare-note">
         <i class="fa fa-exchange"></i>
         <strong>Note:</strong> These two separate reports have been created to compare data based on two different data sources.
-        To view the form-based report, use the <a href="<?= base_url('reports/follow_up_forms') ?>">Follow-up Report (Based on Forms)</a>.
+        To view the QR-based report, use the <a href="<?= base_url('reports/follow_up_status') ?>">Follow-up Report (Based on QR)</a>.
     </div>
 </div>
-
 
 <!-- SUMMARY CARDS -->
 <div class="row mb-4">
@@ -135,35 +136,36 @@ a.val-fu:hover  { background: #d5f5e3; color: #1e8449; text-decoration: none; }
     <div class="col-xl-3 col-md-6 mb-3">
         <div class="fu-stat-card">
             <div class="fu-icon" style="background:#eaf4ee;"><i class="fa fa-child" style="color:#27ae60;"></i></div>
-            <div class="fu-number" style="color:#27ae60;"><?= number_format($total_children) ?></div>
-            <div class="fu-label">Total Children Registered</div>
-            <div class="fu-sub">Unique QR codes in the system</div>
+            <div class="fu-number" style="color:#27ae60;"><?= number_format($total_new) ?></div>
+            <div class="fu-label">New Registrations (Forms)</div>
+            <div class="fu-sub">Forms marked as "New" client type</div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6 mb-3">
         <div class="fu-stat-card">
             <div class="fu-icon" style="background:#fdecea;"><i class="fa fa-times-circle" style="color:#e74c3c;"></i></div>
             <div class="fu-number" style="color:#e74c3c;"><?= number_format($no_followup) ?></div>
-            <div class="fu-label">No Follow Up Recorded</div>
-            <div class="fu-sub">Children with only 1 visit</div>
+            <div class="fu-label">No Follow-up Recorded</div>
+            <div class="fu-sub">Children (QR) with no "Followup" form</div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6 mb-3">
         <div class="fu-stat-card">
             <div class="fu-icon" style="background:#fde8c8;"><i class="fa fa-check-circle" style="color:#e67e22; font-size:22px;"></i></div>
-            <div class="fu-number" style="color:#f39c12;"><?= number_format($children_with_fu) ?></div>
-            <div class="fu-label">Children With Follow Ups</div>
+            <div class="fu-number" style="color:#f39c12;"><?= number_format($total_fu) ?></div>
+            <div class="fu-label">Total Follow-up Entries (Forms)</div>
             <div class="fu-sub">
-                <span style="color:#2980b9;"><?= number_format($fu_1) ?> with 1 FU</span>
-                &nbsp;•&nbsp;
-                <span style="color:#27ae60;"><?= number_format($fu_2) ?> with 2 FUs</span>
-                <?php if ($fu_3plus): ?>
-                &nbsp;•&nbsp;
-                <span style="color:#8e44ad;"><?= number_format($fu_3plus) ?> with 3+ FUs</span>
-                <?php endif; ?>
+                Forms marked as "Followup" client type
             </div>
         </div>
     </div>
+</div>
+
+<!-- Total FU count bar -->
+<div class="alert alert-success py-2 px-3 mb-3" style="font-size:13px; border-left:4px solid #27ae60;">
+    <i class="fa fa-check-circle text-success"></i>
+    <strong><?= number_format($total_fu) ?></strong> total follow-up form entries recorded
+    (forms where client type is marked as <code>Followup</code>).
 </div>
 
 <!-- MATRIX TABLE -->
@@ -183,20 +185,20 @@ a.val-fu:hover  { background: #d5f5e3; color: #1e8449; text-decoration: none; }
                         <th width="35">#</th>
                         <th style="min-width:130px;">UC Name</th>
                         <?php foreach ($months as $m): ?>
-                        <th class="th-month"><?= fmt_month_fu($m) ?></th>
+                        <th class="th-month"><?= fmt_month_fu_f($m) ?></th>
                         <?php endforeach; ?>
-                        <th class="th-month" style="background:rgba(0,0,0,.15);">Total Reg</th>
+                        <th class="th-month" style="background:rgba(0,0,0,.15);">Total New</th>
                         <th class="th-month" style="background:rgba(0,0,0,.15);">Total FU</th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php
-                $serial        = 0;
-                $col_reg_tots  = array_fill_keys($months, 0);
-                $col_fu_tots   = array_fill_keys($months, 0);
-                $grand_reg     = 0;
-                $grand_fu      = 0;
-                $base          = base_url('reports/drill_down');
+                $serial       = 0;
+                $col_reg_tots = array_fill_keys($months, 0);
+                $col_fu_tots  = array_fill_keys($months, 0);
+                $grand_reg    = 0;
+                $grand_fu     = 0;
+                $base         = base_url('reports/drill_down');
 
                 foreach ($uc_list as $uc):
                     $serial++;
@@ -223,15 +225,15 @@ a.val-fu:hover  { background: #d5f5e3; color: #1e8449; text-decoration: none; }
                         <?php if ($reg || $fu): ?>
                             <?php if ($reg): ?>
                                 <a class="val-reg"
-                                   href="<?= $base ?>?type=reg&uc_id=<?= $uid ?>&month=<?= $m ?>&uc_name=<?= $uc_enc ?>"
-                                   title="View <?= $reg ?> registrations">
+                                   href="<?= $base ?>?type=reg&uc_id=<?= $uid ?>&month=<?= $m ?>&uc_name=<?= $uc_enc ?>&source=forms"
+                                   title="View <?= $reg ?> new registrations">
                                     <?= $reg ?>
                                 </a>
                             <?php endif; ?>
                             <?php if ($fu): ?>
                                 <a class="val-fu"
-                                   href="<?= $base ?>?type=fu&uc_id=<?= $uid ?>&month=<?= $m ?>&uc_name=<?= $uc_enc ?>"
-                                   title="View <?= $fu ?> children with FU">
+                                   href="<?= $base ?>?type=fu&uc_id=<?= $uid ?>&month=<?= $m ?>&uc_name=<?= $uc_enc ?>&source=forms"
+                                   title="View <?= $fu ?> follow-ups">
                                     +<?= $fu ?>
                                 </a>
                             <?php endif; ?>
@@ -270,10 +272,11 @@ a.val-fu:hover  { background: #d5f5e3; color: #1e8449; text-decoration: none; }
             </table>
         </div>
         <div class="fu-legend">
-            <div><span class="fu-legend-dot" style="background:#2980b9;"></span>Blue = New Registrations (click to view list)</div>
-            <div><span class="fu-legend-dot" style="background:#27ae60;"></span>Green (+) = Unique children with follow-up that month (click to view list)</div>
+            <div><span class="fu-legend-dot" style="background:#2980b9;"></span>Blue = New Registrations — forms marked as "New"</div>
+            <div><span class="fu-legend-dot" style="background:#27ae60;"></span>Green (+) = Follow-up entries — forms marked as "Followup"</div>
         </div>
     </div>
 </div>
 
+</div>
 </div>

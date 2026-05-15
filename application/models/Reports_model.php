@@ -1398,6 +1398,62 @@ class Reports_model extends CI_Model {
         return $this->db->query($sql)->result_array();
     }
 
+    public function get_drill_down_forms_list($type, $uc_id, $month)
+    {
+        $uc_id = (int) $uc_id;
+        $month = $this->db->escape_str(trim($month));
+
+        $qr_filter = "AND chm.qr_code NOT LIKE '%Supplementary%'
+                      AND chm.qr_code NOT LIKE '%NA%'
+                      AND chm.qr_code NOT LIKE '%N/A%'";
+
+        $common_cols = "
+            chm.master_id,
+            chm.qr_code,
+            chm.patient_name,
+            chm.guardian_name,
+            chm.village,
+            chm.vaccinator_name,
+            chm.form_date,
+            chm.age_group,
+            chm.age_year,
+            chm.age_month,
+            chm.age_day,
+            chm.gender,
+            chm.visit_type,
+            chm.play_learning_kit,
+            chm.nutrition_package,
+            chm.client_type,
+            uc_tbl.uc AS uc_name
+        ";
+
+        if ($type === 'reg') {
+            // All forms marked as 'New' — exact same records as table COUNT(*)
+            $sql = "
+                SELECT {$common_cols}
+                FROM child_health_master chm
+                LEFT JOIN uc uc_tbl ON uc_tbl.pk_id = chm.uc
+                WHERE chm.client_type = 'New'
+                  AND chm.uc = {$uc_id}
+                  AND DATE_FORMAT(chm.form_date, '%Y-%m') = '{$month}'
+                ORDER BY chm.patient_name ASC
+            ";
+        } else {
+            // All forms marked as 'Followup' — exact same records as table COUNT(*)
+            $sql = "
+                SELECT {$common_cols}
+                FROM child_health_master chm
+                LEFT JOIN uc uc_tbl ON uc_tbl.pk_id = chm.uc
+                WHERE chm.client_type = 'Followup'
+                  AND chm.uc = {$uc_id}
+                  AND DATE_FORMAT(chm.form_date, '%Y-%m') = '{$month}'
+                ORDER BY chm.patient_name ASC
+            ";
+        }
+
+        return $this->db->query($sql)->result_array();
+    }
+    
     // ─────────────────────────────────────────────────────────────────────
     //  QR History
     // ─────────────────────────────────────────────────────────────────────
@@ -1648,4 +1704,153 @@ class Reports_model extends CI_Model {
             'total_due'      => count($due_option_texts),
         );
     }
+    
+    public function get_follow_up_forms_report()
+    {
+        $current_user_id = $this->session->userdata('user_id');
+        $current_role    = $this->session->userdata('role');
+        $role_filter     = ($current_role == 1) ? "AND u.user_id = {$current_user_id}" : "";
+
+        $qr_filter = "AND chm.qr_code NOT LIKE '%Supplementary%'
+                      AND chm.qr_code NOT LIKE '%NA%'
+                      AND chm.qr_code NOT LIKE '%N/A%'";
+
+        // ── Generate months Dec-2025 → current month ──────────────────────────
+        $months = array();
+        $start  = new DateTime('2025-12-01');
+        $end    = new DateTime(date('Y-m-01'));
+        $end->modify('+1 month');
+        $interval = new DateInterval('P1M');
+        $period   = new DatePeriod($start, $interval, $end);
+        foreach ($period as $dt) {
+            $months[] = $dt->format('Y-m');
+        }
+
+        // ── 1. Total visits — all forms, no filter ────────────────────────────
+        $total_visits = $this->db->query("
+            SELECT COUNT(*) AS cnt
+            FROM child_health_master chm
+            LEFT JOIN users u ON u.user_id = chm.created_by
+            WHERE 1=1 {$role_filter}
+        ")->row()->cnt;
+
+        // ── 2. Total New registrations (client_type = 'New') — no qr filter ───
+        $total_new = $this->db->query("
+            SELECT COUNT(*) AS cnt
+            FROM child_health_master chm
+            LEFT JOIN users u ON u.user_id = chm.created_by
+            WHERE chm.client_type = 'New' {$role_filter}
+        ")->row()->cnt;
+
+        // ── 3. No follow-up: QR-based check — qr_filter applies here only ─────
+        $no_followup = $this->db->query("
+            SELECT COUNT(DISTINCT chm.qr_code) AS cnt
+            FROM child_health_master chm
+            LEFT JOIN users u ON u.user_id = chm.created_by
+            WHERE 1=1 {$role_filter} {$qr_filter}
+              AND chm.qr_code NOT IN (
+                  SELECT DISTINCT qr_code
+                  FROM child_health_master
+                  WHERE client_type = 'Followup'
+                    AND qr_code NOT LIKE '%Supplementary%'
+                    AND qr_code NOT LIKE '%NA%'
+                    AND qr_code NOT LIKE '%N/A%'
+              )
+        ")->row()->cnt;
+
+        // ── 4. FU depth stats — client_type based, no qr filter ──────────────
+        $fu_stats = $this->db->query("
+            SELECT
+                SUM(CASE WHEN fu_count = 1 THEN 1 ELSE 0 END) AS fu_1,
+                SUM(CASE WHEN fu_count = 2 THEN 1 ELSE 0 END) AS fu_2,
+                SUM(CASE WHEN fu_count >= 3 THEN 1 ELSE 0 END) AS fu_3plus,
+                COUNT(*) AS children_with_fu
+            FROM (
+                SELECT chm.qr_code, COUNT(*) AS fu_count
+                FROM child_health_master chm
+                LEFT JOIN users u ON u.user_id = chm.created_by
+                WHERE chm.client_type = 'Followup' {$role_filter}
+                GROUP BY chm.qr_code
+            ) t
+        ")->row();
+
+        $fu_1             = (int)(isset($fu_stats->fu_1)             ? $fu_stats->fu_1             : 0);
+        $fu_2             = (int)(isset($fu_stats->fu_2)             ? $fu_stats->fu_2             : 0);
+        $fu_3plus         = (int)(isset($fu_stats->fu_3plus)         ? $fu_stats->fu_3plus         : 0);
+        $children_with_fu = (int)(isset($fu_stats->children_with_fu) ? $fu_stats->children_with_fu : 0);
+
+        // ── UC list ───────────────────────────────────────────────────────────
+        $uc_list = $this->db->query("SELECT pk_id, uc FROM uc ORDER BY uc ASC")->result_array();
+
+        // ── Init matrix ───────────────────────────────────────────────────────
+        $matrix = array();
+        foreach ($uc_list as $uc) {
+            $matrix[$uc['pk_id']] = array(
+                'months'    => array_fill_keys($months, array('reg' => 0, 'fu' => 0)),
+                'total_reg' => 0,
+                'total_fu'  => 0,
+            );
+        }
+
+        // ── Step A: Registrations per UC per month (client_type = 'New') ──────
+        $new_rows = $this->db->query("
+            SELECT chm.uc,
+                   DATE_FORMAT(chm.form_date, '%Y-%m') AS visit_month,
+                   COUNT(*) AS reg_count
+            FROM child_health_master chm
+            LEFT JOIN users u ON u.user_id = chm.created_by
+            WHERE chm.client_type = 'New' {$role_filter}
+            GROUP BY chm.uc, visit_month
+        ")->result_array();
+
+        foreach ($new_rows as $row) {
+            $uid = $row['uc'];
+            $mon = $row['visit_month'];
+            if (isset($matrix[$uid]['months'][$mon])) {
+                $matrix[$uid]['months'][$mon]['reg'] = (int)$row['reg_count'];
+                $matrix[$uid]['total_reg']           += (int)$row['reg_count'];
+            }
+        }
+
+        // ── Step B: Follow-ups per UC per month — all Followup forms ──────────
+        $fu_rows = $this->db->query("
+            SELECT chm.uc,
+                   DATE_FORMAT(chm.form_date, '%Y-%m') AS visit_month,
+                   COUNT(*) AS fu_count
+            FROM child_health_master chm
+            LEFT JOIN users u ON u.user_id = chm.created_by
+            WHERE chm.client_type = 'Followup' {$role_filter}
+            GROUP BY chm.uc, visit_month
+        ")->result_array();
+
+        foreach ($fu_rows as $row) {
+            $uid = $row['uc'];
+            $mon = $row['visit_month'];
+            if (isset($matrix[$uid]['months'][$mon])) {
+                $matrix[$uid]['months'][$mon]['fu']  = (int)$row['fu_count'];
+                $matrix[$uid]['total_fu']           += (int)$row['fu_count'];
+            }
+        }
+
+        // ── Calculate grand total_fu from matrix (same source as table) ───────
+        $total_fu = 0;
+        foreach ($matrix as $uid => $row) {
+            $total_fu += $row['total_fu'];
+        }
+
+        return array(
+            'months'           => $months,
+            'uc_list'          => $uc_list,
+            'matrix'           => $matrix,
+            'total_visits'     => $total_visits,
+            'total_new'        => $total_new,
+            'total_fu'         => $total_fu,
+            'no_followup'      => $no_followup,
+            'children_with_fu' => $children_with_fu,
+            'fu_1'             => $fu_1,
+            'fu_2'             => $fu_2,
+            'fu_3plus'         => $fu_3plus,
+        );
+    }
+
 }

@@ -225,63 +225,144 @@ class Reports extends CI_Controller {
         $this->load->model('Reports_model');
 
         $filters = [
-        'uc'        => $this->input->get('uc'),
-        'start'     => $this->input->get('start'),
-        'end'       => $this->input->get('end'),
-        'form_type' => $this->input->get('form_type'),
-        'gender'    => $this->input->get('gender'),
-        'age_group' => $this->input->get('age_group'),
-        'visit_type'=> $this->input->get('visit_type'),
-        'data_mode' => $this->input->get('data_mode') ? $this->input->get('data_mode') : 'unique',
+            'uc'        => $this->input->get('uc'),
+            'start'     => $this->input->get('start'),
+            'end'       => $this->input->get('end'),
+            'form_type' => $this->input->get('form_type'),
+            'gender'    => $this->input->get('gender'),
+            'age_group' => $this->input->get('age_group'),
+            'visit_type'=> $this->input->get('visit_type'),
+            'data_mode' => $this->input->get('data_mode') ? $this->input->get('data_mode') : 'unique',
         ];
 
         $data['filters'] = $filters;
-        $data['ucs'] = $this->Reports_model->get_ucs();
+        $data['ucs']     = $this->Reports_model->get_ucs();
         $data['page_title'] = "View Health Data";
 
-        $data['table_data'] = [];
-        $data['headers'] = [];
-        $data['question_labels'] = [];
+        // Agar filters submit hue hain — seedha Excel download
+        if ($this->input->get('filtered') == '1' && !empty($filters['form_type'])) {
 
-        if (!empty($filters['form_type'])) {
+            if ($filters['form_type'] == 'chf') {
+                $result  = $this->Reports_model->get_child_health_data($filters);
+                $headers = [
+                    'visit_type','form_date','qr_code','client_type','district','uc','facility_name','village',
+                    'vaccinator_name','patient_name','guardian_name','dob','age_group',
+                    'gender','marital_status','pregnancy_status','disability',
+                    'play_learning_kit','nutrition_package','created_at'
+                ];
+            } elseif ($filters['form_type'] == 'opd') {
+                $result  = $this->Reports_model->get_opd_mnch_data($filters);
+                $headers = [
+                    'visit_type','form_date','qr_code','anc_card_no','client_type','district','uc','facility_name','village',
+                    'lhv_name','patient_name','guardian_name','age_group','disability',
+                    'marital_status','pregnancy_status'
+                ];
+            } else {
+                show_error("Invalid form type selected");
+                return;
+            }
 
-        if ($filters['form_type'] == 'chf') {
+            $table_data      = $result['data'];
+            $question_labels = $result['questions'];
+            $question_options = $result['options'];
 
-            $result = $this->Reports_model->get_child_health_data($filters);
+            // Question columns add karo
+            foreach ($question_labels as $qid => $label) {
+                $headers[] = 'Q' . $qid;
+            }
+            // 'view' column Excel mein nahi chahiye
 
-            $data['headers'] = [
-                'visit_type','form_date','qr_code','client_type','district','uc','facility_name','village',
-                'vaccinator_name','patient_name','guardian_name','dob','age_group',
-                'gender','marital_status','pregnancy_status','disability',
-                'play_learning_kit','nutrition_package','created_at'
-            ];
+            // ── Excel file build karo (HTML-to-XLS) ──────────────────────────
+            $html  = '<html xmlns:o="urn:schemas-microsoft-com:office:office"
+                            xmlns:x="urn:schemas-microsoft-com:office:excel"
+                            xmlns="http://www.w3.org/TR/REC-html40">
+                      <head>
+                      <!--[if gte mso 9]><xml>
+                      <x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+                      <x:Name>Report</x:Name>
+                      <x:WorksheetOptions>
+                          <x:FreezePanes/><x:FrozenNoSplit/>
+                          <x:SplitHorizontal>2</x:SplitHorizontal>
+                          <x:TopRowBottomPane>2</x:TopRowBottomPane>
+                          <x:ActivePane>2</x:ActivePane>
+                      </x:WorksheetOptions>
+                      </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook>
+                      </xml><![endif]-->
+                      <style>
+                          table { border-collapse: collapse; width: 100%; }
+                          th, td { border: 1px solid #7FA6C7; padding: 8px 10px; font-family: Calibri, Arial, sans-serif; font-size: 13px; text-align: center; }
+                          th { background-color: #D9EAF7; color: #000; font-weight: bold; font-size: 14px; }
+                          tr:nth-child(even) td { background-color: #F7FBFF; }
+                      </style>
+                      </head><body><table>';
 
-        } elseif ($filters['form_type'] == 'opd') {
+            // ── THEAD — Main headers ──
+            $html .= '<thead><tr>';
+            foreach ($headers as $h) {
+                if (strpos($h, 'Q') === 0) {
+                    $qid     = str_replace('Q', '', $h);
+                    $colspan = isset($question_options[$qid]) ? count($question_options[$qid]) : 1;
+                    $label   = isset($question_labels[$qid]) ? htmlspecialchars($question_labels[$qid]) : $h;
+                    $html   .= "<th colspan=\"{$colspan}\">{$label}</th>";
+                } else {
+                    $html .= '<th>' . strtoupper(str_replace('_', ' ', $h)) . '</th>';
+                }
+            }
+            $html .= '</tr>';
 
-            $result = $this->Reports_model->get_opd_mnch_data($filters);
+            // ── THEAD — Sub-headers for question options ──
+            $html .= '<tr>';
+            foreach ($headers as $h) {
+                if (strpos($h, 'Q') === 0) {
+                    $qid = str_replace('Q', '', $h);
+                    if (isset($question_options[$qid]) && count($question_options[$qid]) > 0) {
+                        foreach ($question_options[$qid] as $opt) {
+                            $html .= '<th>' . htmlspecialchars($opt['option_text']) . '</th>';
+                        }
+                    } else {
+                        $html .= '<th></th>';
+                    }
+                } else {
+                    $html .= '<th></th>';
+                }
+            }
+            $html .= '</tr></thead>';
 
-            $data['headers'] = [
-                'visit_type','form_date','qr_code','anc_card_no','client_type','district','uc','facility_name','village',
-                'lhv_name','patient_name','guardian_name','age_group','disability',
-                'marital_status','pregnancy_status'
-            ];
+            // ── TBODY ──
+            $html .= '<tbody>';
+            foreach ($table_data as $row) {
+                $html .= '<tr>';
+                foreach ($headers as $h) {
+                    if (strpos($h, 'Q') === 0) {
+                        $qid = str_replace('Q', '', $h);
+                        if (isset($question_options[$qid]) && count($question_options[$qid]) > 0) {
+                            foreach ($question_options[$qid] as $opt) {
+                                $val  = isset($row[$opt['column']]) ? htmlspecialchars($row[$opt['column']]) : '';
+                                $html .= "<td>{$val}</td>";
+                            }
+                        } else {
+                            $html .= '<td></td>';
+                        }
+                    } else {
+                        $val  = isset($row[$h]) ? htmlspecialchars($row[$h]) : '';
+                        $html .= "<td>{$val}</td>";
+                    }
+                }
+                $html .= '</tr>';
+            }
+            $html .= '</tbody></table></body></html>';
 
-        } else {
-            show_error("Invalid form type selected");
-            return;
+            // ── HTTP headers — file download ──
+            $filename = 'health_data_' . date('Y-m-d_His') . '.xls';
+            header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+            echo "\xEF\xBB\xBF"; // UTF-8 BOM
+            echo $html;
+            exit;
         }
 
-        $data['table_data'] = $result['data'];
-        $data['question_labels'] = $result['questions'];
-        $data['question_options'] = $result['options'];
-
-        // Add question columns
-        foreach ($data['question_labels'] as $qid => $label) {
-            $data['headers'][] = 'Q'.$qid;
-        }
-        $data['headers'][] = 'view';
-    }
-
+        // ── Sirf form show karo (koi data nahi) ──
         $data['main_content'] = $this->load->view('reports/view_health_data', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
@@ -770,41 +851,6 @@ class Reports extends CI_Controller {
         $this->load->view('layout/main', $data);
     }
  
-    // ── NEW: drill-down page ──────────────────────────────────────────────
-    public function drill_down()
-    {
-        if (!$this->session->userdata('user_id')) redirect('login');
-        $this->load->model('Reports_model');
- 
-        $type    = $this->input->get('type');    // 'reg' or 'fu'
-        $uc_id   = (int) $this->input->get('uc_id');
-        $month   = $this->input->get('month');   // 'Y-m' e.g. 2026-01
-        $uc_name = $this->input->get('uc_name');
- 
-        if (!in_array($type, array('reg', 'fu')) || !$uc_id || !$month) {
-            show_404();
-        }
- 
-        $data['records']  = $this->Reports_model->get_drill_down_list($type, $uc_id, $month);
-
-        // Add vaccinations
-        $master_ids = array_column($data['records'], 'master_id');
-        $vac_map    = $this->Reports_model->get_vaccinations_for_masters($master_ids);
-        foreach ($data['records'] as &$rec) {
-            $rec['vaccinations'] = isset($vac_map[$rec['master_id']]) ? $vac_map[$rec['master_id']] : array();
-        }
-        unset($rec);
-        
-        $data['type']     = $type;
-        $data['uc_id']    = $uc_id;
-        $data['uc_name']  = $uc_name;
-        $data['month']    = $month;
-        $data['page_title']   = ($type === 'reg' ? 'Registrations' : 'Follow-Ups')
-                                . ' — ' . $uc_name . ' — ' . $month;
-        $data['main_content'] = $this->load->view('reports/drill_down_list', $data, TRUE);
-        $this->load->view('layout/main', $data);
-    }
- 
     // ── UPDATED: qr_history_search ────────────────────────────────────────
     public function qr_history_search()
     {
@@ -856,5 +902,63 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/missed_vaccines', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function follow_up_forms()
+    {
+        if (!$this->session->userdata('user_id')) {
+            redirect('login');
+        }
+        $this->load->model('Reports_model');
+        $data = $this->Reports_model->get_follow_up_forms_report();
+        $data['page_title']   = 'Follow-up Report (Based on Forms)';
+        $data['report_mode']  = 'forms';                             // ← flag for view
+        $data['main_content'] = $this->load->view('reports/follow_up_forms_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
+    public function drill_down()
+    {
+        if (!$this->session->userdata('user_id')) redirect('login');
+        $this->load->model('Reports_model');
 
+        $type    = $this->input->get('type');
+        $uc_id   = (int) $this->input->get('uc_id');
+        $month   = $this->input->get('month');
+        $uc_name = $this->input->get('uc_name');
+        $source  = $this->input->get('source'); // 'forms' or empty (QR-based)
+
+        if (!in_array($type, array('reg', 'fu')) || !$uc_id || !$month) {
+            show_404();
+        }
+
+        // Route to correct model method based on source
+        if ($source === 'forms') {
+            $data['records']  = $this->Reports_model->get_drill_down_forms_list($type, $uc_id, $month);
+            $data['back_url'] = base_url('reports/follow_up_forms');
+            $data['source']   = 'forms';
+        } else {
+            $data['records']  = $this->Reports_model->get_drill_down_list($type, $uc_id, $month);
+            $data['back_url'] = base_url('reports/follow_up_status');
+            $data['source']   = 'qr';
+        }
+
+        // Add vaccinations for all records
+        $master_ids = array_column($data['records'], 'master_id');
+        $vac_map    = $this->Reports_model->get_vaccinations_for_masters($master_ids);
+        foreach ($data['records'] as &$rec) {
+            $rec['vaccinations'] = isset($vac_map[$rec['master_id']]) ? $vac_map[$rec['master_id']] : array();
+        }
+        unset($rec);
+
+        $data['type']       = $type;
+        $data['uc_id']      = $uc_id;
+        $data['uc_name']    = $uc_name;
+        $data['month']      = $month;
+        $data['page_title'] = ($type === 'reg' ? 'Registrations' : 'Follow-Ups')
+                            . ' — ' . $uc_name . ' — ' . $month;
+
+        // Use same view for both — back_url is passed in $data
+        $data['main_content'] = $this->load->view('reports/drill_down_list', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
 }

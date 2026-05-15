@@ -1,7 +1,9 @@
 <?php
 // ══════════════════════════════════════════════════════════════════════════
 //  views/reports/drill_down_list.php
-//  Shows list of children for a clicked matrix cell (registration or FU)
+//  Works for BOTH:
+//    - QR-based report  (source=qr,    back → follow_up_status)
+//    - Forms-based report (source=forms, back → follow_up_forms)
 // ══════════════════════════════════════════════════════════════════════════
 
 $records  = isset($records)  ? $records  : array();
@@ -9,34 +11,9 @@ $type     = isset($type)     ? $type     : 'reg';
 $uc_id    = isset($uc_id)    ? $uc_id    : 0;
 $uc_name  = isset($uc_name)  ? $uc_name  : '';
 $month    = isset($month)    ? $month    : '';
+$source   = isset($source)   ? $source   : 'qr';
+$back_url = isset($back_url) ? $back_url : base_url('reports/follow_up_status');
 $total    = count($records);
-
-// ── Vaccine field map: DB column => Display label ─────────────────────────
-// ⚠️  ADJUST these keys to match your actual child_health_master column names
-$vaccine_fields = array(
-    'bcg'          => 'BCG',
-    'opv_0'        => 'OPV-0',
-    'opv_1'        => 'OPV-1',
-    'opv_2'        => 'OPV-2',
-    'opv_3'        => 'OPV-3',
-    'ipv'          => 'IPV',
-    'penta_1'      => 'Penta-1',
-    'penta_2'      => 'Penta-2',
-    'penta_3'      => 'Penta-3',
-    'pcv_1'        => 'PCV-1',
-    'pcv_2'        => 'PCV-2',
-    'pcv_3'        => 'PCV-3',
-    'mr_1'         => 'MR-1',
-    'mr_2'         => 'MR-2',
-    'vitamin_a'    => 'Vit-A',
-    'measles'      => 'Measles',
-    'typhoid'      => 'Typhoid',
-    'yellow_fever' => 'Yellow Fever',
-    // add more as needed
-);
-
-// ── PLK / Nutrition question labels ───────────────────────────────────────
-// These three questions stay visible in QR history only — shown here as info columns
 
 function fmt_month_dd($ym) {
     return DateTime::createFromFormat('Y-m', $ym)->format('M Y');
@@ -50,11 +27,12 @@ function age_dd($row) {
 }
 
 $is_reg        = ($type === 'reg');
+$is_forms      = ($source === 'forms');
 $month_display = fmt_month_dd($month);
-$type_label    = $is_reg ? 'Registrations' : 'Follow-Ups';
+$type_label    = $is_reg ? 'New Registrations' : 'Follow-Ups';
 $accent_color  = $is_reg ? '#2980b9' : '#27ae60';
-$accent_bg     = $is_reg ? '#e8f4fd' : '#eaf6f0';
-$back_url      = base_url('reports/follow_up_status');
+$source_label  = $is_forms ? 'Based on Forms (client_type)' : 'Based on QR Code';
+$source_color  = $is_forms ? '#27ae60' : '#8e44ad';
 ?>
 
 <style>
@@ -72,32 +50,46 @@ $back_url      = base_url('reports/follow_up_status');
 .dd-count { font-size: 32px; font-weight: 700; }
 .dd-count-lbl { font-size: 11px; opacity: .75; text-transform: uppercase; letter-spacing: .5px; }
 
-/* Table */
 .dd-table thead tr { background: linear-gradient(135deg, #2c3e50 0%, #3d5a80 100%); }
 .dd-table thead th {
-    color: #fff !important; font-size: .68rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .5px;
-    padding: 10px 8px; border: none !important;
+    color: #fff !important; font-size: .62rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .4px;
+    padding: 8px 6px; border: none !important;
     white-space: nowrap; vertical-align: middle;
 }
-.dd-table tbody td { font-size: .80rem; vertical-align: middle; padding: 8px 8px; border-color: #edf0f4 !important; }
+.dd-table tbody td {
+    font-size: .73rem; vertical-align: middle;
+    padding: 6px 6px; border-color: #edf0f4 !important;
+    word-break: break-word;
+}
 .dd-table tbody tr:hover { background: #f5f8fc; }
 
+/* FU rows green tint */
+.dd-table tbody tr.row-fu { background: #f0faf3; }
+.dd-table tbody tr.row-fu:hover { background: #e3f5e9; }
+
 .type-badge {
-    display: inline-block; padding: 2px 9px; border-radius: 12px;
-    font-size: .68rem; font-weight: 700;
+    display: inline-block; padding: 2px 8px; border-radius: 12px;
+    font-size: .65rem; font-weight: 700; white-space: nowrap;
 }
+.badge-new { background: #d6eaf8; color: #1a5276; }
+.badge-fu  { background: #d5f5e3; color: #1e8449; }
+
+/* Vaccinations as wrapped pills */
+.vacc-wrap { display: flex; flex-wrap: wrap; gap: 2px; }
 .vacc-pill {
-    display: inline-block; margin: 1px 2px; padding: 1px 6px;
-    border-radius: 10px; font-size: .65rem; font-weight: 600;
+    display: inline-block; padding: 1px 5px;
+    border-radius: 8px; font-size: .60rem; font-weight: 600;
     background: #e8f4fd; color: #1a5276; white-space: nowrap;
+    line-height: 1.6;
 }
-.vacc-none { color: #ccc; font-size: .75rem; }
+.vacc-none { color: #bbb; font-size: .68rem; }
 
 .btn-back {
-    background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.3);
-    border-radius: 6px; padding: 4px 14px; font-size: 13px; text-decoration: none;
-    transition: background .15s;
+    background: rgba(255,255,255,.15); color: #fff;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 6px; padding: 4px 14px; font-size: 13px;
+    text-decoration: none; transition: background .15s;
 }
 .btn-back:hover { background: rgba(255,255,255,.25); color: #fff; text-decoration: none; }
 
@@ -108,7 +100,7 @@ $back_url      = base_url('reports/follow_up_status');
 <div class="page-container">
 <div class="main-content">
 
-<!-- BACK + HEADER CARD -->
+<!-- HEADER CARD -->
 <div class="dd-header-card">
     <div class="row align-items-center">
         <div class="col-md-9">
@@ -123,17 +115,28 @@ $back_url      = base_url('reports/follow_up_status');
             </div>
             <div class="dd-meta">Month: <?= $month_display ?></div>
             <div>
-                <span class="dd-badge"><i class="fa fa-map-marker"></i> <?= htmlspecialchars($uc_name) ?></span>
-                <span class="dd-badge ml-2"><i class="fa fa-calendar"></i> <?= $month_display ?></span>
+                <span class="dd-badge">
+                    <i class="fa fa-map-marker"></i> <?= htmlspecialchars($uc_name) ?>
+                </span>
+                <span class="dd-badge ml-2">
+                    <i class="fa fa-calendar"></i> <?= $month_display ?>
+                </span>
                 <span class="dd-badge ml-2"
                       style="background:<?= $is_reg ? 'rgba(41,128,185,.4)' : 'rgba(39,174,96,.4)' ?>;">
                     <?= $is_reg ? 'Registrations' : 'Follow-Ups' ?>
+                </span>
+                <span class="dd-badge ml-2"
+                      style="background:<?= $is_forms ? 'rgba(39,174,96,.35)' : 'rgba(142,68,173,.35)' ?>;">
+                    <i class="fa <?= $is_forms ? 'fa-wpforms' : 'fa-qrcode' ?>"></i>
+                    <?= $source_label ?>
                 </span>
             </div>
         </div>
         <div class="col-md-3 text-center" style="border-left:1px solid rgba(255,255,255,.2);">
             <div class="dd-count"><?= $total ?></div>
-            <div class="dd-count-lbl">Children Found</div>
+            <div class="dd-count-lbl">
+                <?= $is_forms && !$is_reg ? 'Unique Children' : 'Children Found' ?>
+            </div>
         </div>
     </div>
 </div>
@@ -148,72 +151,91 @@ $back_url      = base_url('reports/follow_up_status');
         </h5>
         <small class="text-muted">
             <i class="fa fa-info-circle"></i>
-            Vaccinations shown are from this specific visit record
+            <?php if ($is_forms): ?>
+                Data source: <strong>client_type</strong> field on form
+            <?php else: ?>
+                Vaccinations shown are from this specific visit record
+            <?php endif; ?>
         </small>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-bordered mb-0 dd-table">
+            <table class="table table-hover table-bordered table-sm mb-0 dd-table" style="table-layout:fixed; width:100%;">
                 <thead>
                     <tr>
-                        <th width="35">#</th>
-                        <th width="110">QR Code</th>
-                        <th>Child Name</th>
-                        <th>Guardian</th>
-                        <th width="85">Age / Group</th>
-                        <th width="70">Gender</th>
-                        <th width="90">Village</th>
-                        <th>Vaccinator</th>
-                        <th width="105">Form Date</th>
-                        <th>Vaccinations Given</th>
-                        <th width="60" class="text-center">View</th>
+                        <th style="width:30px">#</th>
+                        <th style="width:100px">QR Code</th>
+                        <th style="width:100px">Child Name</th>
+                        <th style="width:90px">Guardian</th>
+                        <th style="width:80px">Age / Group</th>
+                        <th style="width:55px">Gender</th>
+                        <th style="width:80px">Village</th>
+                        <th style="width:85px">Vaccinator</th>
+                        <th style="width:75px">Date</th>
+                        <?php if ($is_forms): ?>
+                        <th style="width:65px">Type</th>
+                        <?php endif; ?>
+                        <th>Vaccinations</th>
+                        <th style="width:45px" class="text-center">View</th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($records as $i => $row):
-                    // Collect vaccines given in this visit
                     $given_vaccines = isset($row['vaccinations']) ? $row['vaccinations'] : array();
+                    $client_type    = isset($row['client_type']) ? $row['client_type'] : '';
+                    $row_class      = (!$is_reg && !$is_forms) ? '' :
+                                     ($client_type === 'Followup' ? 'row-fu' : '');
                 ?>
-                <tr>
+                <tr class="<?= $row_class ?>">
                     <td class="text-muted"><?= $i + 1 ?></td>
                     <td>
                         <a href="<?= base_url('reports/qr_history_search?qr_code=') . urlencode($row['qr_code']) ?>"
                            target="_blank"
-                           style="font-size:.75rem; font-weight:600; color:#2980b9;">
+                           style="font-size:.68rem; font-weight:600; color:#2980b9;">
                             <?= htmlspecialchars($row['qr_code']) ?>
                         </a>
                     </td>
                     <td>
-                        <strong style="font-size:.83rem;"><?= htmlspecialchars($row['patient_name'] ?: '—') ?></strong>
+                        <strong style="font-size:.72rem;"><?= htmlspecialchars($row['patient_name'] ?: '—') ?></strong>
                     </td>
-                    <td style="font-size:.80rem;"><?= htmlspecialchars($row['guardian_name'] ?: '—') ?></td>
+                    <td style="font-size:.70rem;"><?= htmlspecialchars($row['guardian_name'] ?: '—') ?></td>
                     <td>
-                        <span style="font-size:.78rem;"><?= age_dd($row) ?></span>
-                        <br>
-                        <span class="badge badge-light" style="font-size:.68rem;">
+                        <span style="font-size:.68rem;"><?= age_dd($row) ?></span><br>
+                        <span class="badge badge-light" style="font-size:.60rem;">
                             <?= htmlspecialchars($row['age_group'] ?: '—') ?>
                         </span>
                     </td>
-                    <td style="font-size:.80rem;"><?= ucfirst($row['gender'] ?: '—') ?></td>
-                    <td style="font-size:.80rem;"><?= htmlspecialchars($row['village'] ?: '—') ?></td>
-                    <td style="font-size:.80rem;"><?= htmlspecialchars($row['vaccinator_name'] ?: '—') ?></td>
+                    <td style="font-size:.70rem;"><?= ucfirst($row['gender'] ?: '—') ?></td>
+                    <td style="font-size:.70rem;"><?= htmlspecialchars($row['village'] ?: '—') ?></td>
+                    <td style="font-size:.70rem;"><?= htmlspecialchars($row['vaccinator_name'] ?: '—') ?></td>
                     <td>
-                        <strong style="font-size:.80rem;">
+                        <strong style="font-size:.70rem;">
                             <?= !empty($row['form_date']) ? date('d M Y', strtotime($row['form_date'])) : '—' ?>
                         </strong>
                     </td>
+                    <?php if ($is_forms): ?>
+                    <td>
+                        <span class="type-badge <?= $client_type === 'Followup' ? 'badge-fu' : 'badge-new' ?>">
+                            <?= $client_type ?: '—' ?>
+                        </span>
+                    </td>
+                    <?php endif; ?>
                     <td>
                         <?php if (!empty($given_vaccines)): ?>
+                            <div class="vacc-wrap">
                             <?php foreach ($given_vaccines as $v): ?>
-                                <span class="vacc-pill"><?= $v ?></span>
+                                <span class="vacc-pill"><?= htmlspecialchars($v) ?></span>
                             <?php endforeach; ?>
+                            </div>
                         <?php else: ?>
                             <span class="vacc-none">—</span>
                         <?php endif; ?>
                     </td>
                     <td class="text-center">
                         <a href="<?= base_url('forms/view_child_health/' . $row['master_id']) ?>"
-                           target="_blank" class="btn btn-sm btn-primary" title="View full form">
+                           target="_blank" class="btn btn-primary" 
+                           style="padding:2px 7px; font-size:.68rem;"
+                           title="View full form">
                             <i class="fa fa-eye"></i>
                         </a>
                     </td>

@@ -112,11 +112,11 @@
                         </a>
                     </li>
 
-                    <li class="<?= ($this->uri->segment(2) == 'vaccination_comparison') ? 'active' : '' ?>">
+<!--                    <li class="<?= ($this->uri->segment(2) == 'vaccination_comparison') ? 'active' : '' ?>">
                         <a href="<?= base_url('reports/vaccination_comparison'); ?>">
                             <span>Vaccination - Retention</span>
                         </a>
-                    </li>
+                    </li>-->
                     
                     <li class="<?= ($this->uri->segment(2) == 'follow_up_status') ? 'active' : '' ?>">
                         <a href="<?= base_url('reports/follow_up_status'); ?>">
