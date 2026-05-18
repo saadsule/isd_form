@@ -224,6 +224,7 @@ function age_display_qr($row) {
                     <tr>
                         <th width="30">#</th>
                         <th width="100">Visit Type</th>
+                        <th width="100">Client Type</th>
                         <th width="105">Date</th>
                         <th width="85">Age / Group</th>
                         <th>Vaccinator</th>
@@ -258,6 +259,8 @@ function age_display_qr($row) {
                             </span>
                         <?php endif; ?>
                     </td>
+                    
+                    <td><?= htmlspecialchars(!empty($row['client_type']) ? $row['client_type'] : '—') ?></td>
 
                     <td>
                         <strong><?= !empty($row['form_date']) ? date('d M Y', strtotime($row['form_date'])) : '—' ?></strong>
