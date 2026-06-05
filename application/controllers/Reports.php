@@ -961,4 +961,11 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('reports/drill_down_list', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function ris_schedule()
+    {
+        $data['page_title']   = 'RIS Schedule';
+        $data['main_content'] = $this->load->view('reports/ris_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
 }

@@ -50,6 +50,10 @@
     font-weight:800;
     margin-right:6px;
 }
+
+@media print {
+    .no-print { display: none !important; }
+}
 </style>
 
 <?php
@@ -105,7 +109,7 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
 
         <!-- Status Badge -->
         <?php if(in_array($this->session->userdata('role'), [2, 5]) || $status != 'Pending'): ?>    
-            <span class="badge badge-<?php echo $badge_color; ?> mr-2" style="font-size:11px; padding: 4px 8px; border-radius: 20px; font-weight:500;">
+            <span class="badge badge-<?php echo $badge_color; ?> mr-2 no-print" style="font-size:11px; padding: 4px 8px; border-radius: 20px; font-weight:500;">
                 <?php if($status == 'Verified'): ?>
                     <i class="fa fa-check-circle"></i>
                 <?php elseif($status == 'Reported'): ?>
@@ -118,14 +122,17 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
         <?php endif; ?>
 
         <!-- Print Button -->
-        <button class="btn btn-primary mr-2" onclick="printForm();" style="padding: 0.375rem 0.75rem; height: 32px;">
+        <a href="javascript:history.back();" class="btn btn-sm mr-2 no-print" style="background:#0f1c3f; color:#fff; border-radius:7px; padding:6px 16px; font-weight:600; height:32px; display:inline-flex; align-items:center;">
+            <i class="fa fa-arrow-left mr-1"></i> Back
+        </a>
+        <button class="btn btn-primary mr-2 no-print" onclick="printForm();" style="padding: 0.375rem 0.75rem; height: 32px;">
             <i class="anticon anticon-printer"></i> Print
         </button>
 
         <!-- Unverify Button -->
         <?php if(in_array($this->session->userdata('role'), [2, 5]) && $form->verification_status == 'Verified'): ?>
             <form method="post" action="<?= base_url('forms/unverify/'.$form->master_id) ?>" style="display:inline;">
-                <button type="submit" class="btn btn-warning mr-2" style="padding: 0.375rem 0.75rem; height: 32px;">
+                <button type="submit" class="btn btn-warning mr-2 no-print" style="padding: 0.375rem 0.75rem; height: 32px;">
                     <i class="fa fa-undo"></i> Unverify
                 </button>
             </form>
@@ -134,12 +141,12 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
         <!-- Verify & Report Buttons -->
         <?php if(in_array($this->session->userdata('role'), [2, 5]) && ($form->verification_status == 'Pending' || $form->verification_status == 'Reported')): ?>
             <form method="post" action="<?= base_url('forms/verify/'.$form->master_id) ?>" style="display:inline;">
-                <button type="submit" class="btn btn-success mr-2" style="padding: 0.375rem 0.75rem; height: 32px;">
+                <button type="submit" class="btn btn-success mr-2 no-print" style="padding: 0.375rem 0.75rem; height: 32px;">
                     <i class="fa fa-check"></i> Verify
                 </button>
             </form>
 
-            <button class="btn btn-danger mr-2" data-toggle="modal" data-target="#reportModal" style="padding: 0.375rem 0.75rem; height: 32px;">
+            <button class="btn btn-danger mr-2 no-print" data-toggle="modal" data-target="#reportModal" style="padding: 0.375rem 0.75rem; height: 32px;">
                 <i class="fa fa-flag"></i> Report
             </button>
         <?php endif; ?>
@@ -334,11 +341,21 @@ if($q->q_type == 'text'){
     
 <script>
     function printForm() {
-        var printContents = document.getElementById('printable-area').innerHTML;
+        var area = document.getElementById('printable-area');
+
+        var noPrintEls = area.querySelectorAll('.no-print');
+        noPrintEls.forEach(function(el){ el.style.display = 'none'; });
+
+        var printContents = area.innerHTML;
         var originalContents = document.body.innerHTML;
 
+        var style = document.createElement('style');
+        style.innerHTML = '@page { size: A4; margin: 0.5cm; } #printable-area { font-size: 10px; } .card { margin-bottom: 8px !important; padding: 0 !important; } .card-body { padding: 8px !important; } .table th, .table td { padding: 4px 6px !important; font-size: 9px !important; } .section-title { font-size: 12px !important; margin-bottom: 6px !important; } h2 { font-size: 14px !important; } img { height: 35px !important; }';
+
         document.body.innerHTML = printContents;
+        document.head.appendChild(style);
         window.print();
         document.body.innerHTML = originalContents;
+        window.location.reload();
     }
 </script>

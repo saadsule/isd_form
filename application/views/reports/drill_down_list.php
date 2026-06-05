@@ -190,7 +190,6 @@ $source_color  = $is_forms ? '#27ae60' : '#8e44ad';
                     <td class="text-muted"><?= $i + 1 ?></td>
                     <td>
                         <a href="<?= base_url('reports/qr_history_search?qr_code=') . urlencode($row['qr_code']) ?>"
-                           target="_blank"
                            style="font-size:.68rem; font-weight:600; color:#2980b9;">
                             <?= htmlspecialchars($row['qr_code']) ?>
                         </a>
@@ -233,7 +232,7 @@ $source_color  = $is_forms ? '#27ae60' : '#8e44ad';
                     </td>
                     <td class="text-center">
                         <a href="<?= base_url('forms/view_child_health/' . $row['master_id']) ?>"
-                           target="_blank" class="btn btn-primary" 
+                           class="btn btn-primary" 
                            style="padding:2px 7px; font-size:.68rem;"
                            title="View full form">
                             <i class="fa fa-eye"></i>

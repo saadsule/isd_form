@@ -130,6 +130,9 @@ function age_display_qr($row) {
 <div class="page-header">
     <h2><i class="fa fa-qrcode text-primary"></i> QR Code History Search</h2>
     <p class="text-muted mb-0">Enter a QR code to view complete visit history for that child</p>
+    <a href="javascript:history.back();" class="btn btn-sm mt-2" style="background:#0f1c3f; color:#fff; border-radius:7px; padding:6px 16px; font-weight:600;">
+        <i class="fa fa-arrow-left mr-1"></i> Back
+    </a>
 </div>
 
 <!-- SEARCH BOX -->
@@ -295,7 +298,7 @@ function age_display_qr($row) {
 
                     <td class="text-center">
                         <a href="<?= base_url('forms/view_child_health/' . $row['master_id']) ?>"
-                           target="_blank" class="btn btn-sm btn-primary" title="View full form">
+                           class="btn btn-sm btn-primary" title="View full form">
                             <i class="fa fa-eye"></i>
                         </a>
                     </td>

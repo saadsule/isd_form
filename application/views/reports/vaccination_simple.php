@@ -71,7 +71,6 @@
                                     <td class="text-center">
                                         <?php if ($val > 0): ?>
                                             <a href="<?= base_url('reports/vaccination_detail?uc_name='.urlencode($uc_name).'&month='.$m) ?>"
-                                                target="_blank"
                                                 style="font-size:15px; font-weight:bold; color:#007bff; text-decoration:none; border-bottom: 2px dashed #007bff;">
                                                  <?= $val ?>
                                              </a>

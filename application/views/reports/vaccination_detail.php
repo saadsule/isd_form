@@ -9,8 +9,8 @@
                     <?= date('M Y', strtotime($month . '-01')) ?>
                 </small>
             </h2>
-            <a href="javascript:window.close();" class="btn btn-default btn-sm m-l-10">
-                <i class="fa fa-times m-r-5"></i> Close
+            <a href="javascript:history.back();" class="btn btn-sm m-l-10" style="background:#0f1c3f; color:#fff; border-radius:7px; padding:6px 16px; font-weight:600; letter-spacing:0.3px; border:none;">
+                <i class="fa fa-arrow-left m-r-5"></i> Back
             </a>
         </div>
 
