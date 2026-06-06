@@ -6,7 +6,7 @@
 }
 
 .ris-header-card {
-    background: linear-gradient(135deg, #1a1f4e 0%, #2d3585 60%, #3d5a80 100%);
+    background: #1a1f4e;
     border-radius: 14px;
     padding: 24px 32px;
     margin-bottom: 24px;
@@ -16,7 +16,6 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 16px;
-    box-shadow: 0 8px 24px rgba(29,41,120,.25);
 }
 .ris-header-card .ris-title {
     font-size: 22px;
@@ -45,7 +44,6 @@
     letter-spacing: .5px;
 }
 
-/* Schedule Table */
 .ris-card {
     border: none;
     border-radius: 14px;
@@ -54,7 +52,7 @@
     margin-bottom: 24px;
 }
 .ris-card .card-header {
-    background: linear-gradient(135deg, #1a1f4e 0%, #2d3585 100%);
+    background: #1a1f4e;
     padding: 14px 22px;
     border: none;
 }
@@ -71,7 +69,7 @@
     margin: 0;
 }
 .ris-table thead tr {
-    background: linear-gradient(135deg, #1a1f4e 0%, #2d3585 100%);
+    background: #1a1f4e;
 }
 .ris-table thead th {
     color: #fff;
@@ -88,13 +86,12 @@
 .ris-table tbody td {
     padding: 14px 16px;
     border-bottom: 1px solid #edf0f4;
-    font-size: 13px;
+    font-size: 14px;
     vertical-align: middle;
 }
 .ris-table tbody tr:last-child td { border-bottom: none; }
 .ris-table tbody tr:hover { background: #f8f9ff; }
 
-/* Visit label cell */
 .visit-label {
     font-weight: 700;
     font-size: 13px;
@@ -111,7 +108,6 @@
 .v-5      { background: #27ae60; }
 .v-6      { background: #8e44ad; }
 
-/* Age badge */
 .age-badge {
     background: #eef2ff;
     color: #2d3585;
@@ -123,18 +119,19 @@
     border: 1px solid #c5cdf8;
 }
 
-/* Vaccine pills */
 .vacc-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 6px;
     justify-content: center;
 }
+
+/* ✅ Font size 15px kar diya */
 .vacc-pill {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 5px 14px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: 15px;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -145,13 +142,12 @@
 .pill-green  { background: #e5f7ed; color: #1a6b3c; border: 1px solid #a8dfc0; }
 .pill-violet { background: #ede8fb; color: #4a1d8a; border: 1px solid #c5b3f0; }
 
-/* Note card */
 .ris-note {
     background: #fffbea;
     border: 1px solid #f0d060;
     border-radius: 10px;
     padding: 12px 18px;
-    font-size: 12px;
+    font-size: 13px;
     color: #7d6608;
     margin-bottom: 24px;
 }
@@ -159,13 +155,20 @@
 
 @media print {
     .no-print { display: none !important; }
+    body * { visibility: hidden !important; }
+    #printable-area, #printable-area * { visibility: visible !important; }
+    nav, header, .sidebar, .navbar, .main-sidebar, .main-header { display: none !important; }
+    #printable-area { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; }
     .ris-wrap { background: #fff !important; padding: 0 !important; }
     .ris-card { box-shadow: none !important; border: 1px solid #ddd !important; }
+    @page { size: A4; margin: 0.5cm; }
 }
 </style>
 
 <div class="page-container">
 <div class="main-content ris-wrap">
+
+    <div id="printable-area">
 
     <!-- HEADER -->
     <div class="ris-header-card">
@@ -203,7 +206,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- At Birth -->
                     <tr>
                         <td><span class="visit-label v-birth">At Birth</span></td>
                         <td class="text-center"><span class="age-badge">At Birth</span></td>
@@ -215,7 +217,6 @@
                             </div>
                         </td>
                     </tr>
-                    <!-- 2nd Visit -->
                     <tr>
                         <td><span class="visit-label v-2">2nd Visit</span></td>
                         <td class="text-center"><span class="age-badge">6 Weeks</span></td>
@@ -228,7 +229,6 @@
                             </div>
                         </td>
                     </tr>
-                    <!-- 3rd Visit -->
                     <tr>
                         <td><span class="visit-label v-3">3rd Visit</span></td>
                         <td class="text-center"><span class="age-badge">10 Weeks</span></td>
@@ -241,7 +241,6 @@
                             </div>
                         </td>
                     </tr>
-                    <!-- 4th Visit -->
                     <tr>
                         <td><span class="visit-label v-4">4th Visit</span></td>
                         <td class="text-center"><span class="age-badge">14 Weeks</span></td>
@@ -254,7 +253,6 @@
                             </div>
                         </td>
                     </tr>
-                    <!-- 5th Visit -->
                     <tr>
                         <td><span class="visit-label v-5">5th Visit</span></td>
                         <td class="text-center"><span class="age-badge">9 Months</span></td>
@@ -266,7 +264,6 @@
                             </div>
                         </td>
                     </tr>
-                    <!-- 6th Visit -->
                     <tr>
                         <td><span class="visit-label v-6">6th Visit</span></td>
                         <td class="text-center"><span class="age-badge">15 Months</span></td>
@@ -281,33 +278,17 @@
         </div>
     </div>
 
-    <!-- SUMMARY CARDS -->
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card" style="border:none; border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,.07);">
-                <div class="card-body text-center" style="padding:20px;">
-                    <div style="font-size:28px; font-weight:800; color:#e84393;">3</div>
-                    <div style="font-size:12px; color:#666; text-transform:uppercase; letter-spacing:.5px; margin-top:4px;">Vaccines at Birth</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border:none; border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,.07);">
-                <div class="card-body text-center" style="padding:20px;">
-                    <div style="font-size:28px; font-weight:800; color:#2d3585;">14</div>
-                    <div style="font-size:12px; color:#666; text-transform:uppercase; letter-spacing:.5px; margin-top:4px;">Total Vaccine Doses</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border:none; border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,.07);">
-                <div class="card-body text-center" style="padding:20px;">
-                    <div style="font-size:28px; font-weight:800; color:#27ae60;">15 Mo</div>
-                    <div style="font-size:12px; color:#666; text-transform:uppercase; letter-spacing:.5px; margin-top:4px;">Full Coverage Age</div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </div><!-- end printable-area -->
 
 </div>
-</div>
+
+<script>
+    // Ctrl+P intercept
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            e.stopPropagation();
+            setTimeout(function(){ window.print(); }, 100);
+        }
+    }, true);
+</script>

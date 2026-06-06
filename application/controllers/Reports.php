@@ -962,10 +962,16 @@ class Reports extends CI_Controller {
         $this->load->view('layout/main', $data);
     }
     
-    public function ris_schedule()
+    public function vaccination_schedule()
     {
-        $data['page_title']   = 'RIS Schedule';
-        $data['main_content'] = $this->load->view('reports/ris_report', $data, TRUE);
+        $data['page_title']   = 'Vaccination Schedule';
+        $data['main_content'] = $this->load->view('reports/vaccination_report', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
+    public function assistant() {
+        $data['page_title']   = 'ISD Assistant';
+        $data['main_content'] = $this->load->view('assistant/isd_assistant', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
 }

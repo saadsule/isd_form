@@ -50,6 +50,22 @@
     font-weight:800;
     margin-right:6px;
 }
+
+@media print {
+    body * { visibility: hidden !important; }
+    #printable-area, #printable-area * { visibility: visible !important; }
+    .no-print { display: none !important; }
+    nav, header, .sidebar, .navbar, .main-sidebar, .main-header { display: none !important; }
+    #printable-area { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; font-size: 10px; }
+    body { transform-origin: top left; }
+    .card { margin-bottom: 8px !important; padding: 0 !important; }
+    .card-body { padding: 8px !important; }
+    .table th, .table td { padding: 4px 6px !important; font-size: 9px !important; }
+    .section-title { font-size: 12px !important; margin-bottom: 6px !important; }
+    h2 { font-size: 14px !important; }
+    img { height: 35px !important; }
+    @page { size: A4; margin: 0.5cm; }
+}
 </style>
 
 
@@ -307,7 +323,6 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
     function printForm() {
         var area = document.getElementById('printable-area');
 
-        // hide all no-print elements before copying
         var noPrintEls = area.querySelectorAll('.no-print');
         noPrintEls.forEach(function(el){ el.style.display = 'none'; });
 
@@ -323,4 +338,14 @@ $badge_color = isset($status_color[$status]) ? $status_color[$status] : 'seconda
         document.body.innerHTML = originalContents;
         window.location.reload();
     }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            e.stopPropagation();
+            setTimeout(function(){
+                printForm();
+            }, 100);
+        }
+    }, true);
 </script>
