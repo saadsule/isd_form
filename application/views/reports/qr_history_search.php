@@ -19,56 +19,46 @@ function age_display_qr($row) {
 // ── EPI Schedule ──────────────────────────────────────────────────────────
 $epi_schedule = array(
     array(
-        'visit'       => 'At Birth',
-        'color_class' => 'v-birth',
-        'due_days'    => 0,
-        'due_label'   => 'At Birth',
-        'vaccines'    => array('BCG', 'OPV-0', 'Hep-B'),
+        'visit'    => 'At Birth',
+        'due_days' => 0,
+        'due_label'=> 'At Birth',
+        'vaccines' => array('BCG', 'OPV-0', 'Hep-B'),
     ),
     array(
-        'visit'       => '2nd Visit',
-        'color_class' => 'v-2',
-        'due_days'    => 42,
-        'due_label'   => '6 Weeks',
-        'vaccines'    => array('OPV-I', 'Pneumococcal-I', 'Rotavirus-I', 'Pentavalent-I'),
+        'visit'    => '2nd Visit',
+        'due_days' => 42,
+        'due_label'=> '6 Weeks',
+        'vaccines' => array('OPV-I', 'Pneumococcal-I', 'Rotavirus-I', 'Pentavalent-I'),
     ),
     array(
-        'visit'       => '3rd Visit',
-        'color_class' => 'v-3',
-        'due_days'    => 70,
-        'due_label'   => '10 Weeks',
-        'vaccines'    => array('OPV-II', 'Pneumococcal-II', 'Rotavirus-II', 'Pentavalent-II'),
+        'visit'    => '3rd Visit',
+        'due_days' => 70,
+        'due_label'=> '10 Weeks',
+        'vaccines' => array('OPV-II', 'Pneumococcal-II', 'Rotavirus-II', 'Pentavalent-II'),
     ),
     array(
-        'visit'       => '4th Visit',
-        'color_class' => 'v-4',
-        'due_days'    => 98,
-        'due_label'   => '14 Weeks',
-        'vaccines'    => array('OPV-III', 'Pneumococcal-III', 'IPV-I', 'Pentavalent-III'),
+        'visit'    => '4th Visit',
+        'due_days' => 98,
+        'due_label'=> '14 Weeks',
+        'vaccines' => array('OPV-III', 'Pneumococcal-III', 'IPV-I', 'Pentavalent-III'),
     ),
     array(
-        'visit'       => '5th Visit',
-        'color_class' => 'v-5',
-        'due_days'    => 273,
-        'due_label'   => '9 Months',
-        'vaccines'    => array('MR-I', 'Typhoid', 'IPV-II'),
+        'visit'    => '5th Visit',
+        'due_days' => 273,
+        'due_label'=> '9 Months',
+        'vaccines' => array('MR-I', 'Typhoid', 'IPV-II'),
     ),
     array(
-        'visit'       => '6th Visit',
-        'color_class' => 'v-6',
-        'due_days'    => 456,
-        'due_label'   => '15 Months',
-        'vaccines'    => array('MR-II'),
+        'visit'    => '6th Visit',
+        'due_days' => 456,
+        'due_label'=> '15 Months',
+        'vaccines' => array('MR-II'),
     ),
 );
 
 // ── Vaccine name normalizer ───────────────────────────────────────────────
-// Maps many possible DB option_text values → canonical schedule name
-// Add more mappings here if your DB uses different names
 $vaccine_aliases = array(
-    // BCG
     'bcg'                   => 'BCG',
-    // OPV
     'opv0'                  => 'OPV-0',
     'opv-0'                 => 'OPV-0',
     'opv 0'                 => 'OPV-0',
@@ -84,13 +74,11 @@ $vaccine_aliases = array(
     'opv-3'                 => 'OPV-III',
     'opv 3'                 => 'OPV-III',
     'opv-iii'               => 'OPV-III',
-    // Hep-B
     'hepb'                  => 'Hep-B',
     'hep-b'                 => 'Hep-B',
     'hep b'                 => 'Hep-B',
     'hepatitisb'            => 'Hep-B',
     'hepatitis-b'           => 'Hep-B',
-    // Pentavalent — covers: PENTA I, Penta-1, Pentavalent-1, penta1, pentai etc
     'pentavalent1'          => 'Pentavalent-I',
     'pentavalent-1'         => 'Pentavalent-I',
     'pentavalenți'          => 'Pentavalent-I',
@@ -99,7 +87,7 @@ $vaccine_aliases = array(
     'penta1'                => 'Pentavalent-I',
     'penta-1'               => 'Pentavalent-I',
     'penta i'               => 'Pentavalent-I',
-    'pentai'                => 'Pentavalent-I',   // "PENTA I" stripped
+    'pentai'                => 'Pentavalent-I',
     'pentavalent2'          => 'Pentavalent-II',
     'pentavalent-2'         => 'Pentavalent-II',
     'pentavalent ii'        => 'Pentavalent-II',
@@ -107,7 +95,7 @@ $vaccine_aliases = array(
     'penta2'                => 'Pentavalent-II',
     'penta-2'               => 'Pentavalent-II',
     'penta ii'              => 'Pentavalent-II',
-    'pentaii'               => 'Pentavalent-II',  // "PENTA II" stripped
+    'pentaii'               => 'Pentavalent-II',
     'pentavalent3'          => 'Pentavalent-III',
     'pentavalent-3'         => 'Pentavalent-III',
     'pentavalent iii'       => 'Pentavalent-III',
@@ -115,12 +103,11 @@ $vaccine_aliases = array(
     'penta3'                => 'Pentavalent-III',
     'penta-3'               => 'Pentavalent-III',
     'penta iii'             => 'Pentavalent-III',
-    'pentaiii'              => 'Pentavalent-III', // "PENTA III" stripped
-    // Pneumococcal / PCV — covers: PCV I, PCV-1, pcv1, pcvi etc
+    'pentaiii'              => 'Pentavalent-III',
     'pcv1'                  => 'Pneumococcal-I',
     'pcv-1'                 => 'Pneumococcal-I',
     'pcv i'                 => 'Pneumococcal-I',
-    'pcvi'                  => 'Pneumococcal-I',  // "PCV I" stripped
+    'pcvi'                  => 'Pneumococcal-I',
     'pneumococcal1'         => 'Pneumococcal-I',
     'pneumococcal-1'        => 'Pneumococcal-I',
     'pneumococcal i'        => 'Pneumococcal-I',
@@ -128,7 +115,7 @@ $vaccine_aliases = array(
     'pcv2'                  => 'Pneumococcal-II',
     'pcv-2'                 => 'Pneumococcal-II',
     'pcv ii'                => 'Pneumococcal-II',
-    'pcvii'                 => 'Pneumococcal-II', // "PCV II" stripped
+    'pcvii'                 => 'Pneumococcal-II',
     'pneumococcal2'         => 'Pneumococcal-II',
     'pneumococcal-2'        => 'Pneumococcal-II',
     'pneumococcal ii'       => 'Pneumococcal-II',
@@ -136,12 +123,11 @@ $vaccine_aliases = array(
     'pcv3'                  => 'Pneumococcal-III',
     'pcv-3'                 => 'Pneumococcal-III',
     'pcv iii'               => 'Pneumococcal-III',
-    'pcviii'                => 'Pneumococcal-III',// "PCV III" stripped
+    'pcviii'                => 'Pneumococcal-III',
     'pneumococcal3'         => 'Pneumococcal-III',
     'pneumococcal-3'        => 'Pneumococcal-III',
     'pneumococcal iii'      => 'Pneumococcal-III',
     'pneumococcaliii'       => 'Pneumococcal-III',
-    // Rotavirus — covers: ROTA I, Rotavirus-1, rotai etc
     'rotavirus1'            => 'Rotavirus-I',
     'rotavirus-1'           => 'Rotavirus-I',
     'rotavirus i'           => 'Rotavirus-I',
@@ -149,7 +135,7 @@ $vaccine_aliases = array(
     'rota1'                 => 'Rotavirus-I',
     'rota-1'                => 'Rotavirus-I',
     'rota i'                => 'Rotavirus-I',
-    'rotai'                 => 'Rotavirus-I',     // "ROTA I" stripped
+    'rotai'                 => 'Rotavirus-I',
     'rotavirus2'            => 'Rotavirus-II',
     'rotavirus-2'           => 'Rotavirus-II',
     'rotavirus ii'          => 'Rotavirus-II',
@@ -157,246 +143,393 @@ $vaccine_aliases = array(
     'rota2'                 => 'Rotavirus-II',
     'rota-2'                => 'Rotavirus-II',
     'rota ii'               => 'Rotavirus-II',
-    'rotaii'                => 'Rotavirus-II',    // "ROTA II" stripped
-    // IPV — covers: IPV I, IPV-1, ipvi etc
+    'rotaii'                => 'Rotavirus-II',
     'ipv1'                  => 'IPV-I',
     'ipv-1'                 => 'IPV-I',
     'ipv i'                 => 'IPV-I',
-    'ipvi'                  => 'IPV-I',           // "IPV I" stripped
+    'ipvi'                  => 'IPV-I',
     'ipv2'                  => 'IPV-II',
     'ipv-2'                 => 'IPV-II',
     'ipv ii'                => 'IPV-II',
-    'ipvii'                 => 'IPV-II',          // "IPV II" stripped
-    // MR / Measles-Rubella — covers: MR I, MR-1, mri etc
+    'ipvii'                 => 'IPV-II',
     'mr1'                   => 'MR-I',
     'mr-1'                  => 'MR-I',
     'mr i'                  => 'MR-I',
-    'mri'                   => 'MR-I',            // "MR I" stripped
+    'mri'                   => 'MR-I',
     'measlesrubella1'       => 'MR-I',
     'measles rubella 1'     => 'MR-I',
     'mr2'                   => 'MR-II',
     'mr-2'                  => 'MR-II',
     'mr ii'                 => 'MR-II',
-    'mrii'                  => 'MR-II',           // "MR II" stripped
+    'mrii'                  => 'MR-II',
     'measlesrubella2'       => 'MR-II',
     'measles rubella 2'     => 'MR-II',
-    // OPV extra variants
-    'opv0'                  => 'OPV-0',
-    'opvi'                  => 'OPV-I',           // "OPV I" stripped (already there but confirm)
-    'opvii'                 => 'OPV-II',
-    'opviii'                => 'OPV-III',
-    // Typhoid
     'typhoid'               => 'Typhoid',
     'typhi'                 => 'Typhoid',
     'typhoidvaccine'        => 'Typhoid',
 );
 
-/**
- * Normalize a raw DB vaccine name to canonical schedule name
- * e.g. "OPV-1" → "OPV-I", "PCV-1" → "Pneumococcal-I"
- */
 function normalize_vaccine($raw, $aliases) {
     $key = strtolower(trim(preg_replace('/\s+/', ' ', $raw)));
-    // Direct alias match
     if (isset($aliases[$key])) return $aliases[$key];
-    // Remove spaces/hyphens/underscores and try again
     $stripped = preg_replace('/[\s\-_]/', '', $key);
     if (isset($aliases[$stripped])) return $aliases[$stripped];
-    // Return original if no match (for display)
     return $raw;
 }
 
-/**
- * Get vaccine status:
- *   given   → found in records
- *   missed  → age has passed the due date, not given
- *   future  → age has not yet reached due date
- *
- * IMPORTANT: uses actual child age in days (not today's date alone)
- */
 function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_age_days) {
     $norm_target = strtolower(preg_replace('/[\s\-_]/', '', $schedule_name));
     foreach ($normalized_given as $g) {
         $gn = strtolower(preg_replace('/[\s\-_]/', '', $g));
         if ($gn === $norm_target) return 'given';
     }
-    // Not given — only mark missed if child's age >= due date
     if ($child_age_days >= $due_days) return 'missed';
     return 'future';
 }
 ?>
 
 <style>
-/* ── Search Box ── */
+/* ═══════════════════════════════════════════════
+   SEARCH BOX
+═══════════════════════════════════════════════ */
 .qr-search-box {
-    background: #fff; border: 1px solid #e3e8ef; border-radius: 10px;
-    padding: 22px 28px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 10px;
+    padding: 22px 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
 }
 .qr-search-box .input-group { max-width: 520px; }
 .qr-search-box input[type="text"] {
-    border-radius: 8px 0 0 8px !important; border-right: none;
-    font-size: 15px; padding: 10px 16px; height: 44px; border-color: #ced4da;
+    border-radius: 8px 0 0 8px !important;
+    border-right: none;
+    font-size: 15px;
+    padding: 10px 16px;
+    height: 44px;
+    border-color: #ced4da;
 }
 .qr-search-box input:focus { box-shadow: none; border-color: #2980b9; }
 .qr-search-box .btn-search {
     background: linear-gradient(135deg, #2c3e50 0%, #3d5a80 100%);
-    color: #fff; border: none; border-radius: 0 8px 8px 0 !important;
-    padding: 0 22px; font-size: 14px; font-weight: 600; height: 44px;
+    color: #fff;
+    border: none;
+    border-radius: 0 8px 8px 0 !important;
+    padding: 0 22px;
+    font-size: 14px;
+    font-weight: 600;
+    height: 44px;
 }
 .qr-search-box .btn-search:hover { opacity: .9; }
 .qr-system-note {
-    background: #fffbea; border: 1px solid #f0d060; border-radius: 8px;
-    padding: 10px 16px; font-size: .80rem; color: #7d6608;
-    margin-top: 12px; max-width: 680px;
+    background: #fffbea;
+    border: 1px solid #f0d060;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: .80rem;
+    color: #7d6608;
+    margin-top: 12px;
+    max-width: 680px;
 }
 
-/* ── Patient Card ── */
+/* ═══════════════════════════════════════════════
+   PATIENT PROFILE CARD
+═══════════════════════════════════════════════ */
 .patient-card {
-    background: linear-gradient(135deg, #2c3e50 0%, #3d5a80 100%);
-    border-radius: 10px; padding: 18px 24px; margin-bottom: 18px; color: #fff;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 18px;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    flex-wrap: wrap;
 }
-.patient-card .p-name  { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-.patient-card .p-meta  { font-size: 12px; opacity: .8; margin-bottom: 0; }
-.patient-card .p-badge {
-    display: inline-block; background: rgba(255,255,255,.18); border-radius: 20px;
-    padding: 3px 12px; font-size: 11px; font-weight: 600; margin-top: 7px;
+/* Avatar circle */
+.pc-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #1a1f4e 0%, #2d3585 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
 }
-.patient-card .p-stat  { text-align: center; border-left: 1px solid rgba(255,255,255,.2); padding-left: 20px; }
-.patient-card .p-stat .num { font-size: 28px; font-weight: 700; }
-.patient-card .p-stat .lbl { font-size: 11px; opacity: .75; text-transform: uppercase; letter-spacing: .5px; }
+/* Main info */
+.pc-main { flex: 1; min-width: 200px; }
+.pc-main .p-name  { font-size: 20px; font-weight: 700; color: #2c3e50; margin-bottom: 5px; }
+.pc-main .p-meta  {
+    font-size: 12px;
+    color: #7a8a9a;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin-bottom: 8px;
+}
+.pc-main .p-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.pc-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.p-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f4f6f9;
+    border: 1px solid #e3e8ef;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #5a6a7a;
+}
+/* Stats column */
+.pc-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-left: 1px solid #e3e8ef;
+    padding-left: 20px;
+    min-width: 100px;
+}
+.pc-stat-item { text-align: center; }
+.pc-stat-item .num { font-size: 28px; font-weight: 700; color: #2c3e50; line-height: 1; }
+.pc-stat-item .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: #8a9ab0; margin-top: 2px; }
+/* QR column */
+.pc-qr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    border-left: 1px solid #e3e8ef;
+    padding-left: 18px;
+    min-width: 96px;
+}
+.pc-qr img,
+.pc-qr-fallback {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #dde3ee;
+    border-radius: 6px;
+    object-fit: contain;
+}
+.pc-qr-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9fafb;
+}
+.pc-qr small {
+    font-size: 10px;
+    color: #8a9ab0;
+    text-align: center;
+    word-break: break-all;
+    max-width: 84px;
+}
 
-/* ── Visit History Table ── */
-.visit-row-reg { border-left: 4px solid #27ae60 !important; }
-.visit-row-fu  { border-left: 4px solid #2980b9 !important; }
-.visit-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: .68rem; font-weight: 700; white-space: nowrap; }
-.badge-reg { background: #eaf6f0; color: #1a7a4a; }
-.badge-fu  { background: #e8f4fd; color: #1a5276; }
+/* ═══════════════════════════════════════════════
+   VISIT HISTORY TABLE
+═══════════════════════════════════════════════ */
+/* Uniform visit tag — same color for registration & follow-up */
+.visit-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #eef2ff;
+    color: #2d3585;
+    border: 1px solid #c5cdf8;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
 
 .qr-table thead tr { background: linear-gradient(135deg, #2c3e50 0%, #3d5a80 100%); }
 .qr-table thead th {
-    color: #fff !important; font-size: .66rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .5px; padding: 10px 8px;
-    border: none !important; white-space: nowrap; vertical-align: middle;
+    color: #fff !important;
+    font-size: .66rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    padding: 10px 8px;
+    border: none !important;
+    white-space: nowrap;
+    vertical-align: middle;
 }
-.qr-table tbody td { font-size: .79rem; vertical-align: middle; padding: 8px; border-color: #edf0f4 !important; }
+.qr-table tbody td {
+    font-size: .79rem;
+    vertical-align: middle;
+    padding: 8px;
+    border-color: #edf0f4 !important;
+}
 .qr-table tbody tr:hover { background: #f5f8fc; }
+
+/* Remove old left-border row colors */
+.visit-row-reg,
+.visit-row-fu { border-left: none !important; }
+
 .vacc-pill-sm {
-    display: inline-block; margin: 1px 2px; padding: 1px 7px;
-    border-radius: 10px; font-size: .63rem; font-weight: 600;
-    background: #e8f4fd; color: #1a5276; white-space: nowrap;
+    display: inline-block;
+    margin: 1px 2px;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: .63rem;
+    font-weight: 600;
+    background: #e8f4fd;
+    color: #1a5276;
+    white-space: nowrap;
 }
 .vacc-none { color: #ccc; font-size: .75rem; }
-.qr-empty { text-align: center; padding: 60px 20px; color: #8a9ab0; }
+.qr-empty  { text-align: center; padding: 60px 20px; color: #8a9ab0; }
 .qr-empty i { font-size: 48px; margin-bottom: 16px; display: block; }
 
-/* ══ EPI Vaccination Status Section ══ */
+/* ═══════════════════════════════════════════════
+   EPI / VACCINATION CARD SECTION
+═══════════════════════════════════════════════ */
 .vacc-schedule-section { margin-top: 28px; }
 
 .vacc-schedule-section .sec-header {
     background: linear-gradient(135deg, #1a1f4e 0%, #2d3585 100%);
     border-radius: 12px 12px 0 0;
     padding: 16px 22px;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 .vacc-schedule-section .sec-header h5 {
-    color: #fff; font-weight: 700; font-size: 15px; margin: 0;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    margin: 0;
+}
+.vacc-schedule-section .sec-header small {
+    color: rgba(255,255,255,.75);
+    font-size: 12px;
 }
 .vacc-schedule-section .sec-body {
     background: #fff;
-    border: 1px solid #e3e8ef; border-top: none;
+    border: 1px solid #e3e8ef;
+    border-top: none;
     border-radius: 0 0 12px 12px;
     overflow: hidden;
 }
 
-/* Progress */
-.vacc-progress-wrap {
-    background: #f4f6f9; padding: 14px 20px;
-    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-    border-bottom: 1px solid #edf0f4;
-}
-.vacc-progress-bar-outer {
-    flex: 1; min-width: 140px;
-    background: #e3e8ef; border-radius: 20px; height: 10px; overflow: hidden;
-}
-.vacc-progress-bar-inner {
-    height: 10px; border-radius: 20px;
-    background: linear-gradient(90deg, #27ae60, #2ecc71);
-}
-.vacc-stat-box {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: #fff; border: 1px solid #e3e8ef; border-radius: 8px;
-    padding: 5px 12px; font-size: 12px; font-weight: 600;
-}
-.vacc-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-
 /* Legend */
 .vac-legend {
-    display: flex; flex-wrap: wrap; gap: 14px;
-    padding: 12px 20px; border-bottom: 1px solid #edf0f4;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #edf0f4;
     background: #fafbfc;
 }
 .vac-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #555; }
 .vac-legend-dot  { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
 
-/* ── Schedule Table (same style as visit history table) ── */
+/* Schedule table */
 .sch-table { width: 100%; border-collapse: collapse; }
 .sch-table thead tr { background: linear-gradient(135deg, #1a1f4e 0%, #2d3585 100%); }
 .sch-table thead th {
-    color: #fff !important; font-size: .66rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .5px;
-    padding: 10px 14px; border: none !important;
-    white-space: nowrap; vertical-align: middle;
+    color: #fff !important;
+    font-size: .66rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    padding: 10px 14px;
+    border: none !important;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 .sch-table tbody td {
-    padding: 13px 14px; border-bottom: 1px solid #edf0f4;
+    padding: 13px 14px;
+    border-bottom: 1px solid #edf0f4;
     vertical-align: middle;
 }
 .sch-table tbody tr:last-child td { border-bottom: none; }
 .sch-table tbody tr:hover { background: #f8f9ff; }
 
-/* Visit label badge */
+/* Visit label — single uniform color, sharp corners */
 .visit-label-badge {
-    font-weight: 700; font-size: 12px; color: #fff;
-    padding: 5px 13px; border-radius: 20px;
-    display: inline-block; white-space: nowrap;
+    font-weight: 700;
+    font-size: 12px;
+    color: #fff;
+    padding: 5px 13px;
+    border-radius: 4px;      /* sharp, not pill */
+    display: inline-block;
+    white-space: nowrap;
+    background: #1a1f4e;     /* one color for all visits */
 }
-.v-birth  { background: #e84393; }
-.v-2      { background: #f07c1a; }
-.v-3      { background: #29a8e0; }
-.v-4      { background: #7b5ea7; }
-.v-5      { background: #27ae60; }
-.v-6      { background: #8e44ad; }
 
-/* Age chip */
+/* Due-age chips */
 .age-chip {
-    display: inline-block; padding: 3px 10px; border-radius: 20px;
-    font-size: 11px; font-weight: 600;
-    background: #eef2ff; color: #2d3585; border: 1px solid #c5cdf8;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
     white-space: nowrap;
 }
+/* Current age visit = green */
+.age-chip-current {
+    background: #eaf6f0;
+    color: #1a7a4a;
+    border: 1px solid #a8dfc0;
+}
+/* All other visits = gray */
+.age-chip-gray {
+    background: #f4f6f9;
+    color: #8a9ab0;
+    border: 1px solid #e3e8ef;
+}
 
-/* Visit status tag */
+/* Visit status tags */
 .vl-status-tag {
-    display: inline-block; margin-top: 5px;
-    font-size: 10px; font-weight: 700;
-    padding: 2px 9px; border-radius: 20px;
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 4px;
 }
 .vl-done    { background: #eaf6f0; color: #1a7a4a; }
 .vl-partial { background: #fef9e0; color: #9a6e00; }
 .vl-missed  { background: #fdf2f2; color: #922b21; }
 .vl-future  { background: #f0f2f5; color: #7a8a9a; }
 
-/* Vaccine pills */
+/* Vaccine pills in schedule */
 .sch-pills { display: flex; flex-wrap: wrap; gap: 7px; }
 .sch-pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 5px 14px; border-radius: 20px;
-    font-size: 13px; font-weight: 700; white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: 4px;      /* sharp corners */
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
     border: 1.5px solid transparent;
 }
 .pill-given  { background: #eaf6f0; color: #1a6b3c; border-color: #a8dfc0; }
 .pill-missed { background: #fdf2f2; color: #922b21; border-color: #f5b8b8; }
 .pill-future { background: #f0f2f5; color: #7a8a9a; border-color: #d8dde4; }
+
+/* Bottom note */
+.vacc-note {
+    padding: 12px 20px;
+    border-top: 1px solid #edf0f4;
+    background: #fafbfc;
+    font-size: 11px;
+    color: #7a8a9a;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+}
+.vacc-note i { margin-top: 1px; flex-shrink: 0; }
 
 @media print { .no-print { display: none !important; } }
 </style>
@@ -404,7 +537,7 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
 <div class="page-container">
 <div class="main-content">
 
-<!-- HEADER -->
+<!-- PAGE HEADER -->
 <div class="page-header">
     <h2><i class="fa fa-qrcode text-primary"></i> QR Code History Search</h2>
     <p class="text-muted mb-0">Enter a QR code to view complete visit history for that child</p>
@@ -452,28 +585,24 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
     $dob_display = !empty($first['dob']) ? date('d M Y', strtotime($first['dob'])) : '—';
     $age_display = age_display_qr($first);
 
+    // ── Avatar initials (first 2 chars of name) ──────────────────────────
+    $initials = strtoupper(substr(trim($first['patient_name']), 0, 2));
+
     // ── Calculate child age in days ──────────────────────────────────────
-    // Use stored age fields (age at registration) — NOT today's date from DOB.
-    // Reason: DOB-to-today gives CURRENT age, but schedule status should reflect
-    // the age recorded at registration time (what the health worker entered).
-    // If age fields are empty, fall back to DOB-to-registration-date.
     $child_age_days = 0;
     if (!empty($first['age_year']) || !empty($first['age_month']) || !empty($first['age_day'])) {
-        // Use stored age fields — most accurate for schedule matching
         $child_age_days = (int)($first['age_year']  * 365)
                         + (int)($first['age_month'] * 30)
                         + (int)($first['age_day']);
     } elseif (!empty($first['dob']) && $first['dob'] !== '0000-00-00' && !empty($first['form_date'])) {
-        // Fallback: DOB to registration date (not today)
         $child_age_days = (int) floor(
             (strtotime($first['form_date']) - strtotime($first['dob'])) / 86400
         );
     } elseif (!empty($first['dob']) && $first['dob'] !== '0000-00-00') {
-        // Last resort: DOB to today
         $child_age_days = (int) floor((time() - strtotime($first['dob'])) / 86400);
     }
 
-    // ── Collect ALL vaccines given across ALL visits ─────────────────────
+    // ── Collect all vaccines given across all visits ──────────────────────
     $all_given_raw = array();
     foreach ($records as $rec) {
         if (!empty($rec['vaccinations'])) {
@@ -482,66 +611,72 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
             }
         }
     }
-
-    // Normalize all given vaccine names using alias map
     $all_given_normalized = array();
     foreach ($all_given_raw as $raw) {
         $all_given_normalized[] = normalize_vaccine($raw, $vaccine_aliases);
     }
 
-    // ── Stats for progress bar ───────────────────────────────────────────
-    $total_vaccines = 0;
-    $given_count    = 0;
-    $missed_count   = 0;
-    $future_count   = 0;
-    foreach ($epi_schedule as $visit_def) {
-        foreach ($visit_def['vaccines'] as $vacc_name) {
-            $total_vaccines++;
-            $st = vaccine_status_v2($vacc_name, $all_given_normalized, $visit_def['due_days'], $child_age_days);
-            if ($st === 'given')  $given_count++;
-            if ($st === 'missed') $missed_count++;
-            if ($st === 'future') $future_count++;
+    // ── Find the "current" visit index — closest due_days to child_age_days ──
+    $current_visit_idx = 0;
+    $min_diff = PHP_INT_MAX;
+    foreach ($epi_schedule as $idx => $vd) {
+        $diff = abs($child_age_days - $vd['due_days']);
+        if ($diff < $min_diff) {
+            $min_diff          = $diff;
+            $current_visit_idx = $idx;
         }
     }
-    $progress_pct = $total_vaccines > 0 ? round(($given_count / $total_vaccines) * 100) : 0;
 ?>
 
-<!-- PATIENT SUMMARY CARD -->
+<!-- ══ PATIENT PROFILE CARD ══ -->
 <div class="patient-card">
-    <div class="row align-items-center">
-        <div class="col-md-8">
-            <div class="p-name"><?= htmlspecialchars($first['patient_name']) ?></div>
-            <div class="p-meta">
-                <i class="fa fa-user-o"></i> Guardian: <?= htmlspecialchars($first['guardian_name'] ?: '—') ?>
-                &nbsp;|&nbsp;
-                <i class="fa fa-birthday-cake"></i> DOB: <?= $dob_display ?>
-                &nbsp;|&nbsp;
-                <i class="fa fa-child"></i> Age: <?= $age_display ?> (<?= $child_age_days ?> days)
-                &nbsp;|&nbsp;
-                <i class="fa fa-venus-mars"></i> <?= ucfirst($first['gender'] ?: '—') ?>
-            </div>
-            <div>
-                <span class="p-badge"><i class="fa fa-qrcode"></i> <?= htmlspecialchars($first['qr_code']) ?></span>
-                <span class="p-badge ml-2"><i class="fa fa-map-marker"></i> <?= htmlspecialchars($first['uc_name'] ?: '—') ?></span>
-                <span class="p-badge ml-2"><i class="fa fa-home"></i> <?= htmlspecialchars($first['village'] ?: '—') ?></span>
-            </div>
+
+    <!-- Avatar -->
+    <div class="pc-avatar"><?= htmlspecialchars($initials) ?></div>
+
+    <!-- Main info -->
+    <div class="pc-main">
+        <div class="p-name"><?= htmlspecialchars($first['patient_name']) ?></div>
+        <div class="p-meta">
+            <span><i class="fa fa-user-o"></i> Guardian: <?= htmlspecialchars($first['guardian_name'] ?: '—') ?></span>
+            <span><i class="fa fa-birthday-cake"></i> DOB: <?= $dob_display ?></span>
+            <span><i class="fa fa-child"></i> Age: <?= $age_display ?> (<?= $child_age_days ?> days)</span>
+            <span><i class="fa fa-venus-mars"></i> <?= ucfirst($first['gender'] ?: '—') ?></span>
         </div>
-        <div class="col-md-4">
-            <div class="row">
-                <div class="col-6 p-stat">
-                    <div class="num"><?= $total ?></div>
-                    <div class="lbl">Total Visits</div>
-                </div>
-                <div class="col-6 p-stat">
-                    <div class="num"><?= $fu_count ?></div>
-                    <div class="lbl">Follow Ups</div>
-                </div>
-            </div>
+        <div class="pc-badges">
+            <span class="p-badge"><i class="fa fa-qrcode"></i> <?= htmlspecialchars($first['qr_code']) ?></span>
+            <span class="p-badge"><i class="fa fa-map-marker"></i> <?= htmlspecialchars($first['uc_name'] ?: '—') ?></span>
+            <span class="p-badge"><i class="fa fa-home"></i> <?= htmlspecialchars($first['village'] ?: '—') ?></span>
         </div>
     </div>
-</div>
 
-<!-- VISIT HISTORY TABLE -->
+    <!-- Visit stats -->
+    <div class="pc-stats">
+        <div class="pc-stat-item">
+            <div class="num"><?= $total ?></div>
+            <div class="lbl">Total Visits</div>
+        </div>
+        <div class="pc-stat-item">
+            <div class="num"><?= $fu_count ?></div>
+            <div class="lbl">Follow Ups</div>
+        </div>
+    </div>
+
+    <!-- QR Code image -->
+    <div class="pc-qr">
+        <?php if (!empty($first['qr_code'])): ?>
+            <img
+                src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=<?= urlencode($first['qr_code']) ?>"
+                alt="QR Code"
+                style="width:80px; height:80px; border:1px solid #dde3ee; border-radius:6px;">
+        <?php endif; ?>
+        <small><?= htmlspecialchars($first['qr_code']) ?></small>
+    </div>
+
+</div><!-- /.patient-card -->
+
+
+<!-- ══ VISIT HISTORY TABLE ══ -->
 <div class="card">
     <div class="card-header">
         <h5 class="card-title mb-0">
@@ -556,7 +691,7 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
                 <thead>
                     <tr>
                         <th width="30">#</th>
-                        <th width="100">Visit Type</th>
+                        <th width="130">Visit Type</th>
                         <th width="100">Client Type</th>
                         <th width="105">Date</th>
                         <th width="85">Age / Group</th>
@@ -569,17 +704,16 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
                 </thead>
                 <tbody>
                 <?php foreach ($records as $i => $row):
-                    $is_reg    = ($row['visit_number'] == 1);
-                    $row_class = $is_reg ? 'visit-row-reg' : 'visit-row-fu';
-                    $given     = isset($row['vaccinations']) ? $row['vaccinations'] : array();
+                    $is_reg = ($row['visit_number'] == 1);
+                    $given  = isset($row['vaccinations']) ? $row['vaccinations'] : array();
                 ?>
-                <tr class="<?= $row_class ?>">
+                <tr>
                     <td class="text-muted"><?= $row['visit_number'] ?></td>
                     <td>
                         <?php if ($is_reg): ?>
-                            <span class="visit-badge badge-reg"><i class="fa fa-plus-circle"></i> Registration</span>
+                            <span class="visit-tag"><i class="fa fa-plus-circle"></i> Registration</span>
                         <?php else: ?>
-                            <span class="visit-badge badge-fu"><i class="fa fa-refresh"></i> Follow Up <?= ($row['visit_number'] - 1) ?></span>
+                            <span class="visit-tag"><i class="fa fa-refresh"></i> Follow Up <?= ($row['visit_number'] - 1) ?></span>
                         <?php endif; ?>
                     </td>
                     <td><?= htmlspecialchars(!empty($row['client_type']) ? $row['client_type'] : '—') ?></td>
@@ -622,18 +756,19 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
 </div>
 
 
-<!-- ══ EPI VACCINATION STATUS ══ -->
+<!-- ══ VACCINATION CARD ══ -->
 <div class="vacc-schedule-section">
 
     <div class="sec-header">
-        <h5><i class="fa fa-syringe"></i> &nbsp;EPI Vaccination Status</h5>
-        <small style="color:rgba(255,255,255,.75); font-size:12px;">
-            Child age at registration: <?= $age_display ?> (<?= $child_age_days ?> days) &nbsp;|&nbsp; Schedule status based on registration age
+        <h5><i class="fa fa-id-card-o"></i> &nbsp;Vaccination Card of <?= htmlspecialchars($first['patient_name']) ?></h5>
+        <small>
+            Child age at registration: <?= $age_display ?> (<?= $child_age_days ?> days)
+            &nbsp;|&nbsp; Schedule status based on registration age
         </small>
     </div>
 
     <div class="sec-body">
-        
+
         <!-- Legend -->
         <div class="vac-legend">
             <div class="vac-legend-item">
@@ -648,23 +783,28 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
                 <span class="vac-legend-dot" style="background:#b0bec5;"></span>
                 Upcoming (not yet due)
             </div>
+            <div class="vac-legend-item">
+                <span style="display:inline-block;width:12px;height:12px;border-radius:3px;
+                             background:#eaf6f0;border:1px solid #a8dfc0;"></span>
+                Current age visit
+            </div>
         </div>
 
-        <!-- Schedule Table — same structure as visit history -->
+        <!-- Schedule Table -->
         <div class="table-responsive">
         <table class="sch-table">
             <thead>
                 <tr>
                     <th style="width:130px;">Visit</th>
-                    <th style="width:100px;">Due Age</th>
-                    <th style="width:90px;" class="text-center">Status</th>
+                    <th style="width:130px;">Due Age</th>
+                    <th style="width:100px;" class="text-center">Status</th>
                     <th>Vaccines</th>
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($epi_schedule as $visit_def):
+            <?php foreach ($epi_schedule as $visit_idx => $visit_def):
 
-                // Per-visit stats
+                // Per-visit counts
                 $v_given = 0; $v_missed = 0; $v_future = 0;
                 foreach ($visit_def['vaccines'] as $vacc_name) {
                     $st = vaccine_status_v2($vacc_name, $all_given_normalized, $visit_def['due_days'], $child_age_days);
@@ -674,6 +814,7 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
                 }
                 $v_total = count($visit_def['vaccines']);
 
+                // Status tag
                 if ($v_given === $v_total) {
                     $status_tag = '<span class="vl-status-tag vl-done"><i class="fa fa-check-circle"></i> Complete</span>';
                 } elseif ($v_future === $v_total) {
@@ -685,15 +826,21 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
                 } else {
                     $status_tag = '<span class="vl-status-tag vl-partial"><i class="fa fa-dot-circle-o"></i> Partial</span>';
                 }
+
+                // Is this the current age visit?
+                $is_current_visit = ($visit_idx === $current_visit_idx);
+                $age_chip_class   = $is_current_visit ? 'age-chip age-chip-current' : 'age-chip age-chip-gray';
             ?>
-            <tr>
+            <tr <?= $is_current_visit ? 'style="background:#f6fdf8;"' : '' ?>>
                 <td>
-                    <span class="visit-label-badge <?= $visit_def['color_class'] ?>">
-                        <?= $visit_def['visit'] ?>
+                    <span class="visit-label-badge">
+                        <?= htmlspecialchars($visit_def['visit']) ?>
                     </span>
                 </td>
                 <td>
-                    <span class="age-chip"><?= $visit_def['due_label'] ?></span>
+                    <span class="<?= $age_chip_class ?>">
+                        <?= htmlspecialchars($visit_def['due_label']) ?>
+                    </span>
                 </td>
                 <td class="text-center">
                     <?= $status_tag ?>
@@ -701,7 +848,7 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
                 <td>
                     <div class="sch-pills">
                         <?php foreach ($visit_def['vaccines'] as $vacc_name):
-                            $st = vaccine_status_v2($vacc_name, $all_given_normalized, $visit_def['due_days'], $child_age_days);
+                            $st   = vaccine_status_v2($vacc_name, $all_given_normalized, $visit_def['due_days'], $child_age_days);
                             $icon = $st === 'given' ? '✓' : ($st === 'missed' ? '✗' : '○');
                         ?>
                             <span class="sch-pill pill-<?= $st ?>">
@@ -714,6 +861,16 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
             <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
+
+        <!-- Bottom note -->
+        <div class="vacc-note">
+            <i class="fa fa-info-circle"></i>
+            <span>
+                <strong>Note:</strong> The highlighted row (green due-age chip) indicates the
+                visit closest to this child's age at registration. All schedule statuses
+                are calculated based on the age recorded at registration, not today's date.
+            </span>
         </div>
 
     </div><!-- /.sec-body -->
@@ -731,4 +888,4 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
 </div>
 <?php endif; ?>
 
-</div>
+</div><!-- /.main-content -->
