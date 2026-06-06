@@ -478,7 +478,7 @@ exit;
 <div class="asst-header">
     <div class="icon-wrap"><i class="fa fa-robot"></i></div>
     <div>
-        <h2>ISD AI Assistant</h2>
+        <h2 style="color:white;">ISD AI Assistant</h2>
         <p>Data entry help &amp; system guidance — Child Health &amp; OPD/MNCH Forms</p>
     </div>
     <div class="status-pill">
