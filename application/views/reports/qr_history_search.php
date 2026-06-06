@@ -633,32 +633,7 @@ function vaccine_status_v2($schedule_name, $normalized_given, $due_days, $child_
     </div>
 
     <div class="sec-body">
-
-        <!-- Progress Bar -->
-        <div class="vacc-progress-wrap">
-            <div style="font-size:13px; font-weight:600; color:#2c3e50; white-space:nowrap;">
-                <i class="fa fa-tasks text-primary"></i> &nbsp;Overall Progress
-            </div>
-            <div class="vacc-progress-bar-outer">
-                <div class="vacc-progress-bar-inner" style="width:<?= $progress_pct ?>%;"></div>
-            </div>
-            <div style="font-size:13px; font-weight:700; color:#2c3e50; white-space:nowrap;">
-                <?= $progress_pct ?>%
-            </div>
-            <span class="vacc-stat-box" style="color:#1a6b3c; border-color:#a8dfc0;">
-                <span class="vacc-dot" style="background:#27ae60;"></span>
-                Given: <?= $given_count ?>
-            </span>
-            <span class="vacc-stat-box" style="color:#922b21; border-color:#f5b8b8;">
-                <span class="vacc-dot" style="background:#e74c3c;"></span>
-                Missed: <?= $missed_count ?>
-            </span>
-            <span class="vacc-stat-box" style="color:#7a8a9a; border-color:#d8dde4;">
-                <span class="vacc-dot" style="background:#b0bec5;"></span>
-                Upcoming: <?= $future_count ?>
-            </span>
-        </div>
-
+        
         <!-- Legend -->
         <div class="vac-legend">
             <div class="vac-legend-item">
