@@ -47,24 +47,21 @@ function sc_acc_trend($curr, $prev) {
     return ['<i class="fa fa-arrow-down"></i>', '#c0392b', $diff . '% vs last period'];
 }
 
-// ── 9 error definitions (age_group_inconsistent removed — too slow) ──
+// ── 8 error definitions (age_group_inconsistent removed — too slow) ──
 $err_keys_global   = [
     'antigen_mismatch', 'duplicate_qr', 'pregnancy_anomaly',
     'underage_married', 'possible_duplicate',
-    'age_group_mismatch', 'dob_age_mismatch', 'impossible_age_month',
-    'orphan_followup'
+    'age_group_mismatch', 'dob_age_mismatch', 'impossible_age_month'
 ];
 $err_labels_global = [
     'Antigen Mismatch', 'Duplicate QR', 'Pregnancy Anomaly',
     'Underage Married', 'Possible Duplicate',
-    'Age-Group Mismatch', 'DOB-Age Mismatch', 'Invalid Age Month',
-    'Orphan Followup'
+    'Age-Group Mismatch', 'DOB-Age Mismatch', 'Invalid Age Month'
 ];
-$err_icons_global  = [
+$err_icons_global = [
     'fa-exclamation-triangle', 'fa-qrcode', 'fa-female',
     'fa-child', 'fa-copy',
-    'fa-users', 'fa-calendar-times-o', 'fa-clock-o',
-    'fa-unlink'
+    'fa-users', 'fa-calendar-times-o', 'fa-clock-o'
 ];
 $err_links_global  = [
     'reports/age_antigens_mismatch_comprehensive/1',
@@ -75,12 +72,11 @@ $err_links_global  = [
     'reports/age_group_mismatch',
     'reports/dob_age_mismatch',
     'reports/impossible_age_month',
-    'reports/orphan_followup',
 ];
-$err_hi_global = [10, 5, 3, 1, 5, 5, 5, 2, 10];
+$err_hi_global = [10, 5, 3, 1, 5, 5, 5, 2];
 
 // ── Team error totals (current) ──
-$err_totals_global = array_fill(0, 9, 0);
+$err_totals_global = array_fill(0, 8, 0);
 foreach ($scorecard as $row) {
     foreach ($err_keys_global as $idx => $k) {
         $err_totals_global[$idx] += (isset($row[$k]) ? $row[$k] : 0);
@@ -88,7 +84,7 @@ foreach ($scorecard as $row) {
 }
 
 // ── Team error totals (previous period) ──
-$prev_err_totals = array_fill(0, 9, 0);
+$prev_err_totals = array_fill(0, 8, 0);
 foreach ($prev_scorecard as $row) {
     foreach ($err_keys_global as $idx => $k) {
         $prev_err_totals[$idx] += (isset($row[$k]) ? $row[$k] : 0);
@@ -104,7 +100,7 @@ $team_top_idx   = $err_ranked[0];
 $team_top_label = $err_labels_global[$team_top_idx];
 $team_top_count = $err_totals_global[$team_top_idx];
 
-// Job aid actions — 9 checks
+// Job aid actions — 8 checks
 $job_aid_actions = [
     'Antigen Mismatch'   => 'Prepare job aid: Age group vs antigen selection chart. Review correct vaccine-age mapping during team session.',
     'Duplicate QR'       => 'Prepare job aid: QR code verification checklist. Train team to search existing records before new entry.',
@@ -114,7 +110,6 @@ $job_aid_actions = [
     'Age-Group Mismatch' => 'Prepare job aid: Age in years vs correct age group mapping table. Operator must verify age group matches the entered years before saving.',
     'DOB-Age Mismatch'   => 'Prepare job aid: Date of birth vs age calculation check. If DOB is entered, age fields must match. Train operators to use the auto-calculate feature.',
     'Invalid Age Month'  => 'Prepare job aid: Age months must be 0-11 only. A value of 12 or more means the year was not incremented correctly.',
-    'Orphan Followup'    => 'Prepare job aid: Followup visit recorded but no New registration exists for this QR code. Operators must ensure patient has a New record before recording any Followup visit.',
 ];
 
 // Team accuracy color/label
@@ -220,7 +215,7 @@ list($err_arrow, $err_arrow_color, $err_arrow_text) = sc_trend($total_errors, $p
 }
 /* Row 1: 5 cards, Row 2: 4 cards (9 total) */
 .mom-grid      { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
-.mom-grid-row2 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px; }
+.mom-grid-row2 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
 .mom-card {
     background:#f8f9fa; border:1px solid #e3e8ef;
     border-radius:10px; padding:12px 10px;
@@ -331,10 +326,7 @@ list($err_arrow, $err_arrow_color, $err_arrow_text) = sc_trend($total_errors, $p
     display:grid; grid-template-columns:repeat(5,1fr);
     gap:5px; margin-bottom:5px;
 }
-.err-grid-4 {
-    display:grid; grid-template-columns:repeat(4,1fr);
-    gap:5px; margin-bottom:5px;
-}
+.err-grid-4 { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-bottom:5px; }
 .err-box {
     background:#f8f9fa; border:1px solid #eaecef;
     border-radius:8px; padding:7px 5px; text-align:center;
@@ -508,7 +500,7 @@ list($err_arrow, $err_arrow_color, $err_arrow_text) = sc_trend($total_errors, $p
     <div class="sc-sum-card">
         <div class="sl">Total Errors</div>
         <div class="sv" style="color:#c0392b"><?= number_format($total_errors) ?></div>
-        <div class="ss">All 9 anomaly types</div>
+        <div class="ss">All 8 anomaly types</div>
         <?php if ($has_prev && $prev_errors > 0):
             list($earr,$ecol,$etxt) = sc_trend($total_errors, $prev_errors);
         ?>
@@ -541,7 +533,7 @@ list($err_arrow, $err_arrow_color, $err_arrow_text) = sc_trend($total_errors, $p
     <div class="mom-header">
         <div>
             <div class="mom-title"><i class="fa fa-exchange"></i> Month-over-Month Error Trend</div>
-            <div class="mom-sub">Current period vs previous period — green means improvement (9 error types)</div>
+            <div class="mom-sub">Current period vs previous period — green means improvement (8 error types)</div>
         </div>
         <?php if ($has_prev): ?>
         <span style="font-size:12px;color:#7f8c8d;background:#f0f3f4;padding:4px 12px;border-radius:20px;">
@@ -599,9 +591,9 @@ list($err_arrow, $err_arrow_color, $err_arrow_text) = sc_trend($total_errors, $p
     <div class="mom-grid">
     <?php for ($idx = 0; $idx < 5; $idx++): render_mom_card($idx, $err_labels_global, $err_totals_global, $prev_err_totals, $max_bar); endfor; ?>
     </div>
-    <!-- Row 2: last 4 error types (5-8) -->
+    <!-- Row 2: last 4 error types (5-7) -->
     <div class="mom-grid-row2">
-    <?php for ($idx = 5; $idx < 9; $idx++): render_mom_card($idx, $err_labels_global, $err_totals_global, $prev_err_totals, $max_bar); endfor; ?>
+    <?php for ($idx = 5; $idx < 8; $idx++): render_mom_card($idx, $err_labels_global, $err_totals_global, $prev_err_totals, $max_bar); endfor; ?>
     </div>
     <?php endif; ?>
 </div>
@@ -686,7 +678,7 @@ list($err_arrow, $err_arrow_color, $err_arrow_text) = sc_trend($total_errors, $p
 <!-- ══════════════════════════════════════════════════
      INDIVIDUAL OPERATOR RECORDS
 ════════════════════════════════════════════════════ -->
-<div class="pmm-section-label">Individual operator records — 9 error checks</div>
+<div class="pmm-section-label">Individual operator records — 8 error checks</div>
 
 <?php foreach ($scorecard as $i => $op):
     $acc = $op['accuracy'];
@@ -709,11 +701,11 @@ list($err_arrow, $err_arrow_color, $err_arrow_text) = sc_trend($total_errors, $p
 
     // Row 1: first 5 errors, Row 2: last 4 errors
     $err_row1 = array_slice($err_keys_global,   0, 5);
-    $err_row2 = array_slice($err_keys_global,   5, 4);
+    $err_row2 = array_slice($err_keys_global,   5, 3);
     $lbl_row1 = array_slice($err_labels_global, 0, 5);
-    $lbl_row2 = array_slice($err_labels_global, 5, 4);
+    $lbl_row2 = array_slice($err_labels_global, 5, 3);
     $hi_row1  = array_slice($err_hi_global,     0, 5);
-    $hi_row2  = array_slice($err_hi_global,     5, 4);
+    $hi_row2  = array_slice($err_hi_global,     5, 3);
 ?>
 <div class="op-card" style="border-left:4px solid <?= $border_color ?>">
     <div class="op-main">
@@ -804,7 +796,7 @@ list($err_arrow, $err_arrow_color, $err_arrow_text) = sc_trend($total_errors, $p
 </div>
 <?php endforeach; ?>
 
-</div></div>
+</div>
 
 <script>
 function toggleDetail(i) {

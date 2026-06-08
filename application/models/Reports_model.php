@@ -2031,8 +2031,7 @@ public function get_missed_vaccine_report($uc_id, $min_age_days)
             COALESCE(pos_dup.pos_dup_count, 0)   AS possible_duplicate,
             COALESCE(age_grp_mis.age_group_mismatch_count, 0) AS age_group_mismatch,
             COALESCE(dob_mis.dob_age_mismatch_count, 0)       AS dob_age_mismatch,
-            COALESCE(imp_age.impossible_age_month_count, 0)   AS impossible_age_month,
-            COALESCE(orp_fu.orphan_followup_count, 0)         AS orphan_followup
+            COALESCE(imp_age.impossible_age_month_count, 0)   AS impossible_age_month
 
         FROM users u
 
@@ -2140,20 +2139,6 @@ public function get_missed_vaccine_report($uc_id, $min_age_days)
             GROUP BY created_by
         ) imp_age ON imp_age.created_by = u.user_id
 
-        LEFT JOIN (
-            SELECT a.created_by, COUNT(*) as orphan_followup_count
-            FROM child_health_master a
-            WHERE a.created_by > 14
-            AND a.client_type = 'Followup'
-            AND NOT EXISTS (
-                SELECT 1 FROM child_health_master b
-                WHERE b.qr_code = a.qr_code
-                AND b.client_type = 'New'
-            )
-            $date_filter_a
-            GROUP BY a.created_by
-        ) orp_fu ON orp_fu.created_by = u.user_id
-
         WHERE u.role = 1
         $role_filter
         ORDER BY u.full_name ASC
@@ -2165,8 +2150,7 @@ public function get_missed_vaccine_report($uc_id, $min_age_days)
             $total_errors = $row['antigen_mismatch'] + $row['duplicate_qr'] +
                             $row['pregnancy_anomaly'] + $row['underage_married'] +
                             $row['possible_duplicate'] + $row['age_group_mismatch'] +
-                            $row['dob_age_mismatch'] + $row['impossible_age_month'] +
-                            $row['orphan_followup'];
+                            $row['dob_age_mismatch'] + $row['impossible_age_month'];
             $row['total_errors'] = $total_errors;
             $row['accuracy'] = ($row['ch_total'] > 0)
                 ? round((($row['ch_total'] - $total_errors) / $row['ch_total']) * 100, 1)
