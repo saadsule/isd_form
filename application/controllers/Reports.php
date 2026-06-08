@@ -974,4 +974,48 @@ class Reports extends CI_Controller {
         $data['main_content'] = $this->load->view('assistant/isd_assistant', $data, TRUE);
         $this->load->view('layout/main', $data);
     }
+    
+    public function operator_scorecard()
+    {
+        if (!$this->session->userdata('user_id')) redirect('login');
+        $this->load->model('Reports_model');
+
+        $start = $this->input->get('start') ?: date('Y-m-01');
+        $end   = $this->input->get('end')   ?: date('Y-m-d');
+
+        $filters = array('start' => $start, 'end' => $end);
+        $scorecard = $this->Reports_model->get_operator_scorecard_old($filters);
+
+        $data['scorecard']    = $scorecard;
+        $data['start']        = $start;
+        $data['end']          = $end;
+        $data['page_title']   = 'Performance Monitoring Module';
+        $data['main_content'] = $this->load->view('reports/operator_scorecard', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
+    
+    public function performance_monetoring()
+    {
+        if (!$this->session->userdata('user_id')) redirect('login');
+        $this->load->model('Reports_model');
+
+        $start = $this->input->get('start') ?: date('Y-m-01');
+        $end   = $this->input->get('end')   ?: date('Y-m-d');
+
+        $filters = array('start' => $start, 'end' => $end);
+
+        // Current period
+        $scorecard = $this->Reports_model->get_operator_scorecard($filters);
+
+        // Previous period (automatic)
+        $prev_scorecard = $this->Reports_model->get_operator_scorecard_prev($filters);
+
+        $data['scorecard']      = $scorecard;
+        $data['prev_scorecard'] = $prev_scorecard;  // ← only new line
+        $data['start']          = $start;
+        $data['end']            = $end;
+        $data['page_title']     = 'Performance Monitoring Module';
+        $data['main_content']   = $this->load->view('reports/performance_monetoring', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
 }

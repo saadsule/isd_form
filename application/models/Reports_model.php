@@ -1873,5 +1873,366 @@ public function get_missed_vaccine_report($uc_id, $min_age_days)
             'fu_3plus'         => $fu_3plus,
         );
     }
+    
+    public function get_operator_scorecard_old($filters = array())
+    {
+        $date_filter = '';
+        $date_filter_a = '';
+        $date_filter_chm = '';
 
+        if (!empty($filters['start']) && !empty($filters['end'])) {
+            $date_filter     = "AND form_date >= '{$filters['start']}' AND form_date <= '{$filters['end']}'";
+            $date_filter_a   = "AND a.form_date >= '{$filters['start']}' AND a.form_date <= '{$filters['end']}'";
+            $date_filter_chm = "AND chm.form_date >= '{$filters['start']}' AND chm.form_date <= '{$filters['end']}'";
+        }
+
+        // ── Role filter — same logic as your other reports ──
+        $role_filter = '';
+//        if ($this->session->userdata('role') != '2') {
+            $role_filter = 'AND u.user_id > 14';
+//        }
+
+        $sql = "
+        SELECT
+            u.user_id,
+            u.full_name,
+            u.username,
+            COALESCE(ch_total.total, 0)          AS ch_total,
+            COALESCE(mismatch.mismatch_count, 0) AS antigen_mismatch,
+            COALESCE(dup_qr.dup_count, 0)        AS duplicate_qr,
+            COALESCE(preg.preg_count, 0)         AS pregnancy_anomaly,
+            COALESCE(underage.underage_count, 0) AS underage_married,
+            COALESCE(pos_dup.pos_dup_count, 0)   AS possible_duplicate
+
+        FROM users u
+
+        LEFT JOIN (
+            SELECT created_by, COUNT(*) as total
+            FROM child_health_master
+            WHERE 1=1 $date_filter
+            GROUP BY created_by
+        ) ch_total ON ch_total.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT chm.created_by, COUNT(*) as mismatch_count
+            FROM child_health_master chm
+            WHERE (
+                (EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5) AND chm.age_group != '<1 year')
+                OR (EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 6) AND chm.age_group != '1-2 year')
+                OR (EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 7) AND chm.age_group != '2-5 year')
+            ) $date_filter_chm
+            GROUP BY chm.created_by
+        ) mismatch ON mismatch.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT a.created_by, COUNT(*) as dup_count
+            FROM child_health_master a
+            INNER JOIN (
+                SELECT qr_code
+                FROM child_health_master
+                WHERE qr_code NOT LIKE '%Supplementary%'
+                  AND qr_code NOT LIKE '%NA%'
+                  AND qr_code NOT LIKE '%N/A%'
+                GROUP BY qr_code
+                HAVING COUNT(DISTINCT patient_name) > 1
+            ) dups ON dups.qr_code = a.qr_code
+            WHERE a.qr_code NOT LIKE '%Supplementary%'
+            $date_filter_a
+            GROUP BY a.created_by
+        ) dup_qr ON dup_qr.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT chm.created_by, COUNT(*) as preg_count
+            FROM child_health_master chm
+            WHERE chm.pregnancy_status = 'Pregnant'
+              AND (chm.gender != 'Female' OR chm.age_year < 13 OR chm.marital_status = 'Un-Married')
+              $date_filter_chm
+            GROUP BY chm.created_by
+        ) preg ON preg.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT created_by, COUNT(*) as underage_count
+            FROM child_health_master
+            WHERE age_year < 13 AND marital_status = 'Married'
+            $date_filter
+            GROUP BY created_by
+        ) underage ON underage.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT a.created_by, COUNT(*) as pos_dup_count
+            FROM child_health_master a
+            INNER JOIN (
+                SELECT qr_code, patient_name, form_date
+                FROM child_health_master
+                WHERE qr_code NOT LIKE '%Supplementary%'
+                  AND qr_code NOT LIKE '%NA%'
+                  AND qr_code NOT LIKE '%N/A%'
+                GROUP BY qr_code, patient_name, form_date
+                HAVING COUNT(*) > 1
+            ) pd ON pd.qr_code = a.qr_code
+                   AND pd.patient_name = a.patient_name
+                   AND pd.form_date = a.form_date
+            $date_filter_a
+            GROUP BY a.created_by
+        ) pos_dup ON pos_dup.created_by = u.user_id
+
+        WHERE u.role = 1
+        $role_filter
+        ORDER BY u.full_name ASC
+        ";
+
+        $results = $this->db->query($sql)->result_array();
+
+        foreach ($results as &$row) {
+            $total_errors = $row['antigen_mismatch'] + $row['duplicate_qr'] +
+                            $row['pregnancy_anomaly'] + $row['underage_married'] +
+                            $row['possible_duplicate'];
+            $row['total_errors'] = $total_errors;
+            $row['accuracy'] = ($row['ch_total'] > 0)
+                ? round((($row['ch_total'] - $total_errors) / $row['ch_total']) * 100, 1)
+                : 100;
+            if ($row['accuracy'] >= 95)     $row['risk'] = 'good';
+            elseif ($row['accuracy'] >= 85) $row['risk'] = 'medium';
+            else                            $row['risk'] = 'poor';
+        }
+        unset($row);
+
+        return $results;
+    }
+    
+    public function get_operator_scorecard($filters = array())
+    {
+        $date_filter = '';
+        $date_filter_a = '';
+        $date_filter_chm = '';
+
+        if (!empty($filters['start']) && !empty($filters['end'])) {
+            $date_filter     = "AND form_date >= '{$filters['start']}' AND form_date <= '{$filters['end']}'";
+            $date_filter_a   = "AND a.form_date >= '{$filters['start']}' AND a.form_date <= '{$filters['end']}'";
+            $date_filter_chm = "AND chm.form_date >= '{$filters['start']}' AND chm.form_date <= '{$filters['end']}'";
+        }
+
+        // ── Role filter — same logic as your other reports ──
+        $role_filter = '';
+//        if ($this->session->userdata('role') != '2') {
+            $role_filter = 'AND u.user_id > 14';
+//        }
+
+        $sql = "
+        SELECT
+            u.user_id,
+            u.full_name,
+            u.username,
+            COALESCE(ch_total.total, 0)          AS ch_total,
+            COALESCE(mismatch.mismatch_count, 0) AS antigen_mismatch,
+            COALESCE(dup_qr.dup_count, 0)        AS duplicate_qr,
+            COALESCE(preg.preg_count, 0)         AS pregnancy_anomaly,
+            COALESCE(underage.underage_count, 0) AS underage_married,
+            COALESCE(pos_dup.pos_dup_count, 0)   AS possible_duplicate,
+            COALESCE(age_grp_mis.age_group_mismatch_count, 0) AS age_group_mismatch,
+            COALESCE(dob_mis.dob_age_mismatch_count, 0)       AS dob_age_mismatch,
+            COALESCE(imp_age.impossible_age_month_count, 0)   AS impossible_age_month,
+            COALESCE(orp_fu.orphan_followup_count, 0)         AS orphan_followup
+
+        FROM users u
+
+        LEFT JOIN (
+            SELECT created_by, COUNT(*) as total
+            FROM child_health_master
+            WHERE 1=1 $date_filter
+            GROUP BY created_by
+        ) ch_total ON ch_total.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT chm.created_by, COUNT(*) as mismatch_count
+            FROM child_health_master chm
+            WHERE (
+                (EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 5) AND chm.age_group != '<1 year')
+                OR (EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 6) AND chm.age_group != '1-2 year')
+                OR (EXISTS (SELECT 1 FROM child_health_detail d WHERE d.master_id = chm.master_id AND d.question_id = 7) AND chm.age_group != '2-5 year')
+            ) $date_filter_chm
+            GROUP BY chm.created_by
+        ) mismatch ON mismatch.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT a.created_by, COUNT(*) as dup_count
+            FROM child_health_master a
+            INNER JOIN (
+                SELECT qr_code
+                FROM child_health_master
+                WHERE qr_code NOT LIKE '%Supplementary%'
+                  AND qr_code NOT LIKE '%NA%'
+                  AND qr_code NOT LIKE '%N/A%'
+                GROUP BY qr_code
+                HAVING COUNT(DISTINCT patient_name) > 1
+            ) dups ON dups.qr_code = a.qr_code
+            WHERE a.qr_code NOT LIKE '%Supplementary%'
+            $date_filter_a
+            GROUP BY a.created_by
+        ) dup_qr ON dup_qr.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT chm.created_by, COUNT(*) as preg_count
+            FROM child_health_master chm
+            WHERE chm.pregnancy_status = 'Pregnant'
+              AND (chm.gender != 'Female' OR chm.age_year < 13 OR chm.marital_status = 'Un-Married')
+              $date_filter_chm
+            GROUP BY chm.created_by
+        ) preg ON preg.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT created_by, COUNT(*) as underage_count
+            FROM child_health_master
+            WHERE age_year < 13 AND marital_status = 'Married'
+            $date_filter
+            GROUP BY created_by
+        ) underage ON underage.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT a.created_by, COUNT(*) as pos_dup_count
+            FROM child_health_master a
+            INNER JOIN (
+                SELECT qr_code, patient_name, form_date
+                FROM child_health_master
+                WHERE qr_code NOT LIKE '%Supplementary%'
+                  AND qr_code NOT LIKE '%NA%'
+                  AND qr_code NOT LIKE '%N/A%'
+                GROUP BY qr_code, patient_name, form_date
+                HAVING COUNT(*) > 1
+            ) pd ON pd.qr_code = a.qr_code
+                   AND pd.patient_name = a.patient_name
+                   AND pd.form_date = a.form_date
+            $date_filter_a
+            GROUP BY a.created_by
+        ) pos_dup ON pos_dup.created_by = u.user_id
+        
+        LEFT JOIN (
+            SELECT created_by, COUNT(*) as age_group_mismatch_count
+            FROM child_health_master
+            WHERE created_by > 14
+            AND (
+                (age_year = 0  AND age_group != '<1 Year')
+                OR (age_year = 1  AND age_group != '1-2 Year')
+                OR (age_year >= 2 AND age_year <= 4  AND age_group != '2-5 Year')
+                OR (age_year >= 5 AND age_year <= 14 AND age_group != '5-15 Year')
+                OR (age_year >= 15 AND age_group != '15-49 Year')
+            )
+            $date_filter
+            GROUP BY created_by
+        ) age_grp_mis ON age_grp_mis.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT created_by, COUNT(*) as dob_age_mismatch_count
+            FROM child_health_master
+            WHERE created_by > 14
+            AND dob IS NOT NULL AND dob != ''
+            AND ABS(TIMESTAMPDIFF(YEAR, dob, form_date) - age_year) > 1
+            $date_filter
+            GROUP BY created_by
+        ) dob_mis ON dob_mis.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT created_by, COUNT(*) as impossible_age_month_count
+            FROM child_health_master
+            WHERE created_by > 14
+            AND age_month > 11
+            $date_filter
+            GROUP BY created_by
+        ) imp_age ON imp_age.created_by = u.user_id
+
+        LEFT JOIN (
+            SELECT a.created_by, COUNT(*) as orphan_followup_count
+            FROM child_health_master a
+            WHERE a.created_by > 14
+            AND a.client_type = 'Followup'
+            AND NOT EXISTS (
+                SELECT 1 FROM child_health_master b
+                WHERE b.qr_code = a.qr_code
+                AND b.client_type = 'New'
+            )
+            $date_filter_a
+            GROUP BY a.created_by
+        ) orp_fu ON orp_fu.created_by = u.user_id
+
+        WHERE u.role = 1
+        $role_filter
+        ORDER BY u.full_name ASC
+        ";
+
+        $results = $this->db->query($sql)->result_array();
+
+        foreach ($results as &$row) {
+            $total_errors = $row['antigen_mismatch'] + $row['duplicate_qr'] +
+                            $row['pregnancy_anomaly'] + $row['underage_married'] +
+                            $row['possible_duplicate'] + $row['age_group_mismatch'] +
+                            $row['dob_age_mismatch'] + $row['impossible_age_month'] +
+                            $row['orphan_followup'];
+            $row['total_errors'] = $total_errors;
+            $row['accuracy'] = ($row['ch_total'] > 0)
+                ? round((($row['ch_total'] - $total_errors) / $row['ch_total']) * 100, 1)
+                : 100;
+            if ($row['accuracy'] >= 95)     $row['risk'] = 'good';
+            elseif ($row['accuracy'] >= 85) $row['risk'] = 'medium';
+            else                            $row['risk'] = 'poor';
+        }
+        unset($row);
+
+        return $results;
+    }
+    
+    public function get_operator_scorecard_prev($filters = array())
+    {
+        // ── Calculate previous period dates automatically ──
+        // If user selected 30 days, previous period = same 30 days before that
+        if (!empty($filters['start']) && !empty($filters['end'])) {
+            $start_ts   = strtotime($filters['start']);
+            $end_ts     = strtotime($filters['end']);
+            $period_days= ($end_ts - $start_ts) / 86400;
+
+            $prev_end   = date('Y-m-d', $start_ts - 86400);           // day before current start
+            $prev_start = date('Y-m-d', strtotime($prev_end) - ($period_days * 86400));
+
+            $prev_filters = array('start' => $prev_start, 'end' => $prev_end);
+        } else {
+            // Default: previous calendar month
+            $prev_filters = array(
+                'start' => date('Y-m-01', strtotime('first day of last month')),
+                'end'   => date('Y-m-t',  strtotime('first day of last month')),
+            );
+        }
+
+        // Reuse exact same query logic with previous period dates
+        return $this->get_operator_scorecard($prev_filters);
+    }
+
+
+    // ══════════════════════════════════════════════════════════════════
+    // UPDATE YOUR CONTROLLER: operator_scorecard() in Reports.php
+    // Replace the existing function with this:
+    // ══════════════════════════════════════════════════════════════════
+
+    public function operator_scorecard()
+    {
+        if (!$this->session->userdata('user_id')) redirect('login');
+        $this->load->model('Reports_model');
+
+        $start = $this->input->get('start') ?: date('Y-m-01');
+        $end   = $this->input->get('end')   ?: date('Y-m-d');
+
+        $filters = array('start' => $start, 'end' => $end);
+
+        // Current period
+        $scorecard = $this->Reports_model->get_operator_scorecard($filters);
+
+        // Previous period (automatic — same duration, period before)
+        $prev_scorecard = $this->Reports_model->get_operator_scorecard_prev($filters);
+
+        $data['scorecard']      = $scorecard;
+        $data['prev_scorecard'] = $prev_scorecard;   // ← NEW
+        $data['start']          = $start;
+        $data['end']            = $end;
+        $data['page_title']     = 'Performance Monitoring Module';
+        $data['main_content']   = $this->load->view('reports/operator_scorecard', $data, TRUE);
+        $this->load->view('layout/main', $data);
+    }
 }
